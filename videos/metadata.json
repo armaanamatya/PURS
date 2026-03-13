@@ -1,0 +1,888 @@
+[
+  {
+    "category": "soccer_matches",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\soccer_matches\\soccer_matches_1.mp4",
+    "actual_duration_s": 35.02,
+    "row_data": {
+      "Question": "When the auction item 'a life-size cow' is mentioned, which specific visual element appears simultaneously?",
+      "Choice": [
+        "A. Green sofa with Buckeyes merchandise",
+        "B. Farm animal sculptures near seating",
+        "C. Vintage livestock exhibition posters",
+        "D. Framed OSU athlete portraits"
+      ],
+      "Answer": "D",
+      "video_id": "zGVKSnlJFhY",
+      "Type": "Context understanding",
+      "content_parent_category": "Hobbies & Interests",
+      "content_fine_category": "Memorabilia",
+      "video_category": "Sports",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "zGVKSnlJFhY",
+    "questions": [
+      {
+        "question": "When the auction item 'a life-size cow' is mentioned, which specific visual element appears simultaneously?",
+        "choices": [
+          "A. A. Green sofa with Buckeyes merchandise",
+          "B. B. Farm animal sculptures near seating",
+          "C. C. Vintage livestock exhibition posters",
+          "D. D. Framed OSU athlete portraits"
+        ],
+        "answer": "D",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "soccer_matches",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\soccer_matches\\soccer_matches_2.mp4",
+    "actual_duration_s": 52.31,
+    "row_data": {
+      "Question": "Based on the video's ranking of the top arms, which sequence correctly orders the bodybuilders from fifth to second place?",
+      "Choice": [
+        "A. Wesley Vissers (classic physique) \u2192 Keone Pearson (212 division) \u2192 Brandon Curry (open division) \u2192 Bald bodybuilder with veiny arms",
+        "B. Brandon Curry (SCITEC stage) \u2192 Keone Pearson (blue top) \u2192 Wesley Vissers (medal) \u2192 Bald bodybuilder",
+        "C. Arnold Schwarzenegger (classic reference) \u2192 Brandon Curry (gym close-up) \u2192 Bald bodybuilder \u2192 Keone Pearson (restroom pose)",
+        "D. Keone Pearson (thick arms) \u2192 Bald bodybuilder (smiling flex) \u2192 Wesley Vissers (brick wall) \u2192 Brandon Curry (black cap)"
+      ],
+      "Answer": "A",
+      "video_id": "HOa6A7GVvEc",
+      "Type": "Event Sequence",
+      "content_parent_category": "Hobbies & Interests",
+      "content_fine_category": "Top 10 Videos",
+      "video_category": "Sports",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "HOa6A7GVvEc",
+    "questions": [
+      {
+        "question": "Based on the video's ranking of the top arms, which sequence correctly orders the bodybuilders from fifth to second place?",
+        "choices": [
+          "A. A. Wesley Vissers (classic physique) \u2192 Keone Pearson (212 division) \u2192 Brandon Curry (open division) \u2192 Bald bodybuilder with veiny arms",
+          "B. B. Brandon Curry (SCITEC stage) \u2192 Keone Pearson (blue top) \u2192 Wesley Vissers (medal) \u2192 Bald bodybuilder",
+          "C. C. Arnold Schwarzenegger (classic reference) \u2192 Brandon Curry (gym close-up) \u2192 Bald bodybuilder \u2192 Keone Pearson (restroom pose)",
+          "D. D. Keone Pearson (thick arms) \u2192 Bald bodybuilder (smiling flex) \u2192 Wesley Vissers (brick wall) \u2192 Brandon Curry (black cap)"
+        ],
+        "answer": "A",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "What specific feature of Brandon Curry's arm is emphasized during the gym pull-down scene?",
+        "choices": [
+          "A. A. Affiliation with a supplement brand",
+          "B. B. Vascularity enhanced by sweat during exertion",
+          "C. C. Medal-accentuated tricep definition",
+          "D. D. 'Heart-shaped bicep' referenced in narration"
+        ],
+        "answer": "D",
+        "task_type": "Reasoning"
+      }
+    ]
+  },
+  {
+    "category": "tennis_matches",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\tennis_matches\\tennis_matches_1.mp4",
+    "actual_duration_s": 35.02,
+    "row_data": {
+      "Question": "When the auction item 'a life-size cow' is mentioned, which specific visual element appears simultaneously?",
+      "Choice": [
+        "A. Green sofa with Buckeyes merchandise",
+        "B. Farm animal sculptures near seating",
+        "C. Vintage livestock exhibition posters",
+        "D. Framed OSU athlete portraits"
+      ],
+      "Answer": "D",
+      "video_id": "zGVKSnlJFhY",
+      "Type": "Context understanding",
+      "content_parent_category": "Hobbies & Interests",
+      "content_fine_category": "Memorabilia",
+      "video_category": "Sports",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "zGVKSnlJFhY",
+    "questions": [
+      {
+        "question": "When the auction item 'a life-size cow' is mentioned, which specific visual element appears simultaneously?",
+        "choices": [
+          "A. A. Green sofa with Buckeyes merchandise",
+          "B. B. Farm animal sculptures near seating",
+          "C. C. Vintage livestock exhibition posters",
+          "D. D. Framed OSU athlete portraits"
+        ],
+        "answer": "D",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "tennis_matches",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\tennis_matches\\tennis_matches_2.mp4",
+    "actual_duration_s": 52.31,
+    "row_data": {
+      "Question": "Based on the video's ranking of the top arms, which sequence correctly orders the bodybuilders from fifth to second place?",
+      "Choice": [
+        "A. Wesley Vissers (classic physique) \u2192 Keone Pearson (212 division) \u2192 Brandon Curry (open division) \u2192 Bald bodybuilder with veiny arms",
+        "B. Brandon Curry (SCITEC stage) \u2192 Keone Pearson (blue top) \u2192 Wesley Vissers (medal) \u2192 Bald bodybuilder",
+        "C. Arnold Schwarzenegger (classic reference) \u2192 Brandon Curry (gym close-up) \u2192 Bald bodybuilder \u2192 Keone Pearson (restroom pose)",
+        "D. Keone Pearson (thick arms) \u2192 Bald bodybuilder (smiling flex) \u2192 Wesley Vissers (brick wall) \u2192 Brandon Curry (black cap)"
+      ],
+      "Answer": "A",
+      "video_id": "HOa6A7GVvEc",
+      "Type": "Event Sequence",
+      "content_parent_category": "Hobbies & Interests",
+      "content_fine_category": "Top 10 Videos",
+      "video_category": "Sports",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "HOa6A7GVvEc",
+    "questions": [
+      {
+        "question": "Based on the video's ranking of the top arms, which sequence correctly orders the bodybuilders from fifth to second place?",
+        "choices": [
+          "A. A. Wesley Vissers (classic physique) \u2192 Keone Pearson (212 division) \u2192 Brandon Curry (open division) \u2192 Bald bodybuilder with veiny arms",
+          "B. B. Brandon Curry (SCITEC stage) \u2192 Keone Pearson (blue top) \u2192 Wesley Vissers (medal) \u2192 Bald bodybuilder",
+          "C. C. Arnold Schwarzenegger (classic reference) \u2192 Brandon Curry (gym close-up) \u2192 Bald bodybuilder \u2192 Keone Pearson (restroom pose)",
+          "D. D. Keone Pearson (thick arms) \u2192 Bald bodybuilder (smiling flex) \u2192 Wesley Vissers (brick wall) \u2192 Brandon Curry (black cap)"
+        ],
+        "answer": "A",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "What specific feature of Brandon Curry's arm is emphasized during the gym pull-down scene?",
+        "choices": [
+          "A. A. Affiliation with a supplement brand",
+          "B. B. Vascularity enhanced by sweat during exertion",
+          "C. C. Medal-accentuated tricep definition",
+          "D. D. 'Heart-shaped bicep' referenced in narration"
+        ],
+        "answer": "D",
+        "task_type": "Reasoning"
+      }
+    ]
+  },
+  {
+    "category": "tv_show",
+    "index": 1,
+    "dataset_source": "worldsense",
+    "file": "videos\\tv_show\\tv_show_1.mp4",
+    "actual_duration_s": 48.83,
+    "row_data": {
+      "video_id": "DbEYyaTo",
+      "domain": "Film & TV",
+      "video_caption": "The video shows an electrical substation with several transformers and electrical equipment. Then, it transitions to a shot of a construction crane on train tracks. Following this, an aerial shot of the substation is shown, and then a ground-level view of the substation. Then, a long blue train is shown passing over a bridge. Several workers are seen walking next to train cars with black coverings. A red train car carries large white metal rolls. Then, a green train passes. The video shows train cars carrying large cable reels. Workers are seen at the top of a train car adjusting equipment. The video shows an indoor shot of a gray control panel. Then, a top-down view of the substation is shown. The next screen displays gold text on a black background: \"Savings of \u20b9250 crore per year.\" This is followed by an image of a train with a red and white passenger car.  The video shows a train at a station. A train with the words \"Indian Railways\" is shown. Then, a blue and yellow passenger train is shown. The next shot is an outdoor shot of the South Western Railway entrance. People and cars are seen moving in front of the building.  The video then shows the interior of the railway station with a \"Welcome to Hospete Railway Station\" sign. Many people are walking on the platform. The video then shows ancient stone architecture, with the word \"Hampi\" and \"UNESCO Heritage Site.\" The video then shows an aerial view of the station, an ornate indoor gateway, and a relief of a seated figure on the wall. The video then shows the station entrance and people passing through. Then, several men in casual clothing are seen talking. A woman in a blue uniform talks to a man holding a small child. The video shows a room with beds, and a ticket booking window with people waiting. A woman in a wheelchair and a man walking behind her are seen, followed by a shot of a busy train platform. Finally, the video shows the following text on a black background: \"Dedication of longest railway platform in the world.\"",
+      "all_tasks": {
+        "task0": {
+          "task_domain": "Recognition",
+          "task_type": "Attribute Recognition",
+          "question": "What color is the last train that passed by?",
+          "answer": "A",
+          "candidates": [
+            "A. Green.",
+            "B. Blue.",
+            "C. Red.",
+            "D. Yellow."
+          ]
+        },
+        "task1": {
+          "task_domain": "Understanding",
+          "task_type": "Human Emotions",
+          "question": "What is the tone of the speaker in the video?",
+          "answer": "B",
+          "candidates": [
+            "A. Serious and proud.",
+            "B. Joyful and proud.",
+            "C. Calm and proud.",
+            "D. Cheerful and humorous."
+          ]
+        }
+      }
+    },
+    "questions": [
+      {
+        "question": "What color is the last train that passed by?",
+        "choices": [
+          "A. Green.",
+          "B. Blue.",
+          "C. Red.",
+          "D. Yellow."
+        ],
+        "answer": "A",
+        "task_type": "Attribute Recognition"
+      },
+      {
+        "question": "What is the tone of the speaker in the video?",
+        "choices": [
+          "A. Serious and proud.",
+          "B. Joyful and proud.",
+          "C. Calm and proud.",
+          "D. Cheerful and humorous."
+        ],
+        "answer": "B",
+        "task_type": "Human Emotions"
+      }
+    ]
+  },
+  {
+    "category": "tv_show",
+    "index": 1,
+    "dataset_source": "worldsense",
+    "file": "videos\\tv_show\\tv_show_2.mp4",
+    "actual_duration_s": 36.34,
+    "row_data": {
+      "video_id": "BQDKdEep",
+      "domain": "Film & TV",
+      "video_caption": "A bright blue light flares horizontally across the screen. The words \"ALL NINE FILMS\" appear on a black starry background.  Two yellow podracers speed through a desert landscape, connected by pink lightning. A Star Destroyer floats in space above a planet, a smaller ship firing a green laser towards it. A TIE fighter flies past the Star Destroyer. A Lego Luke Skywalker fires a blaster at a Lego Slave I. A Lego Kylo Ren ignites his blue lightsaber in a darkened room.  A Lego Poe Dameron grins in the cockpit of an X-wing.  Countless Lego Star Wars ships fly through space. A giant Lego Yoda appears, looking downwards. The words \u201cIN THE BIGGEST LEGO GAME EVER\u201d appear against a black background. Several Lego Jedi ignite their lightsabers on a desert planet.  A Lego X-wing flies and fires red lasers, exploding against a large ship and terrain. Lego Han Solo uses macrobinoculars in the cockpit of the Millennium Falcon. Lego Han Solo, Chewbacca, and Luke Skywalker walk together, surrounded by rebel soldiers. Lego General Grievous faces Lego Obi-Wan Kenobi.  Lego Obi-Wan Kenobi smiles. A Lego Jedi deflects blaster fire with a lightsaber. A Lego snowspeeder flies past an AT-AT\u2019s legs in a snowy landscape.  The AT-AT falls forwards into the snow. Lego Luke Skywalker\u2019s face is illuminated by a lightsaber. Lego Finn fights a Lego stormtrooper with melee weapons. Lego Luke Skywalker stands against a backdrop of flames, then ignites his lightsaber. A Lego Jedi deflects Force lightning with a lightsaber. Many Lego Star Wars characters are assembled on a hilltop against a starry night sky; their lightsabers are ignited.",
+      "all_tasks": {
+        "task0": {
+          "task_domain": "Reasoning",
+          "task_type": "Temporal Prediction",
+          "question": "What will eventually happen to the two lightsabers?",
+          "answer": "B",
+          "candidates": [
+            "A. There might be a victory.",
+            "B. There might be a loss.",
+            "C. There might be a draw.",
+            "D. The fight might not continue."
+          ]
+        },
+        "task1": {
+          "task_domain": "Reasoning",
+          "task_type": "Hallucination",
+          "question": "Is there a large spacecraft in the video?",
+          "answer": "B",
+          "candidates": [
+            "A. Unclear.",
+            "B. No.",
+            "C. Yes.",
+            "D. None."
+          ]
+        },
+        "task2": {
+          "task_domain": "Recognition",
+          "task_type": "Event Recognition",
+          "question": "How does the spaceship defeat the white robot on the snowy ground?",
+          "answer": "A",
+          "candidates": [
+            "A. Use a rope to wrap around the robot's legs.",
+            "B. Employ a special method to short-circuit the robot.",
+            "C. Attack the robot's legs using the spaceship's machine gun.",
+            "D. Fire spaceship cannons at the ground near the robot's legs."
+          ]
+        }
+      }
+    },
+    "questions": [
+      {
+        "question": "What will eventually happen to the two lightsabers?",
+        "choices": [
+          "A. There might be a victory.",
+          "B. There might be a loss.",
+          "C. There might be a draw.",
+          "D. The fight might not continue."
+        ],
+        "answer": "B",
+        "task_type": "Temporal Prediction"
+      },
+      {
+        "question": "Is there a large spacecraft in the video?",
+        "choices": [
+          "A. Unclear.",
+          "B. No.",
+          "C. Yes.",
+          "D. None."
+        ],
+        "answer": "B",
+        "task_type": "Hallucination"
+      },
+      {
+        "question": "How does the spaceship defeat the white robot on the snowy ground?",
+        "choices": [
+          "A. Use a rope to wrap around the robot's legs.",
+          "B. Employ a special method to short-circuit the robot.",
+          "C. Attack the robot's legs using the spaceship's machine gun.",
+          "D. Fire spaceship cannons at the ground near the robot's legs."
+        ],
+        "answer": "A",
+        "task_type": "Event Recognition"
+      }
+    ]
+  },
+  {
+    "category": "lecture",
+    "index": 1,
+    "dataset_source": "videomme",
+    "file": "videos\\lecture\\lecture_1.mp4",
+    "actual_duration_s": 74.33,
+    "row_data": {
+      "video_id": "001",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Humanity & History",
+      "url": "https://www.youtube.com/watch?v=fFjv93ACGo8",
+      "videoID": "fFjv93ACGo8",
+      "question_id": "001-1",
+      "task_type": "Counting Problem",
+      "question": "When demonstrating the Germany modern Christmas tree is initially decorated with apples, candles and berries, which kind of the decoration has the largest number?",
+      "options": [
+        "A. Apples.",
+        "B. Candles.",
+        "C. Berries.",
+        "D. The three kinds are of the same number."
+      ],
+      "answer": "C"
+    },
+    "youtube_id": "fFjv93ACGo8",
+    "questions": [
+      {
+        "question": "When demonstrating the Germany modern Christmas tree is initially decorated with apples, candles and berries, which kind of the decoration has the largest number?",
+        "choices": [
+          "A. Apples.",
+          "B. Candles.",
+          "C. Berries.",
+          "D. The three kinds are of the same number."
+        ],
+        "answer": "C",
+        "task_type": "Counting Problem"
+      },
+      {
+        "question": "What is the genre of this video?",
+        "choices": [
+          "A. It is a news report that introduces the history behind Christmas decorations.",
+          "B. It is a documentary on the evolution of Christmas holiday recipes.",
+          "C. It is a travel vlog exploring Christmas markets around the world.",
+          "D. It is a tutorial on DIY Christmas ornament crafting."
+        ],
+        "answer": "A",
+        "task_type": "Information Synopsis"
+      },
+      {
+        "question": "How many red socks are above the fireplace at the end of this video?",
+        "choices": [
+          "A. 1.",
+          "B. 4.",
+          "C. 2.",
+          "D. 3."
+        ],
+        "answer": "D",
+        "task_type": "Counting Problem"
+      }
+    ]
+  },
+  {
+    "category": "lecture",
+    "index": 1,
+    "dataset_source": "videomme",
+    "file": "videos\\lecture\\lecture_2.mp4",
+    "actual_duration_s": 74.37,
+    "row_data": {
+      "video_id": "001",
+      "duration": "short",
+      "domain": "Knowledge",
+      "sub_category": "Humanity & History",
+      "url": "https://www.youtube.com/watch?v=fFjv93ACGo8",
+      "videoID": "fFjv93ACGo8",
+      "question_id": "001-2",
+      "task_type": "Information Synopsis",
+      "question": "What is the genre of this video?",
+      "options": [
+        "A. It is a news report that introduces the history behind Christmas decorations.",
+        "B. It is a documentary on the evolution of Christmas holiday recipes.",
+        "C. It is a travel vlog exploring Christmas markets around the world.",
+        "D. It is a tutorial on DIY Christmas ornament crafting."
+      ],
+      "answer": "A"
+    },
+    "youtube_id": "fFjv93ACGo8",
+    "questions": [
+      {
+        "question": "When demonstrating the Germany modern Christmas tree is initially decorated with apples, candles and berries, which kind of the decoration has the largest number?",
+        "choices": [
+          "A. Apples.",
+          "B. Candles.",
+          "C. Berries.",
+          "D. The three kinds are of the same number."
+        ],
+        "answer": "C",
+        "task_type": "Counting Problem"
+      },
+      {
+        "question": "What is the genre of this video?",
+        "choices": [
+          "A. It is a news report that introduces the history behind Christmas decorations.",
+          "B. It is a documentary on the evolution of Christmas holiday recipes.",
+          "C. It is a travel vlog exploring Christmas markets around the world.",
+          "D. It is a tutorial on DIY Christmas ornament crafting."
+        ],
+        "answer": "A",
+        "task_type": "Information Synopsis"
+      },
+      {
+        "question": "How many red socks are above the fireplace at the end of this video?",
+        "choices": [
+          "A. 1.",
+          "B. 4.",
+          "C. 2.",
+          "D. 3."
+        ],
+        "answer": "D",
+        "task_type": "Counting Problem"
+      }
+    ]
+  },
+  {
+    "category": "podcast",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\podcast\\podcast_1.mp4",
+    "actual_duration_s": 89.84,
+    "row_data": {
+      "Question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+      "Choice": [
+        "A. 'All right Vegas, we're ready for procedure initiation'",
+        "B. 'Loop Bravo venting operations remain pending'",
+        "C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+        "D. 'Maintaining gradual system shutdown protocol'"
+      ],
+      "Answer": "D",
+      "video_id": "Me4W36_lUcI",
+      "Type": "AV Event Alignment",
+      "content_parent_category": null,
+      "content_fine_category": null,
+      "video_category": "People & Blogs",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "Me4W36_lUcI",
+    "questions": [
+      {
+        "question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+        "choices": [
+          "A. A. 'All right Vegas, we're ready for procedure initiation'",
+          "B. B. 'Loop Bravo venting operations remain pending'",
+          "C. C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+          "D. D. 'Maintaining gradual system shutdown protocol'"
+        ],
+        "answer": "D",
+        "task_type": "AV Event Alignment"
+      },
+      {
+        "question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+        "choices": [
+          "A. A. Earth and satellite orbiting in space",
+          "B. B. High-angle view showing consoles with circular emblems",
+          "C. C. Elevated wide shot of mission control workers",
+          "D. D. echnicians examining technical schematics"
+        ],
+        "answer": "C",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "During which visual context did the team discuss irreversible actions?",
+        "choices": [
+          "A. A. Near consoles featuring circular emblems",
+          "B. B. In a densely packed control room section",
+          "C. C. During initial system checks with static noise",
+          "D. D. While observing Earth orbit procedures"
+        ],
+        "answer": "A",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "podcast",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\podcast\\podcast_2.mp4",
+    "actual_duration_s": 89.84,
+    "row_data": {
+      "Question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+      "Choice": [
+        "A. Earth and satellite orbiting in space",
+        "B. High-angle view showing consoles with circular emblems",
+        "C. Elevated wide shot of mission control workers",
+        "D. echnicians examining technical schematics"
+      ],
+      "Answer": "C",
+      "video_id": "Me4W36_lUcI",
+      "Type": "Event Sequence",
+      "content_parent_category": "Science & Technology",
+      "content_fine_category": "Space Missions",
+      "video_category": "People & Blogs",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "Me4W36_lUcI",
+    "questions": [
+      {
+        "question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+        "choices": [
+          "A. A. 'All right Vegas, we're ready for procedure initiation'",
+          "B. B. 'Loop Bravo venting operations remain pending'",
+          "C. C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+          "D. D. 'Maintaining gradual system shutdown protocol'"
+        ],
+        "answer": "D",
+        "task_type": "AV Event Alignment"
+      },
+      {
+        "question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+        "choices": [
+          "A. A. Earth and satellite orbiting in space",
+          "B. B. High-angle view showing consoles with circular emblems",
+          "C. C. Elevated wide shot of mission control workers",
+          "D. D. echnicians examining technical schematics"
+        ],
+        "answer": "C",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "During which visual context did the team discuss irreversible actions?",
+        "choices": [
+          "A. A. Near consoles featuring circular emblems",
+          "B. B. In a densely packed control room section",
+          "C. C. During initial system checks with static noise",
+          "D. D. While observing Earth orbit procedures"
+        ],
+        "answer": "A",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "notebooklm",
+    "index": 1,
+    "dataset_source": "yt_search",
+    "file": "videos\\notebooklm\\notebooklm_1.mp4",
+    "actual_duration_s": 37.2,
+    "row_data": {
+      "youtube_id": "KA_pExdDSUo",
+      "title": "Introducing NotebookLM Video Overviews",
+      "url": "https://www.youtube.com/watch?v=KA_pExdDSUo",
+      "uploader": "Google",
+      "reported_duration_s": 37
+    }
+  },
+  {
+    "category": "notebooklm",
+    "index": 1,
+    "dataset_source": "yt_search",
+    "file": "videos\\notebooklm\\notebooklm_2.mp4",
+    "actual_duration_s": 83.36,
+    "row_data": {
+      "youtube_id": "1jgpsGDUXW4",
+      "title": "Notebook LM - Create Video Podcasts in Minutes! With Pictory AI",
+      "url": "https://www.youtube.com/watch?v=1jgpsGDUXW4",
+      "uploader": "Pictory",
+      "reported_duration_s": 83
+    }
+  },
+  {
+    "category": "vlog",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\vlog\\vlog_1.mp4",
+    "actual_duration_s": 89.84,
+    "row_data": {
+      "Question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+      "Choice": [
+        "A. 'All right Vegas, we're ready for procedure initiation'",
+        "B. 'Loop Bravo venting operations remain pending'",
+        "C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+        "D. 'Maintaining gradual system shutdown protocol'"
+      ],
+      "Answer": "D",
+      "video_id": "Me4W36_lUcI",
+      "Type": "AV Event Alignment",
+      "content_parent_category": null,
+      "content_fine_category": null,
+      "video_category": "People & Blogs",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "Me4W36_lUcI",
+    "questions": [
+      {
+        "question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+        "choices": [
+          "A. A. 'All right Vegas, we're ready for procedure initiation'",
+          "B. B. 'Loop Bravo venting operations remain pending'",
+          "C. C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+          "D. D. 'Maintaining gradual system shutdown protocol'"
+        ],
+        "answer": "D",
+        "task_type": "AV Event Alignment"
+      },
+      {
+        "question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+        "choices": [
+          "A. A. Earth and satellite orbiting in space",
+          "B. B. High-angle view showing consoles with circular emblems",
+          "C. C. Elevated wide shot of mission control workers",
+          "D. D. echnicians examining technical schematics"
+        ],
+        "answer": "C",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "During which visual context did the team discuss irreversible actions?",
+        "choices": [
+          "A. A. Near consoles featuring circular emblems",
+          "B. B. In a densely packed control room section",
+          "C. C. During initial system checks with static noise",
+          "D. D. While observing Earth orbit procedures"
+        ],
+        "answer": "A",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "vlog",
+    "index": 1,
+    "dataset_source": "daily_omni",
+    "file": "videos\\vlog\\vlog_2.mp4",
+    "actual_duration_s": 89.84,
+    "row_data": {
+      "Question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+      "Choice": [
+        "A. Earth and satellite orbiting in space",
+        "B. High-angle view showing consoles with circular emblems",
+        "C. Elevated wide shot of mission control workers",
+        "D. echnicians examining technical schematics"
+      ],
+      "Answer": "C",
+      "video_id": "Me4W36_lUcI",
+      "Type": "Event Sequence",
+      "content_parent_category": "Science & Technology",
+      "content_fine_category": "Space Missions",
+      "video_category": "People & Blogs",
+      "video_duration": "30s",
+      "Explaination": null
+    },
+    "youtube_id": "Me4W36_lUcI",
+    "questions": [
+      {
+        "question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+        "choices": [
+          "A. A. 'All right Vegas, we're ready for procedure initiation'",
+          "B. B. 'Loop Bravo venting operations remain pending'",
+          "C. C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+          "D. D. 'Maintaining gradual system shutdown protocol'"
+        ],
+        "answer": "D",
+        "task_type": "AV Event Alignment"
+      },
+      {
+        "question": "What specific visual perspective is shown when the speaker concludes the statement about Loop Bravo not being vented?",
+        "choices": [
+          "A. A. Earth and satellite orbiting in space",
+          "B. B. High-angle view showing consoles with circular emblems",
+          "C. C. Elevated wide shot of mission control workers",
+          "D. D. echnicians examining technical schematics"
+        ],
+        "answer": "C",
+        "task_type": "Event Sequence"
+      },
+      {
+        "question": "During which visual context did the team discuss irreversible actions?",
+        "choices": [
+          "A. A. Near consoles featuring circular emblems",
+          "B. B. In a densely packed control room section",
+          "C. C. During initial system checks with static noise",
+          "D. D. While observing Earth orbit procedures"
+        ],
+        "answer": "A",
+        "task_type": "Context understanding"
+      }
+    ]
+  },
+  {
+    "category": "yt_shorts",
+    "index": 1,
+    "dataset_source": "yt_search",
+    "file": "videos\\yt_shorts\\yt_shorts_1.mp4",
+    "actual_duration_s": 5.11,
+    "row_data": {
+      "youtube_id": "vnLSSrpAf4s",
+      "title": "Satisfying ASMR Clip | #ASMR #Shorts",
+      "url": "https://www.youtube.com/watch?v=vnLSSrpAf4s",
+      "uploader": "ToonTadka TV",
+      "reported_duration_s": 5
+    }
+  },
+  {
+    "category": "yt_shorts",
+    "index": 1,
+    "dataset_source": "yt_search",
+    "file": "videos\\yt_shorts\\yt_shorts_2.mp4",
+    "actual_duration_s": 29.77,
+    "row_data": {
+      "youtube_id": "ua3psefX_CQ",
+      "title": "Superpower unlocked\ud83e\udd2a #viral #shorts #fun #comedy #funny",
+      "url": "https://www.youtube.com/watch?v=ua3psefX_CQ",
+      "uploader": "Proshika's Life",
+      "reported_duration_s": 30
+    }
+  },
+  {
+    "category": "movie_clips",
+    "index": 1,
+    "dataset_source": "worldsense",
+    "file": "videos\\movie_clips\\movie_clips_1.mp4",
+    "actual_duration_s": 48.83,
+    "row_data": {
+      "video_id": "DbEYyaTo",
+      "domain": "Film & TV",
+      "video_caption": "The video shows an electrical substation with several transformers and electrical equipment. Then, it transitions to a shot of a construction crane on train tracks. Following this, an aerial shot of the substation is shown, and then a ground-level view of the substation. Then, a long blue train is shown passing over a bridge. Several workers are seen walking next to train cars with black coverings. A red train car carries large white metal rolls. Then, a green train passes. The video shows train cars carrying large cable reels. Workers are seen at the top of a train car adjusting equipment. The video shows an indoor shot of a gray control panel. Then, a top-down view of the substation is shown. The next screen displays gold text on a black background: \"Savings of \u20b9250 crore per year.\" This is followed by an image of a train with a red and white passenger car.  The video shows a train at a station. A train with the words \"Indian Railways\" is shown. Then, a blue and yellow passenger train is shown. The next shot is an outdoor shot of the South Western Railway entrance. People and cars are seen moving in front of the building.  The video then shows the interior of the railway station with a \"Welcome to Hospete Railway Station\" sign. Many people are walking on the platform. The video then shows ancient stone architecture, with the word \"Hampi\" and \"UNESCO Heritage Site.\" The video then shows an aerial view of the station, an ornate indoor gateway, and a relief of a seated figure on the wall. The video then shows the station entrance and people passing through. Then, several men in casual clothing are seen talking. A woman in a blue uniform talks to a man holding a small child. The video shows a room with beds, and a ticket booking window with people waiting. A woman in a wheelchair and a man walking behind her are seen, followed by a shot of a busy train platform. Finally, the video shows the following text on a black background: \"Dedication of longest railway platform in the world.\"",
+      "all_tasks": {
+        "task0": {
+          "task_domain": "Recognition",
+          "task_type": "Attribute Recognition",
+          "question": "What color is the last train that passed by?",
+          "answer": "A",
+          "candidates": [
+            "A. Green.",
+            "B. Blue.",
+            "C. Red.",
+            "D. Yellow."
+          ]
+        },
+        "task1": {
+          "task_domain": "Understanding",
+          "task_type": "Human Emotions",
+          "question": "What is the tone of the speaker in the video?",
+          "answer": "B",
+          "candidates": [
+            "A. Serious and proud.",
+            "B. Joyful and proud.",
+            "C. Calm and proud.",
+            "D. Cheerful and humorous."
+          ]
+        }
+      }
+    },
+    "questions": [
+      {
+        "question": "What color is the last train that passed by?",
+        "choices": [
+          "A. Green.",
+          "B. Blue.",
+          "C. Red.",
+          "D. Yellow."
+        ],
+        "answer": "A",
+        "task_type": "Attribute Recognition"
+      },
+      {
+        "question": "What is the tone of the speaker in the video?",
+        "choices": [
+          "A. Serious and proud.",
+          "B. Joyful and proud.",
+          "C. Calm and proud.",
+          "D. Cheerful and humorous."
+        ],
+        "answer": "B",
+        "task_type": "Human Emotions"
+      }
+    ]
+  },
+  {
+    "category": "movie_clips",
+    "index": 1,
+    "dataset_source": "worldsense",
+    "file": "videos\\movie_clips\\movie_clips_2.mp4",
+    "actual_duration_s": 36.34,
+    "row_data": {
+      "video_id": "BQDKdEep",
+      "domain": "Film & TV",
+      "video_caption": "A bright blue light flares horizontally across the screen. The words \"ALL NINE FILMS\" appear on a black starry background.  Two yellow podracers speed through a desert landscape, connected by pink lightning. A Star Destroyer floats in space above a planet, a smaller ship firing a green laser towards it. A TIE fighter flies past the Star Destroyer. A Lego Luke Skywalker fires a blaster at a Lego Slave I. A Lego Kylo Ren ignites his blue lightsaber in a darkened room.  A Lego Poe Dameron grins in the cockpit of an X-wing.  Countless Lego Star Wars ships fly through space. A giant Lego Yoda appears, looking downwards. The words \u201cIN THE BIGGEST LEGO GAME EVER\u201d appear against a black background. Several Lego Jedi ignite their lightsabers on a desert planet.  A Lego X-wing flies and fires red lasers, exploding against a large ship and terrain. Lego Han Solo uses macrobinoculars in the cockpit of the Millennium Falcon. Lego Han Solo, Chewbacca, and Luke Skywalker walk together, surrounded by rebel soldiers. Lego General Grievous faces Lego Obi-Wan Kenobi.  Lego Obi-Wan Kenobi smiles. A Lego Jedi deflects blaster fire with a lightsaber. A Lego snowspeeder flies past an AT-AT\u2019s legs in a snowy landscape.  The AT-AT falls forwards into the snow. Lego Luke Skywalker\u2019s face is illuminated by a lightsaber. Lego Finn fights a Lego stormtrooper with melee weapons. Lego Luke Skywalker stands against a backdrop of flames, then ignites his lightsaber. A Lego Jedi deflects Force lightning with a lightsaber. Many Lego Star Wars characters are assembled on a hilltop against a starry night sky; their lightsabers are ignited.",
+      "all_tasks": {
+        "task0": {
+          "task_domain": "Reasoning",
+          "task_type": "Temporal Prediction",
+          "question": "What will eventually happen to the two lightsabers?",
+          "answer": "B",
+          "candidates": [
+            "A. There might be a victory.",
+            "B. There might be a loss.",
+            "C. There might be a draw.",
+            "D. The fight might not continue."
+          ]
+        },
+        "task1": {
+          "task_domain": "Reasoning",
+          "task_type": "Hallucination",
+          "question": "Is there a large spacecraft in the video?",
+          "answer": "B",
+          "candidates": [
+            "A. Unclear.",
+            "B. No.",
+            "C. Yes.",
+            "D. None."
+          ]
+        },
+        "task2": {
+          "task_domain": "Recognition",
+          "task_type": "Event Recognition",
+          "question": "How does the spaceship defeat the white robot on the snowy ground?",
+          "answer": "A",
+          "candidates": [
+            "A. Use a rope to wrap around the robot's legs.",
+            "B. Employ a special method to short-circuit the robot.",
+            "C. Attack the robot's legs using the spaceship's machine gun.",
+            "D. Fire spaceship cannons at the ground near the robot's legs."
+          ]
+        }
+      }
+    },
+    "questions": [
+      {
+        "question": "What will eventually happen to the two lightsabers?",
+        "choices": [
+          "A. There might be a victory.",
+          "B. There might be a loss.",
+          "C. There might be a draw.",
+          "D. The fight might not continue."
+        ],
+        "answer": "B",
+        "task_type": "Temporal Prediction"
+      },
+      {
+        "question": "Is there a large spacecraft in the video?",
+        "choices": [
+          "A. Unclear.",
+          "B. No.",
+          "C. Yes.",
+          "D. None."
+        ],
+        "answer": "B",
+        "task_type": "Hallucination"
+      },
+      {
+        "question": "How does the spaceship defeat the white robot on the snowy ground?",
+        "choices": [
+          "A. Use a rope to wrap around the robot's legs.",
+          "B. Employ a special method to short-circuit the robot.",
+          "C. Attack the robot's legs using the spaceship's machine gun.",
+          "D. Fire spaceship cannons at the ground near the robot's legs."
+        ],
+        "answer": "A",
+        "task_type": "Event Recognition"
+      }
+    ]
+  }
+]

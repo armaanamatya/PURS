@@ -1,0 +1,84 @@
+
+============================================================
+RUN: 2026-03-13 08:03:02
+============================================================
+Loaded 18 entries
+Skipping 4 entries with no Q&A (run enrich_metadata.py first)
+Running 14 entries
+
+Loading model from /workspace/model ...
+
+============================================================
+RUN: 2026-03-13 08:03:34
+============================================================
+Loaded 18 entries
+Skipping 4 entries with no Q&A (run enrich_metadata.py first)
+Running 14 entries
+
+Loading model from /workspace/model ...
+
+============================================================
+RUN: 2026-03-13 08:03:48
+============================================================
+Loaded 18 entries
+Skipping 4 entries with no Q&A (run enrich_metadata.py first)
+Running 14 entries
+
+Loading model from /workspace/model ...
+Model loaded. VRAM: 16.6 GB
+  ERROR soccer_matches_1: CUDA out of memory. Tried to allocate 890.00 MiB. GPU 0 has a total capacity of 23.52 GiB of which 486.69 MiB is free. Including non-PyTorch memory, this process has 23.04 GiB memory in use. Of the allocated memory 20.77 GiB is allocated by PyTorch, and 1.81 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] soccer_matches_1 [Context understanding] pred=ERROR ans=D
+  [✗] soccer_matches_1 [Event Sequence] pred=D ans=A
+  [✓] soccer_matches_1 [Reasoning] pred=D ans=D
+  ERROR tennis_matches_1: CUDA out of memory. Tried to allocate 6.96 GiB. GPU 0 has a total capacity of 23.52 GiB of which 396.69 MiB is free. Including non-PyTorch memory, this process has 23.12 GiB memory in use. Of the allocated memory 18.67 GiB is allocated by PyTorch, and 3.99 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] tennis_matches_1 [Context understanding] pred=ERROR ans=D
+  [✗] tennis_matches_1 [Event Sequence] pred=D ans=A
+  [✓] tennis_matches_1 [Reasoning] pred=D ans=D
+  [✗] tv_show_1 [Attribute Recognition] pred=B ans=A
+  [✓] tv_show_1 [Human Emotions] pred=B ans=B
+  [✗] tv_show_1 [Temporal Prediction] pred=A ans=B
+  [✗] tv_show_1 [Hallucination] pred=C ans=B
+  [✗] tv_show_1 [Event Recognition] pred=D ans=A
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 6.30 GiB. GPU 0 has a total capacity of 23.52 GiB of which 86.69 MiB is free. Including non-PyTorch memory, this process has 23.43 GiB memory in use. Of the allocated memory 18.48 GiB is allocated by PyTorch, and 4.49 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Counting Problem] pred=ERROR ans=C
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 6.30 GiB. GPU 0 has a total capacity of 23.52 GiB of which 86.69 MiB is free. Including non-PyTorch memory, this process has 23.43 GiB memory in use. Of the allocated memory 18.48 GiB is allocated by PyTorch, and 4.49 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Information Synopsis] pred=ERROR ans=A
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 6.29 GiB. GPU 0 has a total capacity of 23.52 GiB of which 86.69 MiB is free. Including non-PyTorch memory, this process has 23.43 GiB memory in use. Of the allocated memory 18.48 GiB is allocated by PyTorch, and 4.49 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Counting Problem] pred=ERROR ans=D
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 522.00 MiB. GPU 0 has a total capacity of 23.52 GiB of which 324.69 MiB is free. Including non-PyTorch memory, this process has 23.19 GiB memory in use. Of the allocated memory 22.21 GiB is allocated by PyTorch, and 539.94 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Counting Problem] pred=ERROR ans=C
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 522.00 MiB. GPU 0 has a total capacity of 23.52 GiB of which 324.69 MiB is free. Including non-PyTorch memory, this process has 23.19 GiB memory in use. Of the allocated memory 22.21 GiB is allocated by PyTorch, and 539.86 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Information Synopsis] pred=ERROR ans=A
+  ERROR lecture_1: CUDA out of memory. Tried to allocate 522.00 MiB. GPU 0 has a total capacity of 23.52 GiB of which 324.69 MiB is free. Including non-PyTorch memory, this process has 23.19 GiB memory in use. Of the allocated memory 22.21 GiB is allocated by PyTorch, and 540.06 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  [✗] lecture_1 [Counting Problem] pred=ERROR ans=D
+  [✗] podcast_1 [AV Event Alignment] pred=B ans=D
+  [✗] podcast_1 [Event Sequence] pred=A ans=C
+  [✗] podcast_1 [Context understanding] pred=B ans=A
+  [✗] podcast_1 [AV Event Alignment] pred=B ans=D
+  [✗] podcast_1 [Event Sequence] pred=A ans=C
+  [✗] podcast_1 [Context understanding] pred=B ans=A
+  [✗] vlog_1 [AV Event Alignment] pred=B ans=D
+  [✗] vlog_1 [Event Sequence] pred=A ans=C
+  [✗] vlog_1 [Context understanding] pred=B ans=A
+  [✗] vlog_1 [AV Event Alignment] pred=B ans=D
+  [✗] vlog_1 [Event Sequence] pred=A ans=C
+  [✗] vlog_1 [Context understanding] pred=B ans=A
+  [✗] movie_clips_1 [Attribute Recognition] pred=B ans=A
+  [✓] movie_clips_1 [Human Emotions] pred=B ans=B
+  [✗] movie_clips_1 [Temporal Prediction] pred=A ans=B
+  [✗] movie_clips_1 [Hallucination] pred=C ans=B
+  [✗] movie_clips_1 [Event Recognition] pred=D ans=A
+
+==================================================
+Accuracy:      4/34 = 11.76%
+Skipped (no video): 0
+Results saved: /workspace/results.jsonl
+
+Per-category:
+  lecture              0/6 = 0.00%
+  movie_clips          1/5 = 20.00%
+  podcast              0/6 = 0.00%
+  soccer_matches       1/3 = 33.33%
+  tennis_matches       1/3 = 33.33%
+  tv_show              1/5 = 20.00%
+  vlog                 0/6 = 0.00%

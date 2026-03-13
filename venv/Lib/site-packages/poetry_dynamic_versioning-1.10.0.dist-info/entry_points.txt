@@ -1,0 +1,6 @@
+[console_scripts]
+poetry-dynamic-versioning=poetry_dynamic_versioning.__main__:main
+
+[poetry.application.plugin]
+poetry-dynamic-versioning=poetry_dynamic_versioning.plugin:DynamicVersioningPlugin
+

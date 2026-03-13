@@ -1,0 +1,78 @@
+By function (all 5 datasets share these):
+
+  ┌──────────┬───────┬────────┬────────┬──────────┬──────────┐     
+  │ Function │ Video │ Daily- │ WorldS │ OmniVide │ ShortVid │     
+  │          │ -MME  │  Omni  │  ense  │  oBench  │  -Bench  │     
+  ├──────────┼───────┼────────┼────────┼──────────┼──────────┤     
+  │ Video re │ video │ video_ │ video_ │ video    │ video    │     
+  │ ference  │ ID    │ id     │ id     │          │          │     
+  ├──────────┼───────┼────────┼────────┼──────────┼──────────┤     
+  │ Question │ quest │ Questi │ questi │ question │ question │     
+  │  text    │ ion   │ on     │ on     │          │          │     
+  ├──────────┼───────┼────────┼────────┼──────────┼──────────┤     
+  │ Answer   │ optio │ Choice │ candid │ options  │ options  │     
+  │ choices  │ ns    │        │ ates   │          │          │     
+  ├──────────┼───────┼────────┼────────┼──────────┼──────────┤     
+  │ Correct  │ answe │ Answer │ answer │ correct_ │ answer   │     
+  │ answer   │ r     │        │        │ option   │          │     
+  ├──────────┼───────┼────────┼────────┼──────────┼──────────┤     
+  │ Task/que │ task_ │        │ task_t │ question │ dimensio │     
+  │ stion    │ type  │ Type   │ ype    │ _type    │ n        │     
+  │ category │       │        │        │          │          │     
+  └──────────┴───────┴────────┴────────┴──────────┴──────────┘     
+
+  Near-universal (4/5):
+  - question by exact name — all except Daily-Omni (uses Question, 
+  capitalized)
+  - answer by exact name — all except OmniVideoBench (uses
+  correct_option)
+  - options by exact name — Video-MME, OmniVideoBench,
+  ShortVid-Bench (3/5); WorldSense calls it candidates, Daily-Omni 
+  calls it Choice
+
+  Summary: Every dataset is a video-grounded multiple-choice QA    
+  benchmark, so the four functional columns — video reference,     
+  question, choices, and correct answer — are universal. The       
+  task/category column is also present in all five but with highly 
+  varied names and taxonomies.
+
+    Source per category:
+
+  ┌──────────────┬─────────────────────────────────┬───────────┐   
+  │   Category   │         Primary source          │ Fallback  │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ soccer /     │ Daily-Omni (Sports) →           │ YouTube   │   
+  │ tennis       │ WorldSense (Sports) →           │ search    │   
+  │              │ OmniVideoBench                  │           │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │              │ Video-MME (Film & Television) → │           │   
+  │ tv_show      │  WorldSense (Film & TV) →       │ YouTube   │   
+  │              │ OmniVideoBench (TV)             │           │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ lecture      │ Video-MME (Knowledge domain) →  │ YouTube   │   
+  │              │ Daily-Omni (Education)          │           │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ podcast      │ Daily-Omni (People & Blogs)     │ YouTube   │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ notebooklm   │ YouTube search only             │ —         │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │              │ Video-MME (Life Record) →       │           │   
+  │ vlog         │ Daily-Omni → OmniVideoBench     │ YouTube   │   
+  │              │ (Vlog)                          │           │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ yt_shorts    │ ShortVid-Bench (bytes extracted │ YouTube   │   
+  │              │  from parquet)                  │           │   
+  ├──────────────┼─────────────────────────────────┼───────────┤   
+  │ movie_clips  │ Video-MME (Film & Television) → │ YouTube   │   
+  │              │  WorldSense (Film & TV)         │           │   
+  └──────────────┴─────────────────────────────────┴───────────┘   
+
+  Duration enforced at 3 points:                                     1. Metadata field (video_duration, duration col) — rejects row
+  before any download                                                2. yt-dlp match_filter — rejects YouTube videos before fetching  
+  bytes                                                            
+  3. ffprobe post-check — deletes any file that slipped through                                                                   
+  OmniVideoBench: enabled automatically if HF_TOKEN is set in env. 
+                                                                     Install deps then run:                                             pip install yt-dlp datasets huggingface_hub requests pyarrow     
+  pandas                                                           
+  HF_TOKEN=hf_xxx py -3 fetch_dataset_videos.py   # with token       py -3 fetch_dataset_videos.py                     # without 
+  (skips OmniVideoBench)             

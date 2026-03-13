@@ -1,0 +1,50 @@
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Health Multimodal Large Language Model:}
+% Multimodal large language models (MLLMs) have shown increasing promise in healthcare by enabling joint reasoning over vision, language, and structured clinical data for tasks such as medical question answering, report generation, and clinical decision support
+% \cite{alsaad2024multimodal,rajpurkar2022ai,singhal2025toward,ye2025multimodal}. Medical MLLMs extend vision-language pretraining paradigms to clinical domains, grounding language models in medical images and ultrasound data for interactive interpretation and explanation. \cite{250320430de2419dbf0c23e14b4c4335,li2023blip,liu2023visual} Complementary work in clinical decision support systems (CDS) and explainable AI (XAI) emphasizes safety, interpretability, and trust, which are critical for deployment in high-stakes clinical settings \cite{antoniadi2021current,asgari2025framework}.
+Recent advances in multimodal large language models (MLLMs) have significantly expanded the scope of medical video analysis by enabling joint reasoning over visual, temporal, and linguistic information. Early work adapts instruction-tuned vision--language models to medical videos, enabling video-grounded dialogue and open-ended clinical reasoning over surgical and endoscopic recordings~\cite{li2024llava, wang2025endochat}, with subsequent studies emphasizing multi-grained temporal modeling to capture long-term procedural structure for full-procedure understanding~\cite{wang2025surgvidlm}. In parallel, foundation video--language pretraining approaches leverage large-scale unlabeled medical videos to learn transferable representations, enabling zero-shot recognition, retrieval, and cross-procedure generalization via contrastive or hierarchical alignment~\cite{yuan2025learning, yuan2024hecvl}, with recent extensions incorporating LLM-generated procedural knowledge and explicit temporal constraints~\cite{yuan2024procedure}, and further expanding to other medical video modalities such as ultrasound and video-level VLM architectures~\cite{250320430de2419dbf0c23e14b4c4335, li2025surgpub}.
+
+Despite these advances, existing healthcare MLLMs remain largely assistant-centric and episodic, operating on short, curated inputs rather than continuous multimodal streams. Most approaches consider limited modality combinations and do not jointly model video, audio, inertial sensing, and longitudinal EHR data, nor do they capture hospital-level context such as workflow dynamics, staff movement, or evolving patient state. These limitations restrict the applicability of current systems to real-world hospital environments and motivate the need for new multimodal representations tailored to continuous clinical settings.
+
+% Recent advances in multimodal large language models (MLLMs) have significantly expanded the scope of medical video analysis by enabling joint reasoning over visual, temporal, and linguistic information. Early work adapts instruction-tuned vision--language models to medical videos, enabling video-grounded dialogue and open-ended clinical reasoning over surgical and endoscopic recordings~\cite{li2024llava, wang2025endochat}, with subsequent studies emphasizing multi-grained temporal modeling to capture long-term procedural structure for full-procedure understanding~\cite{wang2025surgvidlm}.In parallel, foundation video--language pretraining approaches leverage large-scale unlabeled medical videos to learn transferable representations, enabling zero-shot recognition, retrieval, and cross-procedure generalization via contrastive or hierarchical alignment~\cite{yuan2025learning, yuan2024hecvl}, with recent extensions incorporating LLM-generated procedural knowledge and explicit temporal constraints~\cite{yuan2024procedure}, and further expanding to other medical video modalities such as ultrasound and video-level VLM architectures~\cite{250320430de2419dbf0c23e14b4c4335, li2025surgpub}.
+
+% While multimodal LLMs have shown promise in integrating visual, temporal, and linguistic information for medical video understanding, existing approaches are largely offline, assistant-centric, and single-view, limiting their deployment in real-world hospital and operating-room settings that demand continuous, real-time, and system-level monitoring to improve patient safety, reduce operational costs, ensure procedural compliance, and support effective patient–provider communication, including real-time translation.
+
+% \begin{wrapfigure}{r}{0.5\linewidth}
+% \vspace{-8mm}
+% 	\includegraphics[width=\linewidth]{figures/t1_overeivew.pdf}
+%  \vspace{-8mm}
+% \caption{\footnotesize{Thrust 1's overview.}}
+% \label{fig:t1-overview}
+% \vspace{-4mm}
+% \end{wrapfigure}
+
+\begin{wrapfigure}{r}{0.6\linewidth}
+\vspace{-8mm}
+	\includegraphics[width=\linewidth]{figures/t1-task1.pdf}
+ \vspace{-8mm}
+\caption{\footnotesize{Task1.1: align video, audio, IMU, and EHR onto a single absolute timeline. Each modality is encoded as timestamped tokens interleaved along the time stream, while EHR context provides gating constraints on cross-modal communication.}}
+\label{fig:t1-task1}
+\vspace{-5mm}
+\end{wrapfigure}
+
+\vspace{1mm}
+\noindent \textbf{Long and Stream MLLMs:}
+Understanding long-horizon and streaming visual data is an active area of research in both computer vision and multimodal learning. Prior work on surgical video analysis has employed temporal convolutional networks and transformers for phase recognition and procedural understanding \cite{czempiel2020tecno,li2025semivt}, while recent MLLM-based approaches align video with language supervision to support fine-grained reasoning \cite{li2024llava,wang2025endochat,wang2025surgvidlm,yuan2024procedure,yuan2024hecvl,yuan2025learning}. Large-scale datasets such as Ego-Exo4D further demonstrate the importance of modeling first- and third-person perspectives in complex activities \cite{grauman2024ego}.
+
+More recently, streaming and long-video MLLMs have been proposed to handle extended video sequences and online inference by leveraging hierarchical temporal representations and memory mechanisms \cite{chen2025livecc,qian2024streaming}. However, existing approaches are typically limited to single-view or fixed-camera settings and do not scale to multi-view hospital floors with asynchronous, continuous streams. Moreover, integration with non-visual modalities and patient-specific context from EHRs during streaming inference remains largely unexplored, limiting their utility for real-time clinical workflows.
+
+% \noindent \textbf{Edge-Cloud Co-design for Privacy-Preserving Healthcare AI:}
+% Deploying large-scale AI systems in healthcare requires careful consideration of privacy, latency, and infrastructure constraints. Prior work explores smart healthcare systems and federated learning as mechanisms for privacy-preserving model training across distributed clinical data sources \cite{badawy2023integrating,xu2021federated}. Parameter-efficient fine-tuning methods such as LoRA enable lightweight adaptation of large language models and reduce computational overhead, making deployment on resource-constrained devices more feasible \cite{han2024parameter,hu2022lora}. Recent multimodal and “omni” foundation models further suggest the potential for unified perception and reasoning across heterogeneous data sources \cite{bai2023qwen,xu2025qwen2}.
+
+
+% \textbf{Health AI Model:}
+% \textit{However, no research has yet investigated an efficient MLLM fine-tuning framework on edge devices to reduce computation and memory requirements significantly.} 
+% \textbf{MLLMs Serving on Edge Devices:}
+% Fine-tuning could generate multiple LoRA adapters, which allows for efficient specialization of a pre-trained model for different tasks and domains. Serving multiple LoRA adapters simultaneously requires efficient memory management. To address this challenge, A recent breakthrough, S-LoRA \cite{sheng2023s}, enables efficient serving of thousands of LoRA adapters concurrently without duplicating the full model weights. However, S-LoRA is designed primarily for LLM on server-class deployment. 
+% \textit{To date, just a few works have explored serving MLLMs efficiently on edge devices.}
+
+% However, most MLLMs are still deployed on high-end GPUs, and research on deploying them to edge devices is nascent.
+% S-LoRA introduces adapter fusion strategies and shared caching to reduce latency and memory overhead, making it highly relevant for real-world deployment of LLMs and MLLMs on constrained hardware. Although designed primarily for server-class deployment, the architectural ideas in S-LoRA—such as adapter modularity and lightweight swapping—can be adapted for edge-serving frameworks where models must switch quickly between tasks, users, or domains.
