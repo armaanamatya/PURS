@@ -62,6 +62,7 @@ function AccuracyBar({ value }: { value: number }) {
 // ── Question cell ─────────────────────────────────────────────────────────────
 
 function QuestionCell({ q }: { q: Question }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2 min-w-[240px] max-w-[320px]">
       <p className="text-xs text-white/70 leading-snug break-words">{q.question}</p>
@@ -74,10 +75,10 @@ function QuestionCell({ q }: { q: Question }) {
           const isWrongPred = isPred && !q.correct;
 
           let cls = "flex items-start gap-1.5 px-2 py-1 rounded text-[11px] border ";
-          if (isCorrectPred)             cls += "bg-emerald-500/20 border-emerald-500/40 text-emerald-200";
-          else if (isWrongPred)          cls += "bg-red-500/20 border-red-500/40 text-red-300";
-          else if (isAnswer && !isPred)  cls += "bg-emerald-500/10 border-emerald-500/20 text-emerald-300/60";
-          else                           cls += "border-white/6 text-white/35";
+          if (isCorrectPred)            cls += "bg-emerald-500/20 border-emerald-500/40 text-emerald-200";
+          else if (isWrongPred)         cls += "bg-red-500/20 border-red-500/40 text-red-300";
+          else if (isAnswer && !isPred) cls += "bg-emerald-500/10 border-emerald-500/20 text-emerald-300/60";
+          else                          cls += "border-white/6 text-white/35";
 
           return (
             <div key={ci} className={cls}>
@@ -90,19 +91,21 @@ function QuestionCell({ q }: { q: Question }) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-// ── Reasoning cell ────────────────────────────────────────────────────────────
-
-function ReasoningCell({ reasoning }: { reasoning: string | null }) {
-  if (!reasoning) return <span className="text-white/20 text-xs">—</span>;
-  return (
-    <div className="min-w-[200px] max-w-[320px]">
-      <pre className="text-[10px] font-mono text-white/45 whitespace-pre-wrap break-words leading-relaxed bg-black/30 rounded p-2 border border-white/6 max-h-40 overflow-y-auto">
-        {reasoning}
-      </pre>
+      {/* Per-question reasoning */}
+      {q.reasoning && (
+        <div>
+          <button onClick={() => setOpen(!open)}
+            className="text-[10px] text-white/25 hover:text-white/50 transition-colors flex items-center gap-1">
+            <span className={`inline-block transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
+            reasoning
+          </button>
+          {open && (
+            <pre className="mt-1 text-[10px] font-mono text-white/40 whitespace-pre-wrap break-words leading-relaxed bg-black/30 rounded p-2 border border-white/6 max-h-48 overflow-y-auto">
+              {q.reasoning}
+            </pre>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -144,11 +147,6 @@ function TableRow({ entry, maxQ }: { entry: Entry; maxQ: number }) {
           </td>
         );
       })}
-
-      {/* Reasoning */}
-      <td className="p-3 border-r border-white/6 align-top">
-        <ReasoningCell reasoning={entry.questions.find((q) => q.reasoning)?.reasoning ?? null} />
-      </td>
 
       {/* Prediction summary */}
       <td className="p-3 align-top min-w-[120px]">
@@ -349,9 +347,6 @@ export default function Home() {
                     Question {i + 1}
                   </th>
                 ))}
-                <th className="px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-white/30 border-r border-white/6 min-w-[220px]">
-                  Reasoning
-                </th>
                 <th className="px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-white/30 min-w-[120px]">
                   Prediction
                 </th>
@@ -363,7 +358,7 @@ export default function Home() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={maxQ + 3} className="text-center py-20 text-white/20 font-mono text-sm">
+                  <td colSpan={maxQ + 2} className="text-center py-20 text-white/20 font-mono text-sm">
                     No entries match your filter.
                   </td>
                 </tr>

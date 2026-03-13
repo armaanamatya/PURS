@@ -30,7 +30,7 @@ from pathlib import Path
 # OmniZip replaces the standard model class — must be importable from the
 # OmniZip-main directory. Upload OmniZip-main/ to /workspace/OmniZip-main/
 # and this script will find it automatically.
-OMNIZIP_DIR = os.path.join(os.path.dirname(__file__), "OmniZip-main")
+OMNIZIP_DIR = os.path.dirname(__file__)  # omnizip/ sits next to this script
 if OMNIZIP_DIR not in sys.path:
     sys.path.insert(0, OMNIZIP_DIR)
 
@@ -105,7 +105,7 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
             "capable of perceiving auditory and visual inputs, as well as generating text and speech."
         )}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": 2.0},
+            {"type": "video", "video": video_path, "fps": 1.0, "max_pixels": 360*420},
             {"type": "text", "text": prompt},
         ]},
     ]
