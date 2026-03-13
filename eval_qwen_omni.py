@@ -55,7 +55,7 @@ def load_model():
         MODEL_PATH,
         torch_dtype=torch.bfloat16,
         device_map="auto",
-        attn_implementation="flash_attention_2",
+        attn_implementation="sdpa",
     )
     processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
     print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
@@ -65,12 +65,12 @@ def load_model():
 
 def run_inference(model, processor, video_path: str, question: str, choices: list) -> str:
     choice_text = "\n".join(choices) if choices[0].startswith("A") else "\n".join(f"{chr(65+i)}. {c}" for i, c in enumerate(choices))
-    prompt = f"{question}\n\n{choice_text}\n\nAnswer with only the letter (A, B, C, or D)."
+    prompt = f"{question}\n\n{choice_text}\n\nThink step by step, then end your response with 'Answer: X' where X is A, B, C, or D."
 
     messages = [
         {"role": "system", "content": [{"type": "text", "text": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": 2.0},
+            {"type": "video", "video": video_path, "fps": 1.0, "max_pixels": 360*420},
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -84,13 +84,18 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     inputs = inputs.to(model.device).to(model.dtype)
 
     with torch.no_grad():
-        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=8)
+        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=512)
 
     decoded = processor.batch_decode(output, skip_special_tokens=True)[0]
-    for char in reversed(decoded.strip()):
-        if char in "ABCD":
-            return char
-    return decoded.strip()
+    # Strip the prompt portion that gets echoed back
+    if "assistant" in decoded.lower():
+        decoded = decoded[decoded.lower().rfind("assistant") + len("assistant"):].strip()
+
+    # Parse answer letter — prefer "Answer: X" pattern, fall back to last ABCD char
+    import re as _re
+    m = _re.search(r"Answer:\s*([A-D])", decoded, _re.IGNORECASE)
+    letter = m.group(1).upper() if m else next((c for c in reversed(decoded.strip()) if c in "ABCD"), decoded.strip())
+    return letter, decoded
 
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
@@ -172,10 +177,10 @@ def main():
                 task_type = q.get("task_type", entry.get("task_type", ""))
 
                 try:
-                    pred = run_inference(model, processor, video_path, question, choices)
+                    pred, reasoning = run_inference(model, processor, video_path, question, choices)
                 except Exception as e:
                     print(f"  ERROR {entry_label}: {e}")
-                    pred = "ERROR"
+                    pred, reasoning = "ERROR", ""
 
                 is_correct = pred.strip().upper() == answer
                 if is_correct:
@@ -191,6 +196,7 @@ def main():
                     "answer":     answer,
                     "prediction": pred,
                     "correct":    is_correct,
+                    "reasoning":  reasoning,
                 }
                 out_f.write(json.dumps(result) + "\n")
                 results.append(result)
