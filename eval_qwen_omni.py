@@ -68,7 +68,7 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     prompt = f"{question}\n\n{choice_text}\n\nAnswer with only the letter (A, B, C, or D)."
 
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": "You are a helpful assistant. Answer multiple-choice questions about videos concisely."}]},
+        {"role": "system", "content": [{"type": "text", "text": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."}]},
         {"role": "user", "content": [
             {"type": "video", "video": video_path, "fps": 2.0},
             {"type": "text", "text": prompt},
@@ -76,15 +76,15 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     ]
 
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+    audios, images, videos = process_mm_info(messages, use_audio_in_video=True)
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
-        return_tensors="pt", padding=True, use_audio_in_video=False,
+        return_tensors="pt", padding=True, use_audio_in_video=True,
     )
     inputs = inputs.to(model.device).to(model.dtype)
 
     with torch.no_grad():
-        output = model.generate(**inputs, use_audio_in_video=False, return_audio=False, max_new_tokens=8)
+        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=8)
 
     decoded = processor.batch_decode(output, skip_special_tokens=True)[0]
     for char in reversed(decoded.strip()):
@@ -135,16 +135,16 @@ def main():
     meta = json.loads(Path(args.metadata).read_text())
     print(f"Loaded {len(meta)} entries")
 
-    # Filter by category
+    # Filter by dataset
     if args.category:
-        meta = [e for e in meta if e["category"] == args.category]
-        print(f"Filtered to {len(meta)} entries for category '{args.category}'")
+        meta = [e for e in meta if e.get("dataset") == args.category or e.get("task_type") == args.category]
+        print(f"Filtered to {len(meta)} entries for '{args.category}'")
 
     # Only entries that have questions
     runnable = [e for e in meta if e.get("questions")]
     skipped_no_qa = len(meta) - len(runnable)
     if skipped_no_qa:
-        print(f"Skipping {skipped_no_qa} entries with no Q&A (run enrich_metadata.py first)")
+        print(f"Skipping {skipped_no_qa} entries with no Q&A")
     print(f"Running {len(runnable)} entries\n")
 
     if not runnable:
@@ -159,8 +159,9 @@ def main():
     with open(args.output, "w") as out_f:
         for entry in runnable:
             video_path = resolve_video_path(entry["file"], args.videos)
+            entry_label = f"{entry.get('dataset','?')}/{entry.get('task_type','?')}"
             if video_path is None:
-                print(f"  SKIP {entry['category']}_{entry['index']}: video file not found")
+                print(f"  SKIP {entry_label}: video file not found")
                 skipped_no_video += 1
                 continue
 
@@ -168,12 +169,12 @@ def main():
                 question  = q["question"]
                 choices   = q["choices"]
                 answer    = q["answer"].strip().upper()
-                task_type = q.get("task_type", "")
+                task_type = q.get("task_type", entry.get("task_type", ""))
 
                 try:
                     pred = run_inference(model, processor, video_path, question, choices)
                 except Exception as e:
-                    print(f"  ERROR {entry['category']}_{entry['index']}: {e}")
+                    print(f"  ERROR {entry_label}: {e}")
                     pred = "ERROR"
 
                 is_correct = pred.strip().upper() == answer
@@ -182,22 +183,20 @@ def main():
                 total += 1
 
                 result = {
-                    "category":      entry["category"],
-                    "index":         entry["index"],
-                    "dataset_source":entry["dataset_source"],
-                    "duration_s":    entry.get("actual_duration_s"),
-                    "task_type":     task_type,
-                    "question":      question,
-                    "choices":       choices,
-                    "answer":        answer,
-                    "prediction":    pred,
-                    "correct":       is_correct,
+                    "dataset":    entry.get("dataset"),
+                    "task_type":  task_type,
+                    "duration_s": entry.get("duration_s"),
+                    "question":   question,
+                    "choices":    choices,
+                    "answer":     answer,
+                    "prediction": pred,
+                    "correct":    is_correct,
                 }
                 out_f.write(json.dumps(result) + "\n")
                 results.append(result)
 
                 status = "✓" if is_correct else "✗"
-                print(f"  [{status}] {entry['category']}_{entry['index']} [{task_type}] pred={pred} ans={answer}")
+                print(f"  [{status}] {entry_label} [{task_type}] pred={pred} ans={answer}")
 
     # Final summary
     acc = correct / total if total else 0
@@ -206,17 +205,17 @@ def main():
     print(f"Skipped (no video): {skipped_no_video}")
     print(f"Results saved: {args.output}")
 
-    # Per-category breakdown
-    cats = {}
+    # Per-dataset breakdown
+    datasets: dict = {}
     for r in results:
-        c = r["category"]
-        cats.setdefault(c, {"correct": 0, "total": 0})
-        cats[c]["total"] += 1
+        d = r["dataset"]
+        datasets.setdefault(d, {"correct": 0, "total": 0})
+        datasets[d]["total"] += 1
         if r["correct"]:
-            cats[c]["correct"] += 1
-    print(f"\nPer-category:")
-    for cat, s in sorted(cats.items()):
-        print(f"  {cat:<20} {s['correct']}/{s['total']} = {s['correct']/s['total']:.2%}")
+            datasets[d]["correct"] += 1
+    print(f"\nPer-dataset:")
+    for ds, s in sorted(datasets.items()):
+        print(f"  {ds:<20} {s['correct']}/{s['total']} = {s['correct']/s['total']:.2%}")
 
 if __name__ == "__main__":
     main()
