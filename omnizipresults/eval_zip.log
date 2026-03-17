@@ -1,0 +1,270 @@
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:18:10
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:18:36
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:20:21
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=B
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=C
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:44:45
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:47:01
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=B
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=C
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:50:29
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:52:40
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=B
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=C
+  ERROR video-mme/Action Recognition: selected index k out of range
+  [✗] video-mme/Action Recognition [Action Recognition] pred=ERROR ans=A
+  ERROR video-mme/Action Recognition: selected index k out of range
+  [✗] video-mme/Action Recognition [Action Recognition] pred=ERROR ans=D
+  ERROR video-mme/Action Recognition: selected index k out of range
+  [✗] video-mme/Action Recognition [Action Recognition] pred=ERROR ans=A
+  ERROR video-mme/Attribute Perception: selected index k out of range
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=ERROR ans=C
+  ERROR video-mme/Attribute Perception: selected index k out of range
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=ERROR ans=D
+  ERROR video-mme/Attribute Perception: selected index k out of range
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=ERROR ans=A
+  ERROR video-mme/Counting Problem: selected index k out of range
+  [✗] video-mme/Counting Problem [Counting Problem] pred=ERROR ans=C
+  ERROR video-mme/Counting Problem: selected index k out of range
+  [✗] video-mme/Counting Problem [Counting Problem] pred=ERROR ans=D
+  ERROR video-mme/Counting Problem: selected index k out of range
+  [✗] video-mme/Counting Problem [Counting Problem] pred=ERROR ans=B
+
+============================================================
+RUN (OmniZip): 2026-03-17 00:59:35
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  ERROR video-mme/Action Reasoning: selected index k out of range
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=ERROR ans=D
+
+============================================================
+RUN (OmniZip): 2026-03-17 01:02:07
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+
+Loading model from /workspace/model with OmniZip ...
+  rho_audio=0.4  rho_video=0.7  g=3  contextual_ratio=0.05
+Model loaded. VRAM: 20.8 GB
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=A ans=D
+  [✓] video-mme/Action Reasoning [Action Reasoning] pred=B ans=B
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=D ans=C
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Action Recognition [Action Recognition] pred=A ans=D
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=C
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=D
+  [✓] video-mme/Attribute Perception [Attribute Perception] pred=A ans=A
+  [✗] video-mme/Counting Problem [Counting Problem] pred=D ans=C
+  [✓] video-mme/Counting Problem [Counting Problem] pred=D ans=D
+  [✓] video-mme/Counting Problem [Counting Problem] pred=B ans=B
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=D ans=A
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=B ans=A
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=D ans=C
+  [✓] video-mme/OCR Problems [OCR Problems] pred=A ans=A
+  [✗] video-mme/OCR Problems [OCR Problems] pred=A ans=C
+  [✓] video-mme/OCR Problems [OCR Problems] pred=B ans=B
+  ERROR video-mme/Object Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Object Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Object Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=ERROR ans=B
+  ERROR video-mme/Object Recognition: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Recognition [Object Recognition] pred=ERROR ans=C
+  ERROR video-mme/Object Recognition: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Recognition [Object Recognition] pred=ERROR ans=C
+  ERROR video-mme/Object Recognition: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Object Recognition [Object Recognition] pred=ERROR ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=B ans=C
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=C ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=A ans=D
+  ERROR video-mme/Spatial Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=ERROR ans=D
+  ERROR video-mme/Spatial Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=ERROR ans=B
+  ERROR video-mme/Spatial Reasoning: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=ERROR ans=C
+  ERROR video-mme/Temporal Perception: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=ERROR ans=B
+  ERROR video-mme/Temporal Perception: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=ERROR ans=A
+  ERROR video-mme/Temporal Perception: [Errno 11] Resource temporarily unavailable; last error log: [swscaler] Failed initializing scaling graph (Resource temporarily unavailable): fmt:yuv420p csp:bt709 prim:bt709 trc:bt709 -> fmt:rgb24 csp:gbr prim:bt709 trc:bt709
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=ERROR ans=B
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=D ans=A
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=C ans=D
+  [✓] video-mme/Temporal Reasoning [Temporal Reasoning] pred=C ans=C
+  [✓] daily-omni/AV Event Alignment [AV Event Alignment] pred=A ans=A
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=B ans=D
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=B ans=D
+  [✗] daily-omni/Comparative [Comparative] pred=D ans=A
+  [✗] daily-omni/Comparative [Comparative] pred=B ans=C
+  [✓] daily-omni/Comparative [Comparative] pred=A ans=A
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=A
+  [✗] daily-omni/Context understanding [Context understanding] pred=A ans=B
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=D
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=A ans=B
+  [✓] daily-omni/Event Sequence [Event Sequence] pred=B ans=B
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=D ans=B
+  [✗] daily-omni/Inference [Inference] pred=C ans=D
+  [✓] daily-omni/Inference [Inference] pred=D ans=D
+  [✗] daily-omni/Inference [Inference] pred=B ans=D
+  [✗] daily-omni/Reasoning [Reasoning] pred=C ans=D
+  [✗] daily-omni/Reasoning [Reasoning] pred=B ans=A
+  [✗] daily-omni/Reasoning [Reasoning] pred=D ans=C
+  [✗] worldsense/Action Counting [Audio Recognition] pred=D ans=B
+  [✗] worldsense/Action Counting [Relation Reasoning] pred=C ans=B
+  [✓] worldsense/Action Counting [Action Counting] pred=C ans=C
+  [✗] worldsense/Anomaly Recognition [Text and Diagram Understanding] pred=A ans=D
+  [✗] worldsense/Anomaly Recognition [Anomaly Recognition] pred=D ans=A
+  [✗] worldsense/Anomaly Recognition [Event Recognition] pred=D ans=A
+  [✓] worldsense/Attribute Reasoning [Attribute Reasoning] pred=B ans=B
+  [✓] worldsense/Attribute Recognition [Video Emotions] pred=D ans=D
+  [✗] worldsense/Attribute Recognition [Event Sorting] pred=D ans=C
+  [✓] worldsense/Attribute Recognition [Event Recognition] pred=A ans=A
+  [✗] worldsense/Attribute Recognition [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Audio Change [Audio Change] pred=A ans=B
+  [✓] worldsense/Audio Change [Temporal Localization] pred=D ans=D
+  [✗] worldsense/Audio Counting [Audio Counting] pred=A ans=B
+  [✓] worldsense/Audio Recognition [Audio Recognition] pred=D ans=D
+  [✗] worldsense/Audio Recognition [Human-object Interaction] pred=A ans=C
+  [✓] worldsense/Audio Source Localization [Audio Source Localization] pred=B ans=B
+  [✓] worldsense/Audio Source Localization [Video Emotions] pred=D ans=D
+  [✗] worldsense/Causal Reasoning [Text and Diagram Understanding] pred=C ans=B
+  [✓] worldsense/Causal Reasoning [Attribute Reasoning] pred=B ans=B
+  [✗] worldsense/Causal Reasoning [Causal Reasoning] pred=D ans=B
+  [✗] worldsense/Emotion Change [Emotion Change] pred=A ans=C
+  [✓] worldsense/Emotion Change [Scene Recognition] pred=C ans=C
+  [✗] worldsense/Event Recognition [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Recognition [Event Sorting] pred=D ans=C
+  [✗] worldsense/Event Recognition [Event Recognition] pred=B ans=A
+  [✗] worldsense/Event Recognition [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Event Sorting [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Sorting [Event Sorting] pred=D ans=C
+  [✗] worldsense/Event Sorting [Event Recognition] pred=C ans=A
+  [✗] worldsense/Event Sorting [Attribute Recognition] pred=A ans=C
+  [✗] worldsense/Hallucination [Attribute Recognition] pred=C ans=D
+  [✓] worldsense/Hallucination [Hallucination] pred=B ans=B
+  [✗] worldsense/Hallucination [Event Sorting] pred=D ans=A
+  [✗] worldsense/Human Emotions [Attribute Recognition] pred=B ans=A
+  [✗] worldsense/Human Emotions [Human Emotions] pred=A ans=B
+  [✗] worldsense/Human Interaction [Human Interaction] pred=A ans=C
+  [✗] worldsense/Human-object Interaction [Audio Recognition] pred=B ans=D
+  [✗] worldsense/Human-object Interaction [Human-object Interaction] pred=A ans=C
+  [✗] worldsense/Object Counting [Object Counting] pred=D ans=C
+  [✗] worldsense/Object Existence Recognition [Event Sorting] pred=D ans=C
+  [✗] worldsense/Object Existence Recognition [Action Counting] pred=C ans=B
+  [✗] worldsense/Object Existence Recognition [Spatial Relation] pred=B ans=D
+  [✗] worldsense/Object Existence Recognition [Object Existence Recognition] pred=A ans=B
+  [✓] worldsense/Object State Change [Scene Recognition] pred=C ans=C
+  [✓] worldsense/Object State Change [Event Sorting] pred=B ans=B
+  [✓] worldsense/Object State Change [Object State Change] pred=B ans=B
+  [✗] worldsense/Relation Reasoning [Audio Recognition] pred=D ans=B
+  [✓] worldsense/Relation Reasoning [Relation Reasoning] pred=B ans=B
+  [✓] worldsense/Relation Reasoning [Action Counting] pred=C ans=C
+  [✗] worldsense/Scene Recognition [Emotion Change] pred=A ans=C
+  [✗] worldsense/Scene Recognition [Scene Recognition] pred=B ans=C
+  [✗] worldsense/Spatial Relation [Spatial Relation] pred=D ans=B
+  [✗] worldsense/Temporal Localization [Audio Change] pred=A ans=B
+  [✗] worldsense/Temporal Localization [Temporal Localization] pred=C ans=D
+  [✗] worldsense/Temporal Prediction [Temporal Prediction] pred=A ans=C
+  [✓] worldsense/Temporal Prediction [Event Sorting] pred=B ans=B
+  [✓] worldsense/Text and Diagram Understanding [Text and Diagram Understanding] pred=B ans=B
+  [✓] worldsense/Text and Diagram Understanding [Attribute Reasoning] pred=B ans=B
+  [✓] worldsense/Text and Diagram Understanding [Causal Reasoning] pred=B ans=B
+  [✗] worldsense/Video Emotions [Video Emotions] pred=B ans=D
+  [✗] worldsense/Video Emotions [Event Sorting] pred=D ans=C
+  [✗] worldsense/Video Emotions [Event Recognition] pred=B ans=A
+  [✓] worldsense/Video Emotions [Attribute Recognition] pred=C ans=C
+
+==================================================
+OmniZip Accuracy: 32/118 = 27.12%
+Skipped (no video): 0
+Results: /workspace/results_zip.jsonl
+
+Per-dataset:
+  daily-omni           4/18 = 22.22%
+  video-mme            7/36 = 19.44%
+  worldsense           21/64 = 32.81%

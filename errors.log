@@ -1,0 +1,41 @@
+
+--- video-mme/Action Reasoning ---
+Traceback (most recent call last):
+  File "/workspace/eval_qwen_omni_zip.py", line 223, in main
+    pred, reasoning = run_inference(model, processor, video_path, question, choices)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/eval_qwen_omni_zip.py", line 127, in run_inference
+    output = model.generate(
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/omnizip/modeling_qwen2_5_omni.py", line 4653, in generate
+    thinker_result = self.thinker.generate(input_ids=input_ids, **thinker_kwargs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py", line 2597, in generate
+    result = self._sample(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py", line 3557, in _sample
+    outputs = self(**model_inputs, return_dict=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/omnizip/modeling_qwen2_5_omni.py", line 2560, in forward
+    inputs_embeds, global_mask = omnizip(
+                                 ^^^^^^^^
+  File "/workspace/omnizip/omnizip_units.py", line 161, in omnizip
+    audio_mask, merge_plan = omnizip_audio_attn(
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/omnizip/omnizip_units.py", line 28, in omnizip_audio_attn
+    _, topk = torch.topk(attn_logits, dominant_num)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: selected index k out of range
+

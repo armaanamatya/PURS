@@ -24,6 +24,7 @@ def omnizip_audio_attn(
     keep_mask = torch.zeros(N, dtype=torch.bool, device=device)
     dominant_num = int(max(0, min(N, round((1.0 - merging_ratio) * N))))
     if dominant_num > 0:
+        dominant_num = min(dominant_num, attn_logits.size(0))
         _, topk = torch.topk(attn_logits, dominant_num)
         keep_mask[topk] = True
 
@@ -85,9 +86,9 @@ def omnizip_istm(video_feature, num_tokens_per_frame=196, merging_ratio=[0.7, 0.
             normed = torch.nn.functional.normalize(tokens, dim=1)
             sim = torch.mm(normed, normed.T)
             sim.fill_diagonal_(-float('inf'))
-            knn_vals, _ = torch.topk(sim, k, dim=1)
+            knn_vals, _ = torch.topk(sim, min(k, max(1, N - 1)), dim=1)
             knn_dist = knn_vals.mean(dim=1)
-            selected = torch.topk(-knn_dist, num_keep, largest=True).indices
+            selected = torch.topk(-knn_dist, min(num_keep, N), largest=True).indices
         return selected
 
     for t in range(num_frames):

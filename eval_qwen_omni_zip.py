@@ -178,6 +178,7 @@ def main():
     parser.add_argument("--rho_video",        type=float, default=0.7)
     parser.add_argument("--g",                type=int,   default=3)
     parser.add_argument("--contextual_ratio", type=float, default=0.05)
+    parser.add_argument("--vram_log",         default="/workspace/vram_log.jsonl")
     args = parser.parse_args()
 
     tee = Tee(args.log)
@@ -202,7 +203,7 @@ def main():
     correct = total = skipped_no_video = 0
     results = []
 
-    with open(args.output, "w") as out_f:
+    with open(args.output, "w") as out_f, open(args.vram_log, "w") as vram_f:
         for entry in runnable:
             video_path = resolve_video_path(entry["file"], args.videos)
             entry_label = f"{entry.get('dataset','?')}/{entry.get('task_type','?')}"
@@ -218,9 +219,24 @@ def main():
                 task_type = q.get("task_type", entry.get("task_type", ""))
 
                 try:
+                    torch.cuda.reset_peak_memory_stats()
                     pred, reasoning = run_inference(model, processor, video_path, question, choices)
+                    peak_vram = torch.cuda.max_memory_allocated() / 1024**3
+                    curr_vram = torch.cuda.memory_allocated() / 1024**3
+                    vram_entry = {
+                        "entry": entry_label, "task_type": task_type,
+                        "duration_s": entry.get("duration_s"),
+                        "peak_vram_gb": round(peak_vram, 2),
+                        "after_vram_gb": round(curr_vram, 2),
+                    }
+                    vram_f.write(json.dumps(vram_entry) + "\n")
+                    vram_f.flush()
                 except Exception as e:
+                    import traceback
+                    tb = traceback.format_exc()
                     print(f"  ERROR {entry_label}: {e}")
+                    with open("/workspace/errors.log", "a") as ef:
+                        ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
 
                 is_correct = pred.strip().upper() == answer
