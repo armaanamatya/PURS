@@ -1,15 +1,33 @@
 // scripts/prepare-data.js
 // Merges ../videos/metadata.json + ../results.jsonl into public/data.json
 // Also copies videos into public/videos/ (Windows-safe, no symlinks)
+//
+// Flags:
+//   --results <path>   Override results file (default: ../../results.jsonl)
+//   --output  <path>   Override output file  (default: public/data.json)
+//   --no-videos        Skip copying videos
 
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "../..");
 const META_FILE = path.join(ROOT, "videos", "metadata.json");
-const RESULTS_FILE = path.join(ROOT, "results.jsonl");
-const OUT_FILE = path.join(__dirname, "../public/data.json");
 const PUBLIC_VIDEOS = path.join(__dirname, "../public/videos");
+
+// Parse CLI flags
+const args = process.argv.slice(2);
+function getArg(flag) {
+  const i = args.indexOf(flag);
+  return i !== -1 ? args[i + 1] : null;
+}
+const noVideos = args.includes("--no-videos");
+
+const RESULTS_FILE = getArg("--results")
+  ? path.resolve(getArg("--results"))
+  : path.join(ROOT, "results.jsonl");
+const OUT_FILE = getArg("--output")
+  ? path.resolve(__dirname, "..", getArg("--output"))
+  : path.join(__dirname, "../public/data.json");
 
 // ── Load results.jsonl ────────────────────────────────────────────────────────
 function loadResults() {
@@ -118,8 +136,10 @@ function main() {
   console.log(`\nWrote ${OUT_FILE}`);
 
   // Copy videos
-  console.log("Copying videos to public/videos/ (skipping existing)...");
-  copyVideosDir(path.join(ROOT, "videos"), PUBLIC_VIDEOS);
+  if (!noVideos) {
+    console.log("Copying videos to public/videos/ (skipping existing)...");
+    copyVideosDir(path.join(ROOT, "videos"), PUBLIC_VIDEOS);
+  }
   console.log("\nDone.");
 }
 
