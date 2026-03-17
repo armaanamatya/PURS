@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-03-13T18:28:29.034Z",
+  "generated_at": "2026-03-17T05:50:35.361Z",
   "stats": {
-    "total_correct": 18,
-    "total_questions": 80,
-    "accuracy": 0.225,
+    "total_correct": 24,
+    "total_questions": 118,
+    "accuracy": 0.2033898305084746,
     "by_dataset": {
       "video-mme": {
         "correct": 7,
@@ -14,8 +14,8 @@
         "total": 18
       },
       "worldsense": {
-        "correct": 7,
-        "total": 26
+        "correct": 13,
+        "total": 64
       }
     }
   },
@@ -936,9 +936,9 @@
           ],
           "answer": "B",
           "task_type": "Audio Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, I've had a good look at the video you're talking about. And, um, there aren't any gunshots in it. So, I'd say the answer is A. What do you think? Did you notice anything else in the video?"
         },
         {
           "question": "What is the relationship between the one-armed monster in the video and the television on the wall?",
@@ -950,9 +950,9 @@
           ],
           "answer": "B",
           "task_type": "Relation Reasoning",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "Well, let's think about this. The video doesn't really show any interaction between the one-armed monster and the TV. There's no indication that the TV is affecting the monster, or vice versa. So, it seems like none of the options fit. But if we have to pick one, I'd say it's B. The TV lights turning on might cause the monster to appear, but that's just a guess. What do you think?"
         },
         {
           "question": "How many times does the one-armed monster appear in the video?",
@@ -986,9 +986,9 @@
           ],
           "answer": "D",
           "task_type": "Text and Diagram Understanding",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "The video doesn't actually show any column with rankings of contestants. So, I can't really pick an answer from the options you gave. But if you have any other questions or need help with something else, feel free to ask!"
         },
         {
           "question": "What unusual incident occurred during the competition shown in the video?",
@@ -1014,9 +1014,9 @@
           ],
           "answer": "A",
           "task_type": "Event Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "C",
+          "correct": false,
+          "reasoning": "I'm not sure which match you're referring to. There's not enough information for me to determine the final champion. Can you give me more details about the match?"
         }
       ]
     },
@@ -1058,9 +1058,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, if we're talking about the overall atmosphere of the video, it seems to be quite lively. The man is talking about email subject lines and how they can get a 40% open rate. He's using some hand gestures and seems quite enthusiastic about the topic. So, I'd say the atmosphere is lively. Answer: B. What do you think?"
         },
         {
           "question": "What is the process followed by the security officer after discovering a firearm?",
@@ -1072,9 +1072,9 @@
           ],
           "answer": "C",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, the correct answer is B. The security officer should first alert the authorities, then call the supervisor, and finally open and search the bag. This is the proper protocol to follow in such a situation. What do you think about this process? Do you have any other questions related to security procedures?"
         },
         {
           "question": "What did the police officer do after confirming there was a gun in the bag in the video?",
@@ -1086,9 +1086,9 @@
           ],
           "answer": "A",
           "task_type": "Event Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, in the video, after the police officer confirmed there was a gun in the bag, he didn't just leave it at that. He actually spoke with the woman to provide some education. So, the answer is B. What do you think about that?"
         },
         {
           "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
@@ -1135,9 +1135,9 @@
           ],
           "answer": "D",
           "task_type": "Temporal Localization",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": true,
+          "reasoning": "The video doesn't mention any specific point where the audience members cheer. So, it seems like there's no clear answer based on the information given. But if we have to choose from the options, it could be considered as 'D. At the beginning of the video' since it's the only option that makes sense in the context of a video. Answer: D"
         }
       ]
     },
@@ -1193,9 +1193,9 @@
           ],
           "answer": "C",
           "task_type": "Human-object Interaction",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a woman in red playing the guzheng. It seems there might be some confusion. But if we're just going by the options given, the correct answer would be A. Taps the guzheng with fingers. What do you think about that?"
         }
       ]
     },
@@ -1229,9 +1229,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": true,
+          "reasoning": "The video doesn't actually have any music, so it's impossible to determine the emotional tone based on music. However, if we were to guess based on the content of the video, it seems to be more focused on providing information or instructions, which would likely be more on the side of calm and informative rather than joy or melancholy. So, I'd say the most likely emotional tone is calm and informative. Answer: D. What do you think?"
         }
       ]
     },
@@ -1251,9 +1251,9 @@
           ],
           "answer": "B",
           "task_type": "Text and Diagram Understanding",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "The video doesn't show a red vehicle with a rear wing at the start. So, I can't determine the number on the rear wing. But if you have any other questions or need help with something else, feel free to ask!"
         },
         {
           "question": "Which car is driven by the girl with yellow hair and black eyes?",
@@ -1265,9 +1265,9 @@
           ],
           "answer": "B",
           "task_type": "Attribute Reasoning",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "I'm not sure which car the girl with yellow hair and black eyes is driving. There's not enough information given in the options to determine the correct answer. So, I can't really say for sure. Maybe you could give me a bit more context or details?",
+          "correct": false,
+          "reasoning": "I'm not sure which car the girl with yellow hair and black eyes is driving. There's not enough information given in the options to determine the correct answer. So, I can't really say for sure. Maybe you could give me a bit more context or details?"
         },
         {
           "question": "Why did the female driver wearing black glasses get out of the car?",
@@ -1315,9 +1315,9 @@
           ],
           "answer": "C",
           "task_type": "Scene Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a baby alpaca playing with toys. It seems like there might be some confusion. But based on the options you've given, I can't really determine the correct answer. If you have more details about the video, that would be helpful."
         }
       ]
     },
@@ -1337,73 +1337,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
-        },
-        {
-          "question": "What is the process followed by the security officer after discovering a firearm?",
-          "choices": [
-            "A. Open and search the bag, alert authorities, and then call the supervisor.",
-            "B. Alert authorities, call the supervisor, and then open and search the bag.",
-            "C. Call the supervisor, alert authorities, and then open and search the bag.",
-            "D. Open and search the bag, call the supervisor, and then alert authorities."
-          ],
-          "answer": "C",
-          "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
-        },
-        {
-          "question": "What did the police officer do after confirming there was a gun in the bag in the video?",
-          "choices": [
-            "A. Escort the woman away.",
-            "B. Speak with the woman to provide education.",
-            "C. Confiscate the gun.",
-            "D. Detain the woman."
-          ],
-          "answer": "A",
-          "task_type": "Event Recognition",
           "prediction": "B",
           "correct": false,
-          "reasoning": "Well, in the video, after the police officer confirmed there was a gun in the bag, he didn't just leave it at that. He actually spoke with the woman to provide some education. So, the answer is B. What do you think about that?"
-        },
-        {
-          "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
-          "choices": [
-            "A. Transparent.",
-            "B. Gray.",
-            "C. White.",
-            "D. Black."
-          ],
-          "answer": "C",
-          "task_type": "Attribute Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
-        }
-      ]
-    },
-    {
-      "dataset": "worldsense",
-      "task_type": "Event Sorting",
-      "duration_s": 79.04,
-      "video_url": "/videos/worldsense/event_sorting/video.mp4",
-      "questions": [
-        {
-          "question": "What is the overall atmosphere of the entire video?",
-          "choices": [
-            "A. Plain.",
-            "B. Lively.",
-            "C. Relaxed.",
-            "D. Tense."
-          ],
-          "answer": "D",
-          "task_type": "Video Emotions",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "reasoning": "Well, if we're talking about the overall atmosphere of the video, it seems to be quite lively. The man is talking about email subject lines and how they can get a 40% open rate. He's using some hand gestures and seems quite enthusiastic about the topic. So, I'd say the atmosphere is lively. Answer: B. What do you think?"
         },
         {
           "question": "What is the process followed by the security officer after discovering a firearm?",
@@ -1429,9 +1365,9 @@
           ],
           "answer": "A",
           "task_type": "Event Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, in the video, after the police officer confirmed there was a gun in the bag, he didn't just leave it at that. He actually spoke with the woman to provide some education. So, the answer is B. What do you think about that?"
         },
         {
           "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
@@ -1443,9 +1379,73 @@
           ],
           "answer": "C",
           "task_type": "Attribute Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a box for holding passengers' items during security checks. So, I can't determine the color. But if we had to guess based on common security check procedures, it's often a transparent box to see what's inside. So, I'd go with A. Answer: A. What do you think?"
+        }
+      ]
+    },
+    {
+      "dataset": "worldsense",
+      "task_type": "Event Sorting",
+      "duration_s": 79.04,
+      "video_url": "/videos/worldsense/event_sorting/video.mp4",
+      "questions": [
+        {
+          "question": "What is the overall atmosphere of the entire video?",
+          "choices": [
+            "A. Plain.",
+            "B. Lively.",
+            "C. Relaxed.",
+            "D. Tense."
+          ],
+          "answer": "D",
+          "task_type": "Video Emotions",
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, if we're talking about the overall atmosphere of the video, it seems to be quite lively. The man is talking about email subject lines and how they can get a 40% open rate. He's using some hand gestures and seems quite enthusiastic about the topic. So, I'd say the atmosphere is lively. Answer: B. What do you think?"
+        },
+        {
+          "question": "What is the process followed by the security officer after discovering a firearm?",
+          "choices": [
+            "A. Open and search the bag, alert authorities, and then call the supervisor.",
+            "B. Alert authorities, call the supervisor, and then open and search the bag.",
+            "C. Call the supervisor, alert authorities, and then open and search the bag.",
+            "D. Open and search the bag, call the supervisor, and then alert authorities."
+          ],
+          "answer": "C",
+          "task_type": "Event Sorting",
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, the correct answer is B. The security officer should first alert the authorities, then call the supervisor, and finally open and search the bag. This is the proper protocol to follow in such a situation. What do you think about this process? Do you have any other questions related to security procedures?"
+        },
+        {
+          "question": "What did the police officer do after confirming there was a gun in the bag in the video?",
+          "choices": [
+            "A. Escort the woman away.",
+            "B. Speak with the woman to provide education.",
+            "C. Confiscate the gun.",
+            "D. Detain the woman."
+          ],
+          "answer": "A",
+          "task_type": "Event Recognition",
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, in the video, after the police officer confirmed there was a gun in the bag, he didn't just leave it at that. He actually spoke with the woman to provide some education. So, the answer is B. What do you think about that?"
+        },
+        {
+          "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
+          "choices": [
+            "A. Transparent.",
+            "B. Gray.",
+            "C. White.",
+            "D. Black."
+          ],
+          "answer": "C",
+          "task_type": "Attribute Recognition",
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a box for holding passengers' items during security checks. So, I can't determine the color. But if we had to guess based on common security check procedures, it's often a transparent box to see what's inside. So, I'd go with A. Answer: A. What do you think?"
         }
       ]
     },
@@ -1465,9 +1465,9 @@
           ],
           "answer": "D",
           "task_type": "Attribute Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "C",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a woman wearing shoes. So, it's not possible to determine the type of shoes she might be wearing. But if we had to choose from the given options based on the information provided, we'd have to say there's no answer. However, since we need to pick one, let's go with the most likely option which is C. Yellow sneakers. Answer: C"
         },
         {
           "question": "How many times did the woman swing on the swing in the video?",
@@ -1493,9 +1493,9 @@
           ],
           "answer": "A",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "The video shows the little boy first climbing the stairs, then swinging on a ring, and finally sliding down. So, the correct order is stair climbing, ring swinging, and sliding. There's no swinging again after the first time. Therefore, the answer is D. What do you think about the video?"
         }
       ]
     },
@@ -1515,9 +1515,9 @@
           ],
           "answer": "A",
           "task_type": "Attribute Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "I'm sorry, but I don't have any information about a train passing by. So, I can't answer this question. But if you have any other questions or need help with something else, feel free to ask!"
         },
         {
           "question": "What is the tone of the speaker in the video?",
@@ -1573,9 +1573,9 @@
           ],
           "answer": "D",
           "task_type": "Audio Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "I'm not sure which instrument is on the right in the video. I don't have enough information to determine that. So, I can't give you a definite answer. But if you can describe the instrument a bit more, that might help me figure it out."
         },
         {
           "question": "What did the woman in red do to the guzheng during the performance in the video?",
@@ -1631,9 +1631,9 @@
           ],
           "answer": "C",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, let's think about this. First, you need to unfold the folded fabric and trim the uneven edges. Then, you continue folding the fabric. After that, you fold the rectangular fabric at a 45 - degree angle. Next, you cut a 2 - inch - wide fabric strip. And finally, you demonstrate how to trim the angled ends and sew the strips at right angles. So, the correct order is D. Answer: D. What do you think? Do you have any other questions about this?"
         },
         {
           "question": "How many times does the woman fold the fabric in the video to create a trapezoid?",
@@ -1645,9 +1645,9 @@
           ],
           "answer": "B",
           "task_type": "Action Counting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "C",
+          "correct": false,
+          "reasoning": "The video doesn't show a woman folding fabric at all. So, there's no folding to count. Answer: C"
         },
         {
           "question": "What is the position of the purple fabric relative to the woman in the video?",
@@ -1659,9 +1659,9 @@
           ],
           "answer": "D",
           "task_type": "Spatial Relation",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "The video doesn't provide enough information to determine the exact position of the purple fabric relative to the woman. So, I can't give a definitive answer. But if you have any other details or another question about the video, feel free to share!"
         },
         {
           "question": "Is there any pink fabric in the video?",
@@ -1694,9 +1694,9 @@
           ],
           "answer": "C",
           "task_type": "Scene Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "C",
+          "correct": true,
+          "reasoning": "The scene at the beginning of the video takes place in a car garage. So, the answer is C. What do you think about that?"
         },
         {
           "question": "What is the correct sequence for testing the fuel pump as presented in the video?",
@@ -1708,9 +1708,9 @@
           ],
           "answer": "B",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "The correct sequence for testing the fuel pump as presented in the video is: first, identify the power wire and ground wire, then connect the power probe to the ground wire, next, the power probe lights up green, and finally, check the water flow in the pipe. So, the answer is B. What do you think about this sequence? Do you have any other questions related to it?"
         },
         {
           "question": "What change occurs when the power probe is placed on the car's fuel pump in the video?",
@@ -1744,9 +1744,9 @@
           ],
           "answer": "B",
           "task_type": "Audio Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, I've had a good look at the video you're talking about. And, um, there aren't any gunshots in it. So, I'd say the answer is A. What do you think? Did you notice anything else in the video?"
         },
         {
           "question": "What is the relationship between the one-armed monster in the video and the television on the wall?",
@@ -1772,9 +1772,9 @@
           ],
           "answer": "C",
           "task_type": "Action Counting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "I'm not sure how many times the one-armed monster appears in the video. I need to watch it again to count. But based on what I remember, it seems like it appears once. So, I'd go with D. Answer: D."
         }
       ]
     },
@@ -1794,9 +1794,9 @@
           ],
           "answer": "C",
           "task_type": "Emotion Change",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "The question is a bit confusing as it mentions a llama entering a supermarket, which is not a typical scenario. However, if we assume the llama is calm at first and then experiences some sort of change, we can consider the options. If the llama was calm and then got frustrated, excited, angry, or disappointed, it would be a significant change. But without more context, it's hard to say for sure. I'll go with the most likely scenario, which is that the llama might get frustrated or disappointed. So, I'd say the answer is D. What do you think?"
         },
         {
           "question": "Where does the scene of the baby alpaca playing with toys in the video take place?",
@@ -1851,9 +1851,9 @@
           ],
           "answer": "B",
           "task_type": "Audio Change",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "The video doesn't provide enough information to determine any change in the volume of the man speaking in the black suit. So, the answer is A. What do you think about the video?"
         },
         {
           "question": "At what point in the video do the audience members cheer?",
@@ -1901,9 +1901,9 @@
           ],
           "answer": "B",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "C",
+          "correct": false,
+          "reasoning": "The correct sequence is: Chris Benoit's malicious actions, Vince McMahon was charged, Vince McMahon was erased from WWE history, WWE promoted matches featuring other wrestlers. So, the answer is C. What do you think about this sequence?"
         }
       ]
     },
@@ -1937,9 +1937,9 @@
           ],
           "answer": "B",
           "task_type": "Attribute Reasoning",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "I'm not sure which car the girl with yellow hair and black eyes is driving. There's not enough information given in the options to determine the correct answer. So, I can't really say for sure. Maybe you could give me a bit more context or details?",
+          "correct": false,
+          "reasoning": "I'm not sure which car the girl with yellow hair and black eyes is driving. There's not enough information given in the options to determine the correct answer. So, I can't really say for sure. Maybe you could give me a bit more context or details?"
         },
         {
           "question": "Why did the female driver wearing black glasses get out of the car?",
@@ -1951,9 +1951,9 @@
           ],
           "answer": "B",
           "task_type": "Causal Reasoning",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "The information given doesn't specify why the female driver got out of the car. So, I can't really determine the correct answer from the options provided. But if I had to guess based on common scenarios in races, it could be B, she had completed the race. What do you think?"
         }
       ]
     },
@@ -1987,9 +1987,9 @@
           ],
           "answer": "C",
           "task_type": "Event Sorting",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "D",
+          "correct": false,
+          "reasoning": "Well, the correct answer is B. The security officer should first alert the authorities, then call the supervisor, and finally open and search the bag. This is the proper protocol to follow in such a situation. What do you think about this process? Do you have any other questions related to security procedures?"
         },
         {
           "question": "What did the police officer do after confirming there was a gun in the bag in the video?",
@@ -2001,9 +2001,9 @@
           ],
           "answer": "A",
           "task_type": "Event Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "Well, in the video, after the police officer confirmed there was a gun in the bag, he didn't just leave it at that. He actually spoke with the woman to provide some education. So, the answer is B. What do you think about that?"
         },
         {
           "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
@@ -2015,9 +2015,9 @@
           ],
           "answer": "C",
           "task_type": "Attribute Recognition",
-          "prediction": null,
-          "correct": null,
-          "reasoning": null
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "The video doesn't actually show a box for holding passengers' items during security checks. So, I can't determine the color. But if we had to guess based on common security check procedures, it's often a transparent box to see what's inside. So, I'd go with A. Answer: A. What do you think?"
         }
       ]
     }

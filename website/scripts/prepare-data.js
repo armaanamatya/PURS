@@ -68,7 +68,7 @@ function main() {
   const entries = metadata.map((entry) => {
     const videoUrl = toVideoUrl(entry.file);
     const enrichedQuestions = (entry.questions || []).map((q) => {
-      const key = `${entry.dataset}||${entry.task_type}||${q.question}`;
+      const key = `${entry.dataset}||${q.task_type || entry.task_type}||${q.question}`;
       const result = resultIndex[key] || null;
       return {
         question: q.question,
