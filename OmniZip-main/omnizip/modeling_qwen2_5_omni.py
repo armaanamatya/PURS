@@ -611,6 +611,7 @@ class Qwen2_5OmniAudioAttention(nn.Module):
         self,
         hidden_states: torch.Tensor,
         cu_seqlens: Optional[torch.Tensor] = None,
+        return_logits: bool = False,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         """Input shape: Batch x Time x Channel"""
 
@@ -645,7 +646,9 @@ class Qwen2_5OmniAudioAttention(nn.Module):
 
         attn_output = self.out_proj(attn_output)
 
-        return attn_output
+        if return_logits:
+            return attn_output, attn_weights, key_states
+        return attn_output, None, None
 
 
 class Qwen2_5OmniAudioFlashAttention2(Qwen2_5OmniAudioAttention):
@@ -2055,7 +2058,6 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
                     position_embeddings,
                 )
             else:
-                output_attentions = False
                 layer_outputs = decoder_layer(
                     hidden_states,
                     attention_mask=causal_mask,
@@ -2073,8 +2075,7 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
                 next_decoder_cache = layer_outputs[2 if output_attentions else 1]
 
             if output_attentions:
-                pass
-                #all_self_attns += (layer_outputs[1],)
+                all_self_attns += (layer_outputs[1],)
 
         hidden_states = self.norm(hidden_states)
 

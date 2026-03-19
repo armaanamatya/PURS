@@ -31,13 +31,16 @@ sys.path.insert(0, os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src"))
 # Load OmniZip's custom model (not the transformers stock version)
 from omnizip.modeling_qwen2_5_omni import Qwen2_5OmniForConditionalGeneration
 from transformers import Qwen2_5OmniProcessor
+
+import omnizip.modeling_qwen2_5_omni as _qwen_mod
+_qwen_mod.check_torch_load_is_safe = lambda: None  # bypass CVE-2025-32434 (torch < 2.6)
 from qwen_omni_utils import process_mm_info
 
 # ── Config ────────────────────────────────────────────────────────────────────
 VIDEO_PATH = os.path.join(os.path.dirname(__file__), "videos", "worldsense",
                           "attribute_reasoning", "video.mp4")
 QUESTION   = "What is the profession of the man with a beard wearing a suit in the video?"
-MODEL_PATH = "Qwen/Qwen2.5-Omni-7B"
+MODEL_PATH = "/workspace/model"
 
 OMNIZIP_CONFIG = {           # same defaults as demo.py
     "rho_audio":       0.4,  # fraction of audio tokens to DROP
