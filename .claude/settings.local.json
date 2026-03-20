@@ -5,7 +5,13 @@
       "WebFetch(domain:arxiv.org)",
       "mcp__plugin_context7_context7__query-docs",
       "Bash(\"/c/Users/armaa/AppData/Local/Programs/Python/Python313/Scripts/vastai.exe\" create:*)",
-      "mcp__plugin_context-mode_context-mode__ctx_execute"
+      "mcp__plugin_context-mode_context-mode__ctx_execute",
+      "Bash(mkdir -p .firecrawl)",
+      "Bash(firecrawl scrape:*)",
+      "mcp__plugin_context-mode_context-mode__ctx_batch_execute",
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "mcp__plugin_context7_context7__resolve-library-id"
     ]
   }
 }
