@@ -207,20 +207,66 @@ def _read_video_torchvision(
         if "file://" in video_path:
             video_path = video_path[7:]
     st = time.time()
-    video, audio, info = io.read_video(
-        video_path,
-        start_pts=ele.get("video_start", 0.0),
-        end_pts=ele.get("video_end", None),
-        pts_unit="sec",
-        output_format="TCHW",
-    )
-    total_frames, video_fps = video.size(0), info["video_fps"]
-    logger.info(f"torchvision:  {video_path=}, {total_frames=}, {video_fps=}, time={time.time() - st:.3f}s")
-    nframes = smart_nframes(ele, total_frames=total_frames, video_fps=video_fps)
-    idx = torch.linspace(0, total_frames - 1, nframes).round().long()
-    sample_fps = nframes / max(total_frames, 1e-6) * video_fps
-    video = video[idx]
-    return video, sample_fps
+    try:
+        video, audio, info = io.read_video(
+            video_path,
+            start_pts=ele.get("video_start", 0.0),
+            end_pts=ele.get("video_end", None),
+            pts_unit="sec",
+            output_format="TCHW",
+        )
+        total_frames, video_fps = video.size(0), info["video_fps"]
+        logger.info(f"torchvision:  {video_path=}, {total_frames=}, {video_fps=}, time={time.time() - st:.3f}s")
+        nframes = smart_nframes(ele, total_frames=total_frames, video_fps=video_fps)
+        idx = torch.linspace(0, total_frames - 1, nframes).round().long()
+        sample_fps = nframes / max(total_frames, 1e-6) * video_fps
+        video = video[idx]
+        return video, sample_fps
+    except Exception as e:
+        # Fallback path that avoids probing the audio stream (read_video can touch container.streams.audio[0]).
+        # Uses VideoReader on the "video" stream only and samples frames by timestamp.
+        from torchvision.io import VideoReader
+
+        start_s = float(ele.get("video_start", 0.0))
+        end_s = ele.get("video_end", None)
+
+        vr = VideoReader(video_path, "video")
+        meta = vr.get_metadata().get("video", {})
+        fps_list = meta.get("fps", [FPS])
+        dur_list = meta.get("duration", [0.0])
+        video_fps = float(fps_list[0] if fps_list else FPS)
+        duration_s = float(dur_list[0] if dur_list else 0.0)
+        if end_s is None:
+            end_s = duration_s if duration_s > 0 else None
+
+        # Estimate total frames (used only for smart_nframes bounds).
+        total_frames = max(1, int(round((duration_s if duration_s > 0 else max(start_s + 1.0, 1.0)) * max(video_fps, 1e-6))))
+        nframes = smart_nframes(ele, total_frames=total_frames, video_fps=video_fps)
+
+        if end_s is None or end_s <= start_s:
+            # If duration is unknown, just sample forward from start in 1/fps steps.
+            times = [start_s + (i / max(video_fps, 1e-6)) for i in range(nframes)]
+        else:
+            times = torch.linspace(start_s, end_s, nframes).tolist()
+
+        frames = []
+        for t in times:
+            vr.seek(float(t))
+            sample = next(iter(vr))
+            data = sample["data"]
+            # data can be HWC (uint8) or CHW depending on torchvision version
+            if data.dim() == 3 and data.shape[0] in (1, 3) and data.dtype != torch.uint8:
+                chw = data
+            elif data.dim() == 3 and data.shape[-1] in (1, 3):
+                chw = data.permute(2, 0, 1)
+            else:
+                chw = data
+            frames.append(chw)
+
+        video = torch.stack(frames, dim=0)
+        sample_fps = float(nframes) / max((float(end_s) - start_s) if (end_s is not None and end_s > start_s) else float(nframes) / max(video_fps, 1e-6), 1e-6)
+        logger.info(f"torchvision(VideoReader fallback): {video_path=}, nframes={nframes}, {video_fps=}, time={time.time() - st:.3f}s, err={e}")
+        return video, sample_fps
 
 
 def is_decord_available() -> bool:

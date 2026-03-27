@@ -1,4 +1,5 @@
 import base64
+import os
 from io import BytesIO
 
 import audioread
@@ -8,6 +9,48 @@ import numpy as np
 
 
 SAMPLE_RATE=16000
+
+ENV_AUDIO_WAV_ROOT = "QWEN_OMNI_AUDIO_WAV_ROOT"
+
+def _resolve_wav_for_video_path(video_path: str) -> str | None:
+    """
+    Return a .wav path if we can map `video_path` to a pre-extracted audio file.
+
+    Priority:
+    1) If QWEN_OMNI_AUDIO_WAV_ROOT is set, mirror the relative video path under that root.
+       Example:
+         video_path: /data/armaan/purs/videos/video-mme/action_reasoning/video.mp4
+         root:       /data/armaan/purs/videos_audio_wav
+         ->          /data/armaan/purs/videos_audio_wav/video-mme/action_reasoning/video.wav
+    2) Same directory as the video: replace extension with .wav
+    """
+    if video_path.startswith(("http://", "https://")):
+        return None
+    if video_path.startswith("file://"):
+        video_path = video_path[len("file://") :]
+
+    wav_root = os.environ.get(ENV_AUDIO_WAV_ROOT)
+    if wav_root:
+        # Mirror relative to the "videos/" directory if present (matches our ffmpeg cache layout).
+        normalized = video_path.replace("\\", "/")
+        marker = "/videos/"
+        rel = None
+        if marker in normalized:
+            rel = normalized.split(marker, 1)[1]
+        if rel is None:
+            # Fallback: just use basename under wav_root
+            rel = os.path.basename(normalized)
+
+        rel_wav = os.path.splitext(rel)[0] + ".wav"
+        candidate = os.path.join(wav_root, rel_wav)
+        if os.path.exists(candidate):
+            return candidate
+
+    local_candidate = os.path.splitext(video_path)[0] + ".wav"
+    if os.path.exists(local_candidate):
+        return local_candidate
+    return None
+
 def _check_if_video_has_audio(video_path):
     container = av.open(video_path)
     audio_streams = [stream for stream in container.streams if stream.type == "audio"]
@@ -68,15 +111,19 @@ def process_audio_info(conversations: list[dict] | list[list[dict]], use_audio_i
                         path = ele.get("video", ele.get("video_url"))
                         audio_start = ele.get("video_start", 0.0)
                         audio_end = ele.get("video_end", None)
-                        assert _check_if_video_has_audio(
-                            path
-                        ), "Video must has audio track when use_audio_in_video=True"
-                        if path.startswith("http://") or path.startswith("https://"):
-                            data = audioread.ffdec.FFmpegAudioFile(path)
-                        elif path.startswith("file://"):
-                            data = path[len("file://") :]
+                        wav_path = _resolve_wav_for_video_path(path) if isinstance(path, str) else None
+                        if wav_path is not None:
+                            data = wav_path
                         else:
-                            data = path
+                            assert _check_if_video_has_audio(
+                                path
+                            ), "Video must has audio track when use_audio_in_video=True"
+                            if path.startswith("http://") or path.startswith("https://"):
+                                data = audioread.ffdec.FFmpegAudioFile(path)
+                            elif path.startswith("file://"):
+                                data = path[len("file://") :]
+                            else:
+                                data = path
                     else:
                         raise ValueError("Unknown video {}".format(ele))
                 else:
