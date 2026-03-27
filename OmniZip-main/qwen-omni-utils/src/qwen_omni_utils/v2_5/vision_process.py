@@ -230,7 +230,9 @@ def _read_video_torchvision(
         start_s = float(ele.get("video_start", 0.0))
         end_s = ele.get("video_end", None)
 
-        vr = VideoReader(video_path, "video")
+        # Keep decode threading minimal to reduce `avcodec_open2(...): [Errno 11] Resource temporarily unavailable`
+        # on busy/limited HPC nodes (PyAV uses FFmpeg threads under the hood).
+        vr = VideoReader(video_path, "video", num_threads=1)
         meta = vr.get_metadata().get("video", {})
         fps_list = meta.get("fps", [FPS])
         dur_list = meta.get("duration", [0.0])
@@ -352,7 +354,9 @@ def _read_video_decord(
     import decord
     video_path = ele["video"]
     st = time.time()
-    vr = decord.VideoReader(video_path)
+    # Reduce FFmpeg thread pressure on shared HPC nodes.
+    # `fault_tol=1` makes decord more tolerant to minor bitstream errors.
+    vr = decord.VideoReader(video_path, num_threads=1, fault_tol=1)
     total_frames, video_fps = len(vr), vr.get_avg_fps()
     start_frame, end_frame, total_frames = calculate_video_frame_range(
         ele,
@@ -448,6 +452,13 @@ def fetch_video(ele: dict, image_factor: int = IMAGE_FACTOR, return_video_sample
             video, sample_fps = VIDEO_READER_BACKENDS[video_reader_backend](ele)
         except Exception as e:
             logger.warning(f"video_reader_backend {video_reader_backend} error, use torchvision as default, msg: {e}")
+            # If the backend was explicitly forced, do not silently switch to another backend.
+            # This avoids flipping back to PyAV/torchvision on nodes where `avcodec_open2` is unstable.
+            if FORCE_QWENVL_VIDEO_READER is not None:
+                raise
+            # Avoid falling back into the same failing backend again; let the caller handle retries / sample-level errors.
+            if video_reader_backend == "torchvision":
+                raise
             video, sample_fps = VIDEO_READER_BACKENDS["torchvision"](ele)
 
         nframes, _, height, width = video.shape
