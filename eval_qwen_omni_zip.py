@@ -48,6 +48,9 @@ FALLBACK_MODEL_PATH = "/workspace/model"
 MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
 MODEL_VARIANT = "qwen2.5-omni"
 
+# Mutable run configuration set in main()
+RUN_CONFIG: dict = {"fps": 1.0, "max_pixels": 360 * 420, "use_audio_in_video": True}
+
 # ── Tee logger ────────────────────────────────────────────────────────────────
 
 class Tee:
@@ -113,7 +116,7 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
             "capable of perceiving auditory and visual inputs, as well as generating text and speech."
         )}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": 1.0, "max_pixels": 360*420},
+            {"type": "video", "video": video_path, "fps": RUN_CONFIG["fps"], "max_pixels": RUN_CONFIG["max_pixels"]},
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -122,7 +125,7 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     last_err: Exception | None = None
     for attempt in range(3):
         try:
-            audios, images, videos = process_mm_info(messages, use_audio_in_video=True)
+            audios, images, videos = process_mm_info(messages, use_audio_in_video=RUN_CONFIG["use_audio_in_video"])
             last_err = None
             break
         except Exception as e:
@@ -130,7 +133,18 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
             # Helps with transient PyAV/ffmpeg swscale init errors seen on some nodes.
             time.sleep(1.0 * (attempt + 1))
     if last_err is not None:
-        raise last_err
+        # If audio decoding fails (ffmpeg/audioread thread issues), fall back to video-only.
+        if RUN_CONFIG["use_audio_in_video"]:
+            msg = str(last_err)
+            if ("NoBackendError" in msg) or ("can't start new thread" in msg) or ("Format not recognised" in msg):
+                audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+            else:
+                raise last_err
+        else:
+            raise last_err
+
+    if not videos or videos[0] is None or getattr(videos[0], "shape", None) is None or videos[0].shape[0] <= 0:
+        raise ValueError("Decoded 0 video frames (video reader backend failed). Try lower --fps/--max_pixels.")
 
     # OmniZip requires nframes to be set on thinker before each forward pass
     num_input_frames = videos[0].shape[0] if videos else 1
@@ -195,6 +209,9 @@ def main():
     parser.add_argument("--log",              default="/workspace/eval_zip.log")
     parser.add_argument("--errors_log",       default=None, help="Where to append tracebacks (default: alongside --log).")
     parser.add_argument("--category",         default=None, help="Filter by dataset or task_type")
+    parser.add_argument("--fps",              type=float, default=1.0, help="Video sampling fps (lower can reduce decode/VRAM issues)")
+    parser.add_argument("--max_pixels",       type=int, default=360*420, help="Max pixels per frame (lower can reduce decode/VRAM issues)")
+    parser.add_argument("--no_audio",          action="store_true", help="Disable audio-in-video (use video only).")
     parser.add_argument("--rho_audio",        type=float, default=0.4)
     parser.add_argument("--rho_video",        type=float, default=0.7)
     parser.add_argument("--g",                type=int,   default=3)
@@ -215,6 +232,13 @@ def main():
 
     tee = Tee(args.log)
     sys.stdout = tee
+
+    global RUN_CONFIG
+    RUN_CONFIG = {
+        "fps": args.fps,
+        "max_pixels": args.max_pixels,
+        "use_audio_in_video": (not args.no_audio),
+    }
 
     meta = json.loads(Path(args.metadata).read_text())
     print(f"Loaded {len(meta)} entries")

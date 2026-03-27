@@ -93,14 +93,23 @@ def load_model(model_variant: str):
 
 # ── Inference ─────────────────────────────────────────────────────────────────
 
-def run_inference(model, processor, video_path: str, question: str, choices: list) -> tuple[str, str]:
+def run_inference(
+    model,
+    processor,
+    video_path: str,
+    question: str,
+    choices: list,
+    fps: float,
+    max_pixels: int,
+    max_new_tokens: int,
+) -> tuple[str, str]:
     choice_text = "\n".join(choices) if choices[0].startswith("A") else "\n".join(f"{chr(65+i)}. {c}" for i, c in enumerate(choices))
     prompt = f"{question}\n\n{choice_text}\n\nThink step by step, then end your response with 'Answer: X' where X is A, B, C, or D."
 
     messages = [
         {"role": "system", "content": [{"type": "text", "text": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": 1.0, "max_pixels": 360*420},
+            {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -114,7 +123,7 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     inputs = inputs.to(model.device).to(model.dtype)
 
     with torch.no_grad():
-        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=512)
+        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=max_new_tokens)
 
     decoded = processor.batch_decode(output, skip_special_tokens=True)[0]
     # Strip the prompt portion that gets echoed back
@@ -163,6 +172,9 @@ def main():
     parser.add_argument("--output",   default="/workspace/results.jsonl", help="Output JSONL file")
     parser.add_argument("--log",      default="/workspace/eval.log", help="Log file (appended each run)")
     parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
+    parser.add_argument("--fps",      type=float, default=0.5, help="Video sampling fps (lower = less VRAM)")
+    parser.add_argument("--max_pixels", type=int, default=256*256, help="Max pixels per frame (lower = less VRAM)")
+    parser.add_argument("--max_new_tokens", type=int, default=256, help="Generation length cap (lower = less VRAM)")
     parser.add_argument(
         "--model_variant",
         default="qwen2.5-omni",
@@ -220,7 +232,16 @@ def main():
                 task_type = q.get("task_type", entry.get("task_type", ""))
 
                 try:
-                    pred, reasoning = run_inference(model, processor, video_path, question, choices)
+                    pred, reasoning = run_inference(
+                        model,
+                        processor,
+                        video_path,
+                        question,
+                        choices,
+                        args.fps,
+                        args.max_pixels,
+                        args.max_new_tokens,
+                    )
                 except Exception as e:
                     print(f"  ERROR {entry_label}: {e}")
                     pred, reasoning = "ERROR", ""
