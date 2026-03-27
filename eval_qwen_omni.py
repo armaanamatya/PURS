@@ -17,6 +17,12 @@ import torch
 from datetime import datetime
 from pathlib import Path
 from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
+
+OMNIZIP_DIR = os.path.join(os.path.dirname(__file__), "OmniZip-main")
+QWEN_OMNI_UTILS_SRC = os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src")
+if QWEN_OMNI_UTILS_SRC not in sys.path:
+    sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
+
 from qwen_omni_utils import process_mm_info
 
 
@@ -45,25 +51,49 @@ class Tee:
     def close(self):
         self.log.close()
 
-MODEL_PATH = "/workspace/model"
+ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
+DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
+FALLBACK_MODEL_PATH = "/workspace/model"
+
+MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
 
 # ── Model ─────────────────────────────────────────────────────────────────────
 
-def load_model():
-    print(f"Loading model from {MODEL_PATH} ...")
-    model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
-        MODEL_PATH,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-        attn_implementation="sdpa",
-    )
-    processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+def load_model(model_variant: str):
+    print(f"Loading {model_variant} model from {MODEL_PATH} ...")
+    if model_variant == "qwen2.5-omni":
+        model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
+            MODEL_PATH,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            attn_implementation="sdpa",
+        )
+        processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+    elif model_variant == "qwen3-omni":
+        try:
+            from transformers import Qwen3OmniMoeForConditionalGeneration, Qwen3OmniMoeProcessor
+        except ImportError as e:
+            raise ImportError(
+                "Qwen3 Omni classes not found in your installed transformers. "
+                "Install a transformers version that includes Qwen3-Omni support, "
+                "or run with --model_variant qwen2.5-omni."
+            ) from e
+
+        model = Qwen3OmniMoeForConditionalGeneration.from_pretrained(
+            MODEL_PATH,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            attn_implementation="sdpa",
+        )
+        processor = Qwen3OmniMoeProcessor.from_pretrained(MODEL_PATH)
+    else:
+        raise ValueError(f"Unsupported model variant: {model_variant}")
     print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
     return model, processor
 
 # ── Inference ─────────────────────────────────────────────────────────────────
 
-def run_inference(model, processor, video_path: str, question: str, choices: list) -> str:
+def run_inference(model, processor, video_path: str, question: str, choices: list) -> tuple[str, str]:
     choice_text = "\n".join(choices) if choices[0].startswith("A") else "\n".join(f"{chr(65+i)}. {c}" for i, c in enumerate(choices))
     prompt = f"{question}\n\n{choice_text}\n\nThink step by step, then end your response with 'Answer: X' where X is A, B, C, or D."
 
@@ -127,12 +157,25 @@ def resolve_video_path(file_field: str, videos_dir: str) -> str | None:
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model",    default=None, help=f"Model path (or set {ENV_MODEL_PATH_KEY}).")
     parser.add_argument("--metadata", default="metadata.json", help="Path to enriched metadata.json")
     parser.add_argument("--videos",   default="/workspace/videos", help="Directory containing video files")
     parser.add_argument("--output",   default="/workspace/results.jsonl", help="Output JSONL file")
     parser.add_argument("--log",      default="/workspace/eval.log", help="Log file (appended each run)")
     parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
+    parser.add_argument(
+        "--model_variant",
+        default="qwen2.5-omni",
+        choices=["qwen2.5-omni", "qwen3-omni"],
+        help="Which Omni model variant to run",
+    )
     args = parser.parse_args()
+
+    global MODEL_PATH
+    if args.model:
+        MODEL_PATH = args.model
+    elif not os.path.exists(MODEL_PATH) and os.path.exists(FALLBACK_MODEL_PATH):
+        MODEL_PATH = FALLBACK_MODEL_PATH
 
     tee = Tee(args.log)
     sys.stdout = tee
@@ -156,7 +199,7 @@ def main():
         print("Nothing to run. Exiting.")
         return
 
-    model, processor = load_model()
+    model, processor = load_model(args.model_variant)
 
     correct = total = skipped_no_video = 0
     results = []
@@ -188,6 +231,7 @@ def main():
                 total += 1
 
                 result = {
+                    "model_variant": args.model_variant,
                     "dataset":    entry.get("dataset"),
                     "task_type":  task_type,
                     "duration_s": entry.get("duration_s"),
@@ -207,6 +251,7 @@ def main():
     # Final summary
     acc = correct / total if total else 0
     print(f"\n{'='*50}")
+    print(f"Model variant: {args.model_variant}")
     print(f"Accuracy:      {correct}/{total} = {acc:.2%}")
     print(f"Skipped (no video): {skipped_no_video}")
     print(f"Results saved: {args.output}")

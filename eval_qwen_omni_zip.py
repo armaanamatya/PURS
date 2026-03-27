@@ -23,22 +23,30 @@ import os
 import glob
 import re
 import sys
+import time
 import torch
 from datetime import datetime
 from pathlib import Path
 
-# OmniZip replaces the standard model class — must be importable from the
-# OmniZip-main directory. Upload OmniZip-main/ to /workspace/OmniZip-main/
-# and this script will find it automatically.
-OMNIZIP_DIR = os.path.dirname(__file__)  # omnizip/ sits next to this script
+# OmniZip replaces the standard model class — must be importable from OmniZip-main/
+# (same layout as viz_attention_omnizip.py).
+OMNIZIP_DIR = os.path.join(os.path.dirname(__file__), "OmniZip-main")
+QWEN_OMNI_UTILS_SRC = os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src")
 if OMNIZIP_DIR not in sys.path:
     sys.path.insert(0, OMNIZIP_DIR)
+if QWEN_OMNI_UTILS_SRC not in sys.path:
+    sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
 
 from omnizip.modeling_qwen2_5_omni import Qwen2_5OmniForConditionalGeneration
 from transformers import Qwen2_5OmniProcessor
 from qwen_omni_utils import process_mm_info
 
-MODEL_PATH = "/workspace/model"
+ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
+DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
+FALLBACK_MODEL_PATH = "/workspace/model"
+
+MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
+MODEL_VARIANT = "qwen2.5-omni"
 
 # ── Tee logger ────────────────────────────────────────────────────────────────
 
@@ -111,7 +119,18 @@ def run_inference(model, processor, video_path: str, question: str, choices: lis
     ]
 
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    audios, images, videos = process_mm_info(messages, use_audio_in_video=True)
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            audios, images, videos = process_mm_info(messages, use_audio_in_video=True)
+            last_err = None
+            break
+        except Exception as e:
+            last_err = e
+            # Helps with transient PyAV/ffmpeg swscale init errors seen on some nodes.
+            time.sleep(1.0 * (attempt + 1))
+    if last_err is not None:
+        raise last_err
 
     # OmniZip requires nframes to be set on thinker before each forward pass
     num_input_frames = videos[0].shape[0] if videos else 1
@@ -169,10 +188,12 @@ def resolve_video_path(file_field: str, videos_dir: str) -> str | None:
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model",            default=None, help=f"Model path (or set {ENV_MODEL_PATH_KEY}).")
     parser.add_argument("--metadata",         default="/workspace/metadata.json")
     parser.add_argument("--videos",           default="/workspace/videos")
     parser.add_argument("--output",           default="/workspace/results_zip.jsonl")
     parser.add_argument("--log",              default="/workspace/eval_zip.log")
+    parser.add_argument("--errors_log",       default=None, help="Where to append tracebacks (default: alongside --log).")
     parser.add_argument("--category",         default=None, help="Filter by dataset or task_type")
     parser.add_argument("--rho_audio",        type=float, default=0.4)
     parser.add_argument("--rho_video",        type=float, default=0.7)
@@ -180,6 +201,17 @@ def main():
     parser.add_argument("--contextual_ratio", type=float, default=0.05)
     parser.add_argument("--vram_log",         default="/workspace/vram_log.jsonl")
     args = parser.parse_args()
+
+    global MODEL_PATH
+    if args.model:
+        MODEL_PATH = args.model
+    elif not os.path.exists(MODEL_PATH) and os.path.exists(FALLBACK_MODEL_PATH):
+        MODEL_PATH = FALLBACK_MODEL_PATH
+
+    errors_log_path = args.errors_log or os.path.join(os.path.dirname(args.log) or ".", "errors.log")
+    errors_log_dir = os.path.dirname(errors_log_path)
+    if errors_log_dir:
+        os.makedirs(errors_log_dir, exist_ok=True)
 
     tee = Tee(args.log)
     sys.stdout = tee
@@ -235,7 +267,7 @@ def main():
                     import traceback
                     tb = traceback.format_exc()
                     print(f"  ERROR {entry_label}: {e}")
-                    with open("/workspace/errors.log", "a") as ef:
+                    with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
 
@@ -245,6 +277,7 @@ def main():
                 total += 1
 
                 result = {
+                    "model_variant": MODEL_VARIANT,
                     "dataset":    entry.get("dataset"),
                     "task_type":  task_type,
                     "duration_s": entry.get("duration_s"),
@@ -264,6 +297,7 @@ def main():
 
     acc = correct / total if total else 0
     print(f"\n{'='*50}")
+    print(f"Model variant: {MODEL_VARIANT} + omnizip")
     print(f"OmniZip Accuracy: {correct}/{total} = {acc:.2%}")
     print(f"Skipped (no video): {skipped_no_video}")
     print(f"Results: {args.output}")

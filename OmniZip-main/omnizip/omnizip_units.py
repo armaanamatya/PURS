@@ -24,7 +24,9 @@ def omnizip_audio_attn(
     keep_mask = torch.zeros(N, dtype=torch.bool, device=device)
     dominant_num = int(max(0, min(N, round((1.0 - merging_ratio) * N))))
     if dominant_num > 0:
-        dominant_num = min(dominant_num, attn_logits.size(0))
+        # attn_logits may be shorter than N depending on caller's indexing;
+        # torch.topk requires 0 <= k <= len(attn_logits)
+        dominant_num = min(dominant_num, int(attn_logits.numel()))
         _, topk = torch.topk(attn_logits, dominant_num)
         keep_mask[topk] = True
 
