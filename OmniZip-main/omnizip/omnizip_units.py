@@ -24,10 +24,26 @@ def omnizip_audio_attn(
     keep_mask = torch.zeros(N, dtype=torch.bool, device=device)
     dominant_num = int(max(0, min(N, round((1.0 - merging_ratio) * N))))
     if dominant_num > 0:
-        # attn_logits may be shorter than N depending on caller's indexing;
-        # torch.topk requires 0 <= k <= len(attn_logits)
-        dominant_num = min(dominant_num, int(attn_logits.numel()))
-        _, topk = torch.topk(attn_logits, dominant_num)
+        # Reduce attn_logits to 1-D importance scores of length N.
+        # attn_logits may be [H, T, T] (multi-head) or [T, T] or already 1-D.
+        if attn_logits.dim() == 3:
+            # Average over heads, sum incoming attention per token → [T]
+            importance = attn_logits.mean(dim=0).sum(dim=0)
+        elif attn_logits.dim() == 2:
+            importance = attn_logits.sum(dim=0)
+        else:
+            importance = attn_logits
+
+        # Align importance length with audio token count N
+        if importance.shape[0] > N:
+            importance = importance[:N]
+        elif importance.shape[0] < N:
+            pad = torch.zeros(N - importance.shape[0], device=device, dtype=importance.dtype)
+            importance = torch.cat([importance, pad])
+
+        # torch.topk requires 0 <= k <= len(importance)
+        dominant_num = min(dominant_num, int(importance.numel()))
+        _, topk = torch.topk(importance, dominant_num)
         keep_mask[topk] = True
 
     all_idx = torch.arange(N, device=device)
