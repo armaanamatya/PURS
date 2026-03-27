@@ -27,12 +27,11 @@ import torch
 from datetime import datetime
 from pathlib import Path
 
-# OmniZip replaces the standard model class — must be importable from the
-# OmniZip-main directory. Upload OmniZip-main/ to /workspace/OmniZip-main/
-# and this script will find it automatically.
-OMNIZIP_DIR = os.path.dirname(__file__)  # omnizip/ sits next to this script
-if OMNIZIP_DIR not in sys.path:
-    sys.path.insert(0, OMNIZIP_DIR)
+# OmniZip replaces the standard model class — must be importable from OmniZip-main/
+# (same layout as viz_attention_omnizip.py).
+OMNIZIP_DIR = os.path.join(os.path.dirname(__file__), "OmniZip-main")
+sys.path.insert(0, OMNIZIP_DIR)
+sys.path.insert(0, os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src"))
 
 from omnizip.modeling_qwen2_5_omni import Qwen2_5OmniForConditionalGeneration
 from transformers import Qwen2_5OmniProcessor
