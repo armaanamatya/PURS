@@ -171,10 +171,12 @@ def main():
     parser.add_argument("--videos",   default="/workspace/videos", help="Directory containing video files")
     parser.add_argument("--output",   default="/workspace/results.jsonl", help="Output JSONL file")
     parser.add_argument("--log",      default="/workspace/eval.log", help="Log file (appended each run)")
+    parser.add_argument("--errors_log", default=None, help="Where to append tracebacks (default: alongside --log).")
     parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
-    parser.add_argument("--fps",      type=float, default=0.5, help="Video sampling fps (lower = less VRAM)")
-    parser.add_argument("--max_pixels", type=int, default=256*256, help="Max pixels per frame (lower = less VRAM)")
+    parser.add_argument("--fps",      type=float, default=2.0, help="Video sampling fps")
+    parser.add_argument("--max_pixels", type=int, default=360*420, help="Max pixels per frame")
     parser.add_argument("--max_new_tokens", type=int, default=256, help="Generation length cap (lower = less VRAM)")
+    parser.add_argument("--vram_log", default="/workspace/vram_log.jsonl", help="Per-question VRAM JSONL (allocated/reserved)")
     parser.add_argument(
         "--model_variant",
         default="qwen2.5-omni",
@@ -191,6 +193,11 @@ def main():
 
     tee = Tee(args.log)
     sys.stdout = tee
+
+    errors_log_path = args.errors_log or os.path.join(os.path.dirname(args.log) or ".", "errors.log")
+    errors_log_dir = os.path.dirname(errors_log_path)
+    if errors_log_dir:
+        os.makedirs(errors_log_dir, exist_ok=True)
 
     meta = json.loads(Path(args.metadata).read_text())
     print(f"Loaded {len(meta)} entries")
@@ -216,7 +223,7 @@ def main():
     correct = total = skipped_no_video = 0
     results = []
 
-    with open(args.output, "w") as out_f:
+    with open(args.output, "w") as out_f, open(args.vram_log, "w") as vram_f:
         for entry in runnable:
             video_path = resolve_video_path(entry["file"], args.videos)
             entry_label = f"{entry.get('dataset','?')}/{entry.get('task_type','?')}"
@@ -232,6 +239,7 @@ def main():
                 task_type = q.get("task_type", entry.get("task_type", ""))
 
                 try:
+                    torch.cuda.reset_peak_memory_stats()
                     pred, reasoning = run_inference(
                         model,
                         processor,
@@ -242,8 +250,27 @@ def main():
                         args.max_pixels,
                         args.max_new_tokens,
                     )
+                    peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
+                    peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
+                    curr_alloc_gb = torch.cuda.memory_allocated() / 1024**3
+                    curr_resv_gb = torch.cuda.memory_reserved() / 1024**3
+                    vram_entry = {
+                        "entry": entry_label,
+                        "task_type": task_type,
+                        "duration_s": entry.get("duration_s"),
+                        "peak_alloc_gb": round(peak_alloc_gb, 2),
+                        "peak_reserved_gb": round(peak_resv_gb, 2),
+                        "after_alloc_gb": round(curr_alloc_gb, 2),
+                        "after_reserved_gb": round(curr_resv_gb, 2),
+                    }
+                    vram_f.write(json.dumps(vram_entry) + "\n")
+                    vram_f.flush()
                 except Exception as e:
+                    import traceback
+                    tb = traceback.format_exc()
                     print(f"  ERROR {entry_label}: {e}")
+                    with open(errors_log_path, "a") as ef:
+                        ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", ""
 
                 is_correct = pred.strip().upper() == answer

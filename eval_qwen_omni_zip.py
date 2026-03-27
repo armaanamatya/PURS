@@ -209,8 +209,8 @@ def main():
     parser.add_argument("--log",              default="/workspace/eval_zip.log")
     parser.add_argument("--errors_log",       default=None, help="Where to append tracebacks (default: alongside --log).")
     parser.add_argument("--category",         default=None, help="Filter by dataset or task_type")
-    parser.add_argument("--fps",              type=float, default=1.0, help="Video sampling fps (lower can reduce decode/VRAM issues)")
-    parser.add_argument("--max_pixels",       type=int, default=360*420, help="Max pixels per frame (lower can reduce decode/VRAM issues)")
+    parser.add_argument("--fps",              type=float, default=2.0, help="Video sampling fps")
+    parser.add_argument("--max_pixels",       type=int, default=360*420, help="Max pixels per frame")
     parser.add_argument("--no_audio",          action="store_true", help="Disable audio-in-video (use video only).")
     parser.add_argument("--rho_audio",        type=float, default=0.4)
     parser.add_argument("--rho_video",        type=float, default=0.7)
@@ -277,13 +277,17 @@ def main():
                 try:
                     torch.cuda.reset_peak_memory_stats()
                     pred, reasoning = run_inference(model, processor, video_path, question, choices)
-                    peak_vram = torch.cuda.max_memory_allocated() / 1024**3
-                    curr_vram = torch.cuda.memory_allocated() / 1024**3
+                    peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
+                    peak_reserved_gb = torch.cuda.max_memory_reserved() / 1024**3
+                    curr_alloc_gb = torch.cuda.memory_allocated() / 1024**3
+                    curr_reserved_gb = torch.cuda.memory_reserved() / 1024**3
                     vram_entry = {
                         "entry": entry_label, "task_type": task_type,
                         "duration_s": entry.get("duration_s"),
-                        "peak_vram_gb": round(peak_vram, 2),
-                        "after_vram_gb": round(curr_vram, 2),
+                        "peak_alloc_gb": round(peak_alloc_gb, 2),
+                        "peak_reserved_gb": round(peak_reserved_gb, 2),
+                        "after_alloc_gb": round(curr_alloc_gb, 2),
+                        "after_reserved_gb": round(curr_reserved_gb, 2),
                     }
                     vram_f.write(json.dumps(vram_entry) + "\n")
                     vram_f.flush()
