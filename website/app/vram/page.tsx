@@ -1,26 +1,22 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import VramCharts, { VramEntry } from "./VramCharts";
+import VramCharts from "./VramCharts";
+import { loadVramEntriesFromText } from "./vramNormalize";
 
-function loadEntries(): VramEntry[] {
-  const filePath = join(process.cwd(), "public", "vram_log.jsonl");
-  const text = readFileSync(filePath, "utf-8");
-  const parsed: VramEntry[] = text
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((l) => JSON.parse(l));
-  // Deduplicate by entry key
-  const seen = new Set<string>();
-  return parsed.filter((e) => {
-    if (seen.has(e.entry)) return false;
-    seen.add(e.entry);
-    return true;
-  });
+function loadVramPair() {
+  const basePath = join(process.cwd(), "public", "vram_baseline.jsonl");
+  const zipPath = join(process.cwd(), "public", "vram_omnizip.jsonl");
+  const baselineText = readFileSync(basePath, "utf-8");
+  const omnizipText = readFileSync(zipPath, "utf-8");
+  return {
+    baseline: loadVramEntriesFromText(baselineText),
+    omnizip: loadVramEntriesFromText(omnizipText),
+  };
 }
 
 export default function VramPage() {
-  const entries = loadEntries();
+  const { baseline, omnizip } = loadVramPair();
+  const n = Math.max(baseline.length, omnizip.length);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -29,15 +25,18 @@ export default function VramPage() {
           <div>
             <h1 className="text-lg font-semibold tracking-tight">VRAM Usage</h1>
             <p className="text-xs text-white/35 font-mono mt-0.5">
-              {entries.length} task types · peak / after / duration
+              {n} task types · baseline vs OmniZip (run2) · peak / after / duration
             </p>
           </div>
-          <a href="/" className="text-xs font-mono text-white/30 hover:text-white/60 transition-colors">
+          <a
+            href="/"
+            className="text-xs font-mono text-white/30 hover:text-white/60 transition-colors"
+          >
             ← eval results
           </a>
         </div>
       </header>
-      <VramCharts entries={entries} />
+      <VramCharts baseline={baseline} omnizip={omnizip} />
     </div>
   );
 }

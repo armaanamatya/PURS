@@ -315,7 +315,12 @@ export default function Home() {
       <header ref={headerRef} className="border-b border-white/8 bg-[#0a0a0f]/95 backdrop-blur-sm sticky top-0 z-30">
         <div className="px-6 py-4 flex items-start justify-between gap-6 flex-wrap">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">Qwen2.5-Omni Eval</h1>
+            <div className="flex items-baseline gap-4 flex-wrap">
+              <h1 className="text-lg font-semibold tracking-tight">Qwen2.5-Omni Eval</h1>
+              <a href="/vram" className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors">
+                VRAM (run2)
+              </a>
+            </div>
             <p className="text-xs text-white/35 font-mono mt-0.5">
               {data.entries.length} clips · {stats.total_questions} questions · video + audio benchmark
             </p>
