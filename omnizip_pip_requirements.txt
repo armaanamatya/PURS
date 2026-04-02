@@ -1,0 +1,9 @@
+# Full dependency pins: generate from the working env with `pip freeze` and apply edits noted below.
+#
+# Install (PyTorch CUDA wheels require PyTorch's index; not available from PyPI alone):
+#   pip install -r omnizip_pip_requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
+#
+# Before installing from a conda freeze: strip "+cu124" from torch / torchvision / torchaudio lines.
+# Replace any "packaging @ file:///..." line with packaging==<version> from `pip show packaging`.
+#
+# (Instance copy may live at /data/armaan/omnizip_pip_requirements.txt — sync pins here when you update the env.)

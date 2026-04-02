@@ -12,13 +12,16 @@ import argparse
 import json
 import os
 import glob
+import re
 import sys
+import time
 import torch
 from datetime import datetime
 from pathlib import Path
 from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
 
-OMNIZIP_DIR = os.path.join(os.path.dirname(__file__), "OmniZip-main")
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+OMNIZIP_DIR = os.path.join(_REPO_ROOT, "OmniZip-main")
 QWEN_OMNI_UTILS_SRC = os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src")
 if QWEN_OMNI_UTILS_SRC not in sys.path:
     sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
@@ -57,14 +60,154 @@ FALLBACK_MODEL_PATH = "/workspace/model"
 
 MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
 
+# ── Prompts (same sources as Qwen2.5-Omni web_demo + OmniZip lmms-eval task utils) ─────────
+
+SYSTEM_PROMPT_DEFAULT = (
+    "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, "
+    "capable of perceiving auditory and visual inputs, as well as generating text and speech."
+)
+
+_WORLD_SENSE_SYS = (
+    "Carefully watch this video and pay attention to every detail. "
+    "Based on your observations, select the best option that accurately addresses the question."
+)
+
+_WORLD_SENSE_FRAMES_AUDIO = """
+These are the frames of a video and the corresponding audio. \
+Select the best answer to the following multiple-choice question based on the video. \
+Respond with only the letter (A, B, C, or D) of the correct option.
+"""
+
+_VIDEO_MME_OPTION_PROMPT = (
+    "Select the best answer to the following multiple-choice question based on the video and the subtitles. "
+    "Respond with only the letter (A, B, C, or D) of the correct option."
+)
+
+_VIDEO_MME_POST_PROMPT = "The best answer is:"
+
+
+def _format_choice_lines(choices: list) -> str:
+    if not choices:
+        return ""
+    if choices[0].startswith("A"):
+        return "\n".join(choices)
+    return "\n".join(f"{chr(65 + i)}. {c}" for i, c in enumerate(choices))
+
+
+def _build_user_prompt_video_mme(question: str, choices: list) -> str:
+    option_lines = _format_choice_lines(choices)
+    question_block = question + "\n" + option_lines
+    return _VIDEO_MME_OPTION_PROMPT + "\n" + question_block + "\n" + _VIDEO_MME_POST_PROMPT
+
+
+def _build_user_prompt_worldsense(question: str, choices: list) -> str:
+    parts: list[str] = [_WORLD_SENSE_SYS, _WORLD_SENSE_FRAMES_AUDIO, question + "\n"]
+    for op in choices:
+        parts.append(op + "\n")
+    return "".join(parts)
+
+
+def _build_user_prompt_daily_omni(question: str, choices: list) -> str:
+    option_lines = _format_choice_lines(choices)
+    head = (
+        "Listen and watch the video carefully. "
+        "Select the best answer to the following multiple-choice question. "
+        "Respond with only the letter (A, B, C, or D) of the correct option."
+    )
+    return head + "\n" + question + "\n" + option_lines + "\n" + _VIDEO_MME_POST_PROMPT
+
+
+def _build_user_prompt_default(question: str, choices: list) -> str:
+    option_lines = _format_choice_lines(choices)
+    return (
+        "Select the best answer to the following multiple-choice question based on the video. "
+        "Respond with only the letter (A, B, C, or D) of the correct option.\n"
+        + question
+        + "\n"
+        + option_lines
+        + "\n"
+        + _VIDEO_MME_POST_PROMPT
+    )
+
+
+def _canonicalize_dataset_name(dataset: str | None) -> str:
+    return (dataset or "").strip().lower().replace("_", "-").replace(" ", "-")
+
+
+def build_user_prompt_for_dataset(dataset: str, question: str, choices: list) -> str:
+    dataset_name = _canonicalize_dataset_name(dataset)
+    if dataset_name in {"video-mme", "videomme"}:
+        return _build_user_prompt_video_mme(question, choices)
+    if dataset_name == "worldsense":
+        return _build_user_prompt_worldsense(question, choices)
+    if dataset_name in {"daily-omni", "dailyomni"}:
+        return _build_user_prompt_daily_omni(question, choices)
+    return _build_user_prompt_default(question, choices)
+
+
+def resolve_model_dtype(dtype_name: str):
+    table = {
+        "bfloat16": torch.bfloat16,
+        "float16": torch.float16,
+        "float32": torch.float32,
+    }
+    if dtype_name not in table:
+        keys = ", ".join(sorted(table.keys()))
+        raise ValueError(f"Unknown dtype_name {dtype_name!r}; expected one of: {keys}")
+    return table[dtype_name]
+
+
+# ── Audio: lmms-eval Qwen2_5_Omni sets use_audio_in_video per video via _check_if_video_has_audio ──
+
+def check_video_has_audio(video_path: str) -> bool:
+    """Return True if the video file contains an audio stream."""
+    try:
+        import av
+        container = av.open(video_path)
+        has = len(container.streams.audio) > 0
+        container.close()
+        return has
+    except Exception:
+        return False
+
+
+# ── Answer parsing (matching official evals) ─────────────────────────────────
+
+def parse_answer(response: str, choices: list | None = None) -> str:
+    """Parse model response to extract answer letter.
+    Uses official parsing: check if response starts with A-D,
+    then search for first [ABCD], then fallback to 'A'.
+    """
+    resp = response.strip()
+    # Strip common answer prefixes
+    for prefix in ["The best answer is", "The correct answer is", "The answer is",
+                   "The answer", "The best option is", "The correct option is",
+                   "Best answer:", "Best option:"]:
+        if resp.lower().startswith(prefix.lower()):
+            resp = resp[len(prefix):].strip()
+
+    # Check if response starts with a letter (official OmniZip eval approach)
+    for opt in ["A", "B", "C", "D"]:
+        if resp.upper().startswith(opt):
+            return opt
+
+    # Search for first ABCD match (official VideoMME approach)
+    m = re.search(r"[ABCD]", resp)
+    if m:
+        return m[0]
+
+    # Fallback
+    return "A"
+
 # ── Model ─────────────────────────────────────────────────────────────────────
 
-def load_model(model_variant: str):
-    print(f"Loading {model_variant} model from {MODEL_PATH} ...")
+def load_model(model_variant: str, dtype_name: str):
+    dt = resolve_model_dtype(dtype_name)
+    print(f"Loading {model_variant} model from {MODEL_PATH} (torch_dtype={dtype_name}) ...")
     if model_variant == "qwen2.5-omni":
         model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
             MODEL_PATH,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=dt,
             device_map="auto",
             attn_implementation="sdpa",
         )
@@ -81,7 +224,7 @@ def load_model(model_variant: str):
 
         model = Qwen3OmniMoeForConditionalGeneration.from_pretrained(
             MODEL_PATH,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=dt,
             device_map="auto",
             attn_implementation="sdpa",
         )
@@ -97,17 +240,18 @@ def run_inference(
     model,
     processor,
     video_path: str,
+    dataset: str,
     question: str,
     choices: list,
     fps: float,
     max_pixels: int,
     max_new_tokens: int,
+    use_audio: bool,
 ) -> tuple[str, str]:
-    choice_text = "\n".join(choices) if choices[0].startswith("A") else "\n".join(f"{chr(65+i)}. {c}" for i, c in enumerate(choices))
-    prompt = f"{question}\n\n{choice_text}\n\nThink step by step, then end your response with 'Answer: X' where X is A, B, C, or D."
+    prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."}]},
+        {"role": "system", "content": [{"type": "text", "text": SYSTEM_PROMPT_DEFAULT}]},
         {"role": "user", "content": [
             {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
             {"type": "text", "text": prompt},
@@ -115,25 +259,50 @@ def run_inference(
     ]
 
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    audios, images, videos = process_mm_info(messages, use_audio_in_video=True)
+    effective_use_audio = use_audio
+    last_err: Exception | None = None
+    for attempt in range(3):
+        try:
+            audios, images, videos = process_mm_info(messages, use_audio_in_video=effective_use_audio)
+            last_err = None
+            break
+        except Exception as e:
+            last_err = e
+            time.sleep(1.0 * (attempt + 1))
+    if last_err is not None:
+        if effective_use_audio:
+            msg = str(last_err)
+            if ("NoBackendError" in msg) or ("can't start new thread" in msg) or ("Format not recognised" in msg):
+                effective_use_audio = False
+                audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+            else:
+                raise last_err
+        else:
+            raise last_err
+
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
-        return_tensors="pt", padding=True, use_audio_in_video=True,
+        return_tensors="pt", padding=True, use_audio_in_video=effective_use_audio,
     )
     inputs = inputs.to(model.device).to(model.dtype)
 
     with torch.no_grad():
-        output = model.generate(**inputs, use_audio_in_video=True, return_audio=False, max_new_tokens=max_new_tokens)
+        output = model.generate(
+            **inputs,
+            use_audio_in_video=effective_use_audio,
+            return_audio=False,
+            max_new_tokens=max_new_tokens,
+            temperature=0.0,
+            do_sample=False,
+        )
 
-    decoded = processor.batch_decode(output, skip_special_tokens=True)[0]
-    # Strip the prompt portion that gets echoed back
-    if "assistant" in decoded.lower():
-        decoded = decoded[decoded.lower().rfind("assistant") + len("assistant"):].strip()
-
-    # Parse answer letter — prefer "Answer: X" pattern, fall back to last ABCD char
-    import re as _re
-    m = _re.search(r"Answer:\s*([A-D])", decoded, _re.IGNORECASE)
-    letter = m.group(1).upper() if m else next((c for c in reversed(decoded.strip()) if c in "ABCD"), decoded.strip())
+    generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, output)]
+    decoded = processor.batch_decode(
+        generated_ids_trimmed,
+        skip_special_tokens=True,
+        clean_up_tokenization_spaces=False,
+    )[0].strip()
+    letter = parse_answer(decoded, choices)
     return letter, decoded
 
 # ── Video lookup ──────────────────────────────────────────────────────────────
@@ -175,7 +344,18 @@ def main():
     parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
     parser.add_argument("--fps",      type=float, default=2.0, help="Video sampling fps")
     parser.add_argument("--max_pixels", type=int, default=360*420, help="Max pixels per frame")
-    parser.add_argument("--max_new_tokens", type=int, default=256, help="Generation length cap (lower = less VRAM)")
+    parser.add_argument("--max_new_tokens", type=int, default=4096, help="Generation cap (lmms-eval qwen2_5_omni default)")
+    parser.add_argument(
+        "--dtype",
+        default="bfloat16",
+        choices=["bfloat16", "float16", "float32"],
+        help="Model weights dtype (use explicit values; torch_dtype='auto' often fails on Windows/some GPUs)",
+    )
+    parser.add_argument(
+        "--no_audio",
+        action="store_true",
+        help="Never pass audio from video (global). Default: per-video, enable audio only if the file has an audio stream (like lmms-eval).",
+    )
     parser.add_argument("--vram_log", default="/workspace/vram_log.jsonl", help="Per-question VRAM JSONL (allocated/reserved)")
     parser.add_argument(
         "--model_variant",
@@ -218,7 +398,7 @@ def main():
         print("Nothing to run. Exiting.")
         return
 
-    model, processor = load_model(args.model_variant)
+    model, processor = load_model(args.model_variant, args.dtype)
 
     correct = total = skipped_no_video = 0
     results = []
@@ -232,11 +412,14 @@ def main():
                 skipped_no_video += 1
                 continue
 
+            use_audio = (not args.no_audio) and check_video_has_audio(video_path)
+
             for q in entry["questions"]:
                 question  = q["question"]
                 choices   = q["choices"]
                 answer    = q["answer"].strip().upper()
                 task_type = q.get("task_type", entry.get("task_type", ""))
+                dataset   = entry.get("dataset", "")
 
                 try:
                     torch.cuda.reset_peak_memory_stats()
@@ -244,11 +427,13 @@ def main():
                         model,
                         processor,
                         video_path,
+                        dataset,
                         question,
                         choices,
                         args.fps,
                         args.max_pixels,
                         args.max_new_tokens,
+                        use_audio,
                     )
                     peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
                     peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
