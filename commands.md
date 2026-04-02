@@ -79,7 +79,7 @@ CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py \
   --vram_log run2/omnizip/vram_log.jsonl \
   --errors_log run2/omnizip/errors.log \
   --fps 0.5 --max_pixels 50176 \
-  --rho_audio 0.4 --rho_video 0.7 --g 3 --contextual_ratio 0.05 \
+  --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 \
   2>&1 | tee run2/omnizip/stderr.log
 ```
 
@@ -139,12 +139,12 @@ CUDA_VISIBLE_DEVICES=7 /data/armaan/mamba/envs/omnizip_pip/bin/python eval_qwen_
   --vram_log $DIR/vram_log.jsonl \
   --errors_log $DIR/errors.log \
   --fps 0.5 --max_pixels 50176 \
-  --rho_audio 0.4 --rho_video 0.7 --g 3 --contextual_ratio 0.05 \
+  --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 \
   2>&1 | tee $DIR/stderr.log
 ```
 
 **Model**: `/data/armaan/models/Qwen2.5-Omni-7B` (auto-detected by script)
-**OmniZip**: rho_audio=0.4, rho_video=0.7, g=3, contextual_ratio=0.05
+**OmniZip** (same as `OmniZip-main` / `lmms_eval/models/simple/qwen2_5_omni.py` defaults): rho_audio=0.3, rho_video=0.6, g=3, contextual_ratio=0.05
 **VRAM**: ~18-25GB expected (1.4x reduction from OmniZip)
 
 > Run 1 and 2 simultaneously on different GPUs.
