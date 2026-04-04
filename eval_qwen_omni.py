@@ -3,6 +3,9 @@ eval_qwen_omni.py
 Runs Qwen2.5-Omni-7B on all videos in metadata.json and answers MCQ questions.
 Reads Q&A from metadata.json — no HuggingFace needed on the server.
 
+Generation is always text-only (disable_talker + return_audio=False). Default input is
+video+audio (from file)+text when the video has an audio stream; --no_audio only disables input audio.
+
 Usage:
     python eval_qwen_omni.py --metadata metadata.json --videos /workspace/videos --output results.jsonl
     python eval_qwen_omni.py --metadata metadata.json --videos /workspace/videos --output results.jsonl --category lecture
@@ -12,7 +15,7 @@ import argparse
 import json
 import os
 import glob
-import re
+import shutil
 import sys
 import time
 import torch
@@ -27,6 +30,8 @@ if QWEN_OMNI_UTILS_SRC not in sys.path:
     sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
 
 from qwen_omni_utils import process_mm_info
+
+from mcq_answer_parse import parse_answer
 
 
 class Tee:
@@ -54,6 +59,27 @@ class Tee:
     def close(self):
         self.log.close()
 
+
+class StderrTee:
+    """Duplicate stderr to a file (use instead of shell `| tee` when the directory may not exist yet)."""
+
+    def __init__(self, log_file, terminal):
+        self.log = log_file
+        self.terminal = terminal
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def isatty(self):
+        return self.terminal.isatty()
+
+
 ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
 DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
 FALLBACK_MODEL_PATH = "/workspace/model"
@@ -65,6 +91,12 @@ MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
 SYSTEM_PROMPT_DEFAULT = (
     "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, "
     "capable of perceiving auditory and visual inputs, as well as generating text and speech."
+)
+
+# Reduces chatty continuations ("What do you think?") on multiple-choice.
+SYSTEM_MCQ_SUFFIX = (
+    "For multiple-choice questions, reply with only one letter: A, B, C, or D. "
+    "Do not explain, do not ask follow-up questions, and do not add text after the letter."
 )
 
 _WORLD_SENSE_SYS = (
@@ -171,33 +203,7 @@ def check_video_has_audio(video_path: str) -> bool:
         return False
 
 
-# ── Answer parsing (matching official evals) ─────────────────────────────────
-
-def parse_answer(response: str, choices: list | None = None) -> str:
-    """Parse model response to extract answer letter.
-    Uses official parsing: check if response starts with A-D,
-    then search for first [ABCD], then fallback to 'A'.
-    """
-    resp = response.strip()
-    # Strip common answer prefixes
-    for prefix in ["The best answer is", "The correct answer is", "The answer is",
-                   "The answer", "The best option is", "The correct option is",
-                   "Best answer:", "Best option:"]:
-        if resp.lower().startswith(prefix.lower()):
-            resp = resp[len(prefix):].strip()
-
-    # Check if response starts with a letter (official OmniZip eval approach)
-    for opt in ["A", "B", "C", "D"]:
-        if resp.upper().startswith(opt):
-            return opt
-
-    # Search for first ABCD match (official VideoMME approach)
-    m = re.search(r"[ABCD]", resp)
-    if m:
-        return m[0]
-
-    # Fallback
-    return "A"
+# ── Answer parsing: see mcq_answer_parse.py ───────────────────────────────────
 
 # ── Model ─────────────────────────────────────────────────────────────────────
 
@@ -231,8 +237,36 @@ def load_model(model_variant: str, dtype_name: str):
         processor = Qwen3OmniMoeProcessor.from_pretrained(MODEL_PATH)
     else:
         raise ValueError(f"Unsupported model variant: {model_variant}")
+    if hasattr(model, "disable_talker"):
+        model.disable_talker()
     print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
     return model, processor
+
+
+def _prepare_omni_inputs(model: torch.nn.Module, inputs: object) -> object:
+    """Move processor outputs to the model device; cast only floating tensors to model dtype (never input_ids)."""
+    device = next(model.parameters()).device
+    inputs = inputs.to(device)
+    for key, value in list(inputs.items()):
+        if isinstance(value, torch.Tensor) and value.is_floating_point():
+            inputs[key] = value.to(model.dtype)
+    return inputs
+
+
+def _generation_output_token_ids(gen_out: object) -> torch.Tensor:
+    """HF generate() may return a LongTensor or GenerateDecoderOnlyOutput; iterating the latter iterates dict keys."""
+    if hasattr(gen_out, "sequences"):
+        return gen_out.sequences
+    return gen_out
+
+
+# Keys Qwen2.5-OmniProcessor may put on the batch but model.generate() does not accept (HF warnings).
+_OMNI_GENERATE_BATCH_DROP = frozenset({"images", "return_tensors", "text"})
+
+
+def _batch_for_omni_generate(batch: object) -> dict:
+    return {k: v for k, v in batch.items() if k not in _OMNI_GENERATE_BATCH_DROP}
+
 
 # ── Inference ─────────────────────────────────────────────────────────────────
 
@@ -250,8 +284,9 @@ def run_inference(
 ) -> tuple[str, str]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
+    system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": SYSTEM_PROMPT_DEFAULT}]},
+        {"role": "system", "content": [{"type": "text", "text": system_text}]},
         {"role": "user", "content": [
             {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
             {"type": "text", "text": prompt},
@@ -260,43 +295,49 @@ def run_inference(
 
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     effective_use_audio = use_audio
-    last_err: Exception | None = None
-    for attempt in range(3):
+    try:
+        audios, images, videos = process_mm_info(messages, use_audio_in_video=effective_use_audio)
+    except Exception as first_err:
+        # qwen_omni_utils loads video audio via librosa on the .mp4 path; soundfile often fails on mp4 and
+        # the chained exception may not match substring checks — retry without separate audio extraction.
+        if not effective_use_audio:
+            raise first_err
         try:
-            audios, images, videos = process_mm_info(messages, use_audio_in_video=effective_use_audio)
-            last_err = None
-            break
-        except Exception as e:
-            last_err = e
-            time.sleep(1.0 * (attempt + 1))
-    if last_err is not None:
-        if effective_use_audio:
-            msg = str(last_err)
-            if ("NoBackendError" in msg) or ("can't start new thread" in msg) or ("Format not recognised" in msg):
-                effective_use_audio = False
-                audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
-            else:
-                raise last_err
-        else:
-            raise last_err
+            audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+            effective_use_audio = False
+        except Exception as second_err:
+            raise second_err from first_err
 
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
         return_tensors="pt", padding=True, use_audio_in_video=effective_use_audio,
     )
-    inputs = inputs.to(model.device).to(model.dtype)
+    inputs = _prepare_omni_inputs(model, inputs)
 
+    tokenizer = processor.tokenizer
+    # Text-only: use return_audio=False on the top-level Omni wrapper. Do not pass generation_mode here —
+    # many transformers builds forward unknown kwargs to thinker.generate(), which then errors on
+    # unused model_kwargs (generation_mode is only valid on some wrapper versions).
+    gen_kw: dict = {
+        "use_audio_in_video": effective_use_audio,
+        "return_audio": False,
+        "eos_token_id": tokenizer.eos_token_id,
+        "pad_token_id": tokenizer.pad_token_id,
+    }
+    if hasattr(model, "thinker"):
+        gen_kw["thinker_max_new_tokens"] = max_new_tokens
+        gen_kw["thinker_do_sample"] = False
+    else:
+        gen_kw["max_new_tokens"] = max_new_tokens
+        gen_kw["temperature"] = 0.0
+        gen_kw["do_sample"] = False
+
+    gen_in = _batch_for_omni_generate(inputs)
     with torch.no_grad():
-        output = model.generate(
-            **inputs,
-            use_audio_in_video=effective_use_audio,
-            return_audio=False,
-            max_new_tokens=max_new_tokens,
-            temperature=0.0,
-            do_sample=False,
-        )
+        raw_out = model.generate(**gen_in, **gen_kw)
 
-    generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, output)]
+    seq_ids = _generation_output_token_ids(raw_out)
+    generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, seq_ids)]
     decoded = processor.batch_decode(
         generated_ids_trimmed,
         skip_special_tokens=True,
@@ -354,9 +395,14 @@ def main():
     parser.add_argument(
         "--no_audio",
         action="store_true",
-        help="Never pass audio from video (global). Default: per-video, enable audio only if the file has an audio stream (like lmms-eval).",
+        help="Input: do not load audio from the video. Generation stays text-only either way.",
     )
     parser.add_argument("--vram_log", default="/workspace/vram_log.jsonl", help="Per-question VRAM JSONL (allocated/reserved)")
+    parser.add_argument(
+        "--stderr_log",
+        default=None,
+        help="Append stderr to this file (parent dirs created automatically). Prefer this over `| tee` when run2/... may not exist yet.",
+    )
     parser.add_argument(
         "--model_variant",
         default="qwen2.5-omni",
@@ -371,13 +417,29 @@ def main():
     elif not os.path.exists(MODEL_PATH) and os.path.exists(FALLBACK_MODEL_PATH):
         MODEL_PATH = FALLBACK_MODEL_PATH
 
-    tee = Tee(args.log)
-    sys.stdout = tee
+    if (not args.no_audio) and shutil.which("ffmpeg") is None:
+        print(
+            "WARNING: ffmpeg not found in PATH. Decoding MP4 audio needs ffmpeg (or use --no_audio, or "
+            "QWEN_OMNI_AUDIO_WAV_ROOT + pre-extracted .wav). Without sudo: "
+            "`conda install -c conda-forge ffmpeg`, or put a static ffmpeg in ~/bin and export PATH, "
+            "or ask an admin for system ffmpeg.\n"
+        )
 
     errors_log_path = args.errors_log or os.path.join(os.path.dirname(args.log) or ".", "errors.log")
-    errors_log_dir = os.path.dirname(errors_log_path)
-    if errors_log_dir:
-        os.makedirs(errors_log_dir, exist_ok=True)
+    paths_for_dirs = [args.log, args.output, args.vram_log, errors_log_path]
+    if args.stderr_log is not None:
+        paths_for_dirs.append(args.stderr_log)
+    for path in paths_for_dirs:
+        parent = os.path.dirname(path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+
+    if args.stderr_log is not None:
+        _stderr_f = open(args.stderr_log, "a", encoding="utf-8")
+        sys.stderr = StderrTee(_stderr_f, sys.__stderr__)
+
+    tee = Tee(args.log)
+    sys.stdout = tee
 
     meta = json.loads(Path(args.metadata).read_text())
     print(f"Loaded {len(meta)} entries")
@@ -392,7 +454,11 @@ def main():
     skipped_no_qa = len(meta) - len(runnable)
     if skipped_no_qa:
         print(f"Skipping {skipped_no_qa} entries with no Q&A")
-    print(f"Running {len(runnable)} entries\n")
+    print(f"Running {len(runnable)} entries")
+    print(
+        "Each line in --output is written after one question finishes; the first can take many minutes "
+        "(video decode + optional MP4 audio via librosa/audioread + generation). Use --no_audio to skip separate audio loading.\n"
+    )
 
     if not runnable:
         print("Nothing to run. Exiting.")
@@ -453,10 +519,10 @@ def main():
                 except Exception as e:
                     import traceback
                     tb = traceback.format_exc()
-                    print(f"  ERROR {entry_label}: {e}")
+                    print(f"  ERROR {entry_label}: {type(e).__name__}: {e!r}")
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
-                    pred, reasoning = "ERROR", ""
+                    pred, reasoning = "ERROR", str(e)
 
                 is_correct = pred.strip().upper() == answer
                 if is_correct:
