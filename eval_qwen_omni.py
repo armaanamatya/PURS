@@ -12,9 +12,10 @@ Usage:
 """
 
 import argparse
+import glob
+import importlib.util
 import json
 import os
-import glob
 import shutil
 import sys
 import time
@@ -81,10 +82,18 @@ class StderrTee:
 
 
 ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
-DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
+DEFAULT_MODEL_PATHS = {
+    "none": "/data/armaan/models/Qwen2.5-Omni-7B",
+    "gptq": "/data/armaan/models/Qwen2.5-Omni-7B-GPTQ-Int4",
+    "awq": "/data/armaan/models/Qwen2.5-Omni-7B-AWQ",
+}
+DEFAULT_MODEL_PATH = DEFAULT_MODEL_PATHS["none"]
 FALLBACK_MODEL_PATH = "/workspace/model"
+LOW_VRAM_MODE_DIR = os.path.join(_REPO_ROOT, "Qwen2.5-Omni", "low-VRAM-mode")
 
 MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
+MODEL_LOADED_ALLOC_GB: float | None = None
+MODEL_LOADED_RESERVED_GB: float | None = None
 
 # ── Prompts (same sources as Qwen2.5-Omni web_demo + OmniZip lmms-eval task utils) ─────────
 
@@ -189,6 +198,292 @@ def resolve_model_dtype(dtype_name: str):
     return table[dtype_name]
 
 
+def _quantized_dtype(dtype_name: str, quantization: str) -> torch.dtype:
+    if quantization == "none":
+        return resolve_model_dtype(dtype_name)
+    if dtype_name != "float16":
+        print(
+            f"Quantized {quantization.upper()} loading is forcing torch_dtype=float16 "
+            f"(ignoring --dtype {dtype_name})."
+        )
+    return torch.float16
+
+
+def _resolve_model_path(explicit_model_path: str | None, quantization: str) -> str:
+    if explicit_model_path:
+        return explicit_model_path
+    env_model_path = os.environ.get(ENV_MODEL_PATH_KEY)
+    if env_model_path:
+        return env_model_path
+    candidate = DEFAULT_MODEL_PATHS[quantization]
+    if os.path.exists(candidate):
+        return candidate
+    if os.path.exists(FALLBACK_MODEL_PATH):
+        return FALLBACK_MODEL_PATH
+    return candidate
+
+
+def _ensure_low_vram_mode_dir() -> None:
+    if LOW_VRAM_MODE_DIR not in sys.path:
+        sys.path.insert(0, LOW_VRAM_MODE_DIR)
+
+
+def _replace_transformers_qwen_model_module(module_path: str) -> None:
+    original_mod_name = "transformers.models.qwen2_5_omni.modeling_qwen2_5_omni"
+    if original_mod_name in sys.modules:
+        del sys.modules[original_mod_name]
+    spec = importlib.util.spec_from_file_location(original_mod_name, module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to import patched Qwen2.5-Omni module from {module_path}")
+    new_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(new_mod)
+    sys.modules[original_mod_name] = new_mod
+
+
+def _unwrap_qwen_model(model: object) -> torch.nn.Module:
+    inner = getattr(model, "model", None)
+    if inner is not None and hasattr(inner, "thinker"):
+        return inner
+    return model
+
+
+def _capture_current_vram_gb() -> tuple[float, float]:
+    if not torch.cuda.is_available():
+        return 0.0, 0.0
+    return (
+        torch.cuda.memory_allocated() / 1024**3,
+        torch.cuda.memory_reserved() / 1024**3,
+    )
+
+
+def _record_model_loaded_vram() -> None:
+    global MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB
+    MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB = _capture_current_vram_gb()
+    print(
+        f"Model loaded. VRAM: {MODEL_LOADED_ALLOC_GB:.1f} GB allocated, "
+        f"{MODEL_LOADED_RESERVED_GB:.1f} GB reserved"
+    )
+
+
+def _model_dtype(model: object) -> torch.dtype:
+    qwen_model = _unwrap_qwen_model(model)
+    dt = getattr(qwen_model, "dtype", None)
+    if dt is not None:
+        return dt
+    dt = getattr(model, "dtype", None)
+    if dt is not None:
+        return dt
+    return next(qwen_model.parameters()).dtype
+
+
+def _model_device(model: object) -> torch.device:
+    qwen_model = _unwrap_qwen_model(model)
+    try:
+        return next(qwen_model.parameters()).device
+    except StopIteration:
+        device = getattr(qwen_model, "device", None)
+        if device is not None:
+            return torch.device(device)
+        device = getattr(model, "device", None)
+        if device is not None:
+            return torch.device(device)
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def _model_input_device(model: object) -> torch.device:
+    qwen_model = _unwrap_qwen_model(model)
+    try:
+        return qwen_model.thinker.model.embed_tokens.weight.device
+    except Exception:
+        return _model_device(model)
+
+
+def _move_quantized_modal_modules_to_cuda(model: object) -> None:
+    qwen_model = _unwrap_qwen_model(model)
+    qwen_model.thinker.model.embed_tokens = qwen_model.thinker.model.embed_tokens.to("cuda")
+    qwen_model.thinker.visual = qwen_model.thinker.visual.to("cuda")
+    qwen_model.thinker.audio_tower = qwen_model.thinker.audio_tower.to("cuda")
+    qwen_model.thinker.visual.rotary_pos_emb = qwen_model.thinker.visual.rotary_pos_emb.to("cuda")
+    qwen_model.thinker.model.rotary_emb = qwen_model.thinker.model.rotary_emb.to("cuda")
+    for layer in qwen_model.thinker.model.layers:
+        layer.self_attn.rotary_emb = layer.self_attn.rotary_emb.to("cuda")
+
+
+def _disable_talker(model: object) -> None:
+    qwen_model = _unwrap_qwen_model(model)
+    if hasattr(qwen_model, "disable_talker"):
+        qwen_model.disable_talker()
+
+
+def _load_qwen2_5_omni_gptq(dtype_name: str):
+    _ensure_low_vram_mode_dir()
+    from gptqmodel import GPTQModel
+    from gptqmodel.models.auto import MODEL_MAP
+    from gptqmodel.models.base import BaseGPTQModel
+    from gptqmodel.models._const import SUPPORTED_MODELS
+    from modeling_qwen2_5_omni_low_VRAM_mode import Qwen2_5OmniForConditionalGeneration as LowVramQwenModel
+    from transformers.utils.hub import cached_file
+
+    class Qwen25OmniThinkerGPTQ(BaseGPTQModel):
+        loader = LowVramQwenModel
+        base_modules = [
+            "thinker.model.embed_tokens",
+            "thinker.model.norm",
+            "token2wav",
+            "thinker.audio_tower",
+            "thinker.model.rotary_emb",
+            "thinker.visual",
+            "talker",
+        ]
+        pre_lm_head_norm_module = "thinker.model.norm"
+        require_monkeypatch = False
+        layers_node = "thinker.model.layers"
+        layer_type = "Qwen2_5OmniDecoderLayer"
+        layer_modules = [
+            ["self_attn.k_proj", "self_attn.v_proj", "self_attn.q_proj"],
+            ["self_attn.o_proj"],
+            ["mlp.up_proj", "mlp.gate_proj"],
+            ["mlp.down_proj"],
+        ]
+
+    MODEL_MAP["qwen2_5_omni"] = Qwen25OmniThinkerGPTQ
+    if "qwen2_5_omni" not in SUPPORTED_MODELS:
+        SUPPORTED_MODELS.append("qwen2_5_omni")
+
+    @classmethod
+    def patched_from_config(cls, config, *args, **kwargs):
+        kwargs.pop("trust_remote_code", None)
+        model = cls._from_config(config, **kwargs)
+        spk_path = cached_file(
+            MODEL_PATH,
+            "spk_dict.pt",
+            subfolder=kwargs.pop("subfolder", None),
+            cache_dir=kwargs.pop("cache_dir", None),
+            force_download=kwargs.pop("force_download", False),
+            proxies=kwargs.pop("proxies", None),
+            resume_download=kwargs.pop("resume_download", None),
+            local_files_only=kwargs.pop("local_files_only", False),
+            token=kwargs.pop("use_auth_token", None),
+            revision=kwargs.pop("revision", None),
+        )
+        if spk_path is None:
+            raise ValueError(f"Speaker dictionary not found at {spk_path}")
+        model.load_speakers(spk_path)
+        return model
+
+    LowVramQwenModel.from_config = patched_from_config
+
+    dt = _quantized_dtype(dtype_name, "gptq")
+    print(
+        f"Loading qwen2.5-omni GPTQ model from {MODEL_PATH} "
+        f"(torch_dtype={dt}, attn_implementation=flash_attention_2) ..."
+    )
+    model = GPTQModel.load(
+        MODEL_PATH,
+        device_map={
+            "thinker.model": "cuda",
+            "thinker.lm_head": "cuda",
+            "thinker.visual": "cuda",
+            "thinker.audio_tower": "cuda",
+            "talker": "cpu",
+            "token2wav": "cpu",
+        },
+        torch_dtype=dt,
+        attn_implementation="flash_attention_2",
+    )
+    _move_quantized_modal_modules_to_cuda(model)
+    _disable_talker(model)
+    processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+    _record_model_loaded_vram()
+    return model, processor
+
+
+def _load_qwen2_5_omni_awq(dtype_name: str):
+    _ensure_low_vram_mode_dir()
+    module_path = os.path.join(LOW_VRAM_MODE_DIR, "modeling_qwen2_5_omni_low_VRAM_mode.py")
+    _replace_transformers_qwen_model_module(module_path)
+
+    from awq.models.base import BaseAWQForCausalLM
+    from modeling_qwen2_5_omni_low_VRAM_mode import Qwen2_5OmniDecoderLayer
+
+    class Qwen2_5_OmniAWQForConditionalGeneration(BaseAWQForCausalLM):
+        layer_type = "Qwen2_5OmniDecoderLayer"
+        max_seq_len_key = "max_position_embeddings"
+        modules_to_not_convert = ["visual"]
+
+        @staticmethod
+        def get_model_layers(model: torch.nn.Module):
+            return model.thinker.model.layers
+
+        @staticmethod
+        def get_act_for_scaling(module: Qwen2_5OmniDecoderLayer):
+            return dict(is_scalable=False)
+
+        @staticmethod
+        def move_embed(model: torch.nn.Module, device: str):
+            model.thinker.model.embed_tokens = model.thinker.model.embed_tokens.to(device)
+            model.thinker.visual = model.thinker.visual.to(device)
+            model.thinker.audio_tower = model.thinker.audio_tower.to(device)
+            model.thinker.visual.rotary_pos_emb = model.thinker.visual.rotary_pos_emb.to(device)
+            model.thinker.model.rotary_emb = model.thinker.model.rotary_emb.to(device)
+            for layer in model.thinker.model.layers:
+                layer.self_attn.rotary_emb = layer.self_attn.rotary_emb.to(device)
+
+        @staticmethod
+        def get_layers_for_scaling(module: Qwen2_5OmniDecoderLayer, input_feat, module_kwargs):
+            layers = []
+            layers.append(
+                dict(
+                    prev_op=module.input_layernorm,
+                    layers=[module.self_attn.q_proj, module.self_attn.k_proj, module.self_attn.v_proj],
+                    inp=input_feat["self_attn.q_proj"],
+                    module2inspect=module.self_attn,
+                    kwargs=module_kwargs,
+                )
+            )
+            if module.self_attn.v_proj.weight.shape == module.self_attn.o_proj.weight.shape:
+                layers.append(
+                    dict(
+                        prev_op=module.self_attn.v_proj,
+                        layers=[module.self_attn.o_proj],
+                        inp=input_feat["self_attn.o_proj"],
+                    )
+                )
+            layers.append(
+                dict(
+                    prev_op=module.post_attention_layernorm,
+                    layers=[module.mlp.gate_proj, module.mlp.up_proj],
+                    inp=input_feat["mlp.gate_proj"],
+                    module2inspect=module.mlp,
+                )
+            )
+            layers.append(
+                dict(
+                    prev_op=module.mlp.up_proj,
+                    layers=[module.mlp.down_proj],
+                    inp=input_feat["mlp.down_proj"],
+                )
+            )
+            return layers
+
+    dt = _quantized_dtype(dtype_name, "awq")
+    print(
+        f"Loading qwen2.5-omni AWQ model from {MODEL_PATH} "
+        f"(torch_dtype={dt}, attn_implementation=flash_attention_2) ..."
+    )
+    model = Qwen2_5_OmniAWQForConditionalGeneration.from_quantized(
+        MODEL_PATH,
+        model_type="qwen2_5_omni",
+        torch_dtype=dt,
+        attn_implementation="flash_attention_2",
+    )
+    _move_quantized_modal_modules_to_cuda(model)
+    _disable_talker(model)
+    processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+    _record_model_loaded_vram()
+    return model, processor
+
+
 # ── Audio: lmms-eval Qwen2_5_Omni sets use_audio_in_video per video via _check_if_video_has_audio ──
 
 def check_video_has_audio(video_path: str) -> bool:
@@ -207,7 +502,16 @@ def check_video_has_audio(video_path: str) -> bool:
 
 # ── Model ─────────────────────────────────────────────────────────────────────
 
-def load_model(model_variant: str, dtype_name: str):
+def load_model(model_variant: str, dtype_name: str, quantization: str):
+    if quantization != "none":
+        if model_variant != "qwen2.5-omni":
+            raise ValueError("Quantized loading is currently supported only for --model_variant qwen2.5-omni.")
+        if quantization == "gptq":
+            return _load_qwen2_5_omni_gptq(dtype_name)
+        if quantization == "awq":
+            return _load_qwen2_5_omni_awq(dtype_name)
+        raise ValueError(f"Unsupported quantization mode: {quantization}")
+
     dt = resolve_model_dtype(dtype_name)
     print(f"Loading {model_variant} model from {MODEL_PATH} (torch_dtype={dtype_name}) ...")
     if model_variant == "qwen2.5-omni":
@@ -215,7 +519,7 @@ def load_model(model_variant: str, dtype_name: str):
             MODEL_PATH,
             torch_dtype=dt,
             device_map="auto",
-            attn_implementation="sdpa",
+            attn_implementation="flash_attention_2",
         )
         processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
     elif model_variant == "qwen3-omni":
@@ -232,24 +536,29 @@ def load_model(model_variant: str, dtype_name: str):
             MODEL_PATH,
             torch_dtype=dt,
             device_map="auto",
-            attn_implementation="sdpa",
+            attn_implementation="flash_attention_2",
         )
         processor = Qwen3OmniMoeProcessor.from_pretrained(MODEL_PATH)
     else:
         raise ValueError(f"Unsupported model variant: {model_variant}")
     if hasattr(model, "disable_talker"):
         model.disable_talker()
-    print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
+    _record_model_loaded_vram()
     return model, processor
 
 
 def _prepare_omni_inputs(model: torch.nn.Module, inputs: object) -> object:
     """Move processor outputs to the model device; cast only floating tensors to model dtype (never input_ids)."""
-    device = next(model.parameters()).device
+    device = _model_input_device(model)
+    dtype = _model_dtype(model)
     inputs = inputs.to(device)
     for key, value in list(inputs.items()):
-        if isinstance(value, torch.Tensor) and value.is_floating_point():
-            inputs[key] = value.to(model.dtype)
+        if isinstance(value, torch.Tensor):
+            if value.device != device:
+                value = value.to(device)
+            if value.is_floating_point():
+                value = value.to(dtype)
+            inputs[key] = value
     return inputs
 
 
@@ -264,8 +573,21 @@ def _generation_output_token_ids(gen_out: object) -> torch.Tensor:
 _OMNI_GENERATE_BATCH_DROP = frozenset({"images", "return_tensors", "text"})
 
 
-def _batch_for_omni_generate(batch: object) -> dict:
-    return {k: v for k, v in batch.items() if k not in _OMNI_GENERATE_BATCH_DROP}
+def _batch_for_omni_generate(batch: object, model: object | None = None) -> dict:
+    out = {k: v for k, v in batch.items() if k not in _OMNI_GENERATE_BATCH_DROP}
+    if model is None:
+        return out
+
+    device = _model_input_device(model)
+    dtype = _model_dtype(model)
+    for key, value in list(out.items()):
+        if isinstance(value, torch.Tensor):
+            if value.device != device:
+                value = value.to(device)
+            if value.is_floating_point():
+                value = value.to(dtype)
+            out[key] = value
+    return out
 
 
 # ── Inference ─────────────────────────────────────────────────────────────────
@@ -281,14 +603,18 @@ def run_inference(
     max_pixels: int,
     max_new_tokens: int,
     use_audio: bool,
+    max_frames: int | None = None,
 ) -> tuple[str, str]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
+    video_element = {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels}
+    if max_frames is not None:
+        video_element["max_frames"] = max_frames
     messages = [
         {"role": "system", "content": [{"type": "text", "text": system_text}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
+            video_element,
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -297,16 +623,13 @@ def run_inference(
     effective_use_audio = use_audio
     try:
         audios, images, videos = process_mm_info(messages, use_audio_in_video=effective_use_audio)
-    except Exception as first_err:
-        # qwen_omni_utils loads video audio via librosa on the .mp4 path; soundfile often fails on mp4 and
-        # the chained exception may not match substring checks — retry without separate audio extraction.
+    except Exception as err:
         if not effective_use_audio:
-            raise first_err
-        try:
-            audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
-            effective_use_audio = False
-        except Exception as second_err:
-            raise second_err from first_err
+            raise
+        raise RuntimeError(
+            f"Audio input was requested for {video_path} but audio decoding failed. "
+            "This evaluator keeps audio mandatory unless you explicitly pass --no_audio."
+        ) from err
 
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
@@ -332,7 +655,7 @@ def run_inference(
         gen_kw["temperature"] = 0.0
         gen_kw["do_sample"] = False
 
-    gen_in = _batch_for_omni_generate(inputs)
+    gen_in = _batch_for_omni_generate(inputs, model=model)
     with torch.no_grad():
         raw_out = model.generate(**gen_in, **gen_kw)
 
@@ -349,26 +672,36 @@ def run_inference(
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
 def resolve_video_path(file_field: str, videos_dir: str) -> str | None:
-    """Try the stored path, then search videos_dir by filename."""
-    # Try stored path directly (works if running locally)
+    """Resolve metadata paths robustly across Windows/Linux separators and repeated basenames."""
     if os.path.exists(file_field):
         return file_field
 
-    # Normalize Windows backslashes → forward slashes, then get filename
     normalized = file_field.replace("\\", "/")
-    filename = normalized.split("/")[-1]          # e.g. soccer_matches_1.mp4
-    stem = filename.rsplit(".", 1)[0]             # e.g. soccer_matches_1
+    if os.path.exists(normalized):
+        return normalized
 
-    # Try flat in videos_dir
-    candidate = os.path.join(videos_dir, filename)
+    rel = normalized
+    for prefix in ("videos/", "videos\\"):
+        if normalized.startswith(prefix):
+            rel = normalized[len(prefix):]
+            break
+
+    candidate = os.path.normpath(os.path.join(videos_dir, rel))
     if os.path.exists(candidate):
         return candidate
 
-    # Recursive search in videos_dir
-    for ext in ("mp4", "mkv", "webm", "avi"):
-        matches = glob.glob(os.path.join(videos_dir, "**", f"{stem}.{ext}"), recursive=True)
-        if matches:
-            return matches[0]
+    rel_norm = rel.replace("\\", "/")
+    filename = rel_norm.split("/")[-1]
+    suffix_matches = []
+    for match in glob.glob(os.path.join(videos_dir, "**", filename), recursive=True):
+        if match.replace("\\", "/").endswith(rel_norm):
+            suffix_matches.append(match)
+    if suffix_matches:
+        return suffix_matches[0]
+
+    basename_matches = glob.glob(os.path.join(videos_dir, "**", filename), recursive=True)
+    if len(basename_matches) == 1:
+        return basename_matches[0]
 
     return None
 
@@ -385,12 +718,22 @@ def main():
     parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
     parser.add_argument("--fps",      type=float, default=2.0, help="Video sampling fps")
     parser.add_argument("--max_pixels", type=int, default=360*420, help="Max pixels per frame")
+    parser.add_argument("--max_frames_videomme", type=int, default=768,
+                        help="Max frames for VideoMME videos (paper default: 768)")
+    parser.add_argument("--max_frames_other", type=int, default=128,
+                        help="Max frames for non-VideoMME datasets (paper default: 128)")
     parser.add_argument("--max_new_tokens", type=int, default=4096, help="Generation cap (lmms-eval qwen2_5_omni default)")
     parser.add_argument(
         "--dtype",
         default="bfloat16",
         choices=["bfloat16", "float16", "float32"],
-        help="Model weights dtype (use explicit values; torch_dtype='auto' often fails on Windows/some GPUs)",
+        help="Model weights dtype for non-quantized runs. Quantized GPTQ/AWQ loads force float16.",
+    )
+    parser.add_argument(
+        "--quantization",
+        default="none",
+        choices=["none", "gptq", "awq"],
+        help="Load a Qwen2.5-Omni quantized checkpoint via Qwen's reference GPTQ/AWQ path.",
     )
     parser.add_argument(
         "--no_audio",
@@ -412,10 +755,7 @@ def main():
     args = parser.parse_args()
 
     global MODEL_PATH
-    if args.model:
-        MODEL_PATH = args.model
-    elif not os.path.exists(MODEL_PATH) and os.path.exists(FALLBACK_MODEL_PATH):
-        MODEL_PATH = FALLBACK_MODEL_PATH
+    MODEL_PATH = _resolve_model_path(args.model, args.quantization)
 
     if (not args.no_audio) and shutil.which("ffmpeg") is None:
         print(
@@ -459,12 +799,18 @@ def main():
         "Each line in --output is written after one question finishes; the first can take many minutes "
         "(video decode + optional MP4 audio via librosa/audioread + generation). Use --no_audio to skip separate audio loading.\n"
     )
+    audio_mode = "video+audio+text" if not args.no_audio else "video+text (--no_audio)"
+    print(
+        f"Input mode: {audio_mode}; sample_fps={args.fps}; max_pixels={args.max_pixels}; "
+        f"max_new_tokens={args.max_new_tokens}"
+    )
+    print("Note: qwen-vl-utils/decord logs the source video's native fps, not the requested sample_fps.\n")
 
     if not runnable:
         print("Nothing to run. Exiting.")
         return
 
-    model, processor = load_model(args.model_variant, args.dtype)
+    model, processor = load_model(args.model_variant, args.dtype, args.quantization)
 
     correct = total = skipped_no_video = 0
     results = []
@@ -479,6 +825,8 @@ def main():
                 continue
 
             use_audio = (not args.no_audio) and check_video_has_audio(video_path)
+            if (not args.no_audio) and (not use_audio):
+                print(f"  INFO {entry_label}: no audio stream detected; using video+text input only.")
 
             for q in entry["questions"]:
                 question  = q["question"]
@@ -488,7 +836,10 @@ def main():
                 dataset   = entry.get("dataset", "")
 
                 try:
+                    before_alloc_gb, before_resv_gb = _capture_current_vram_gb()
                     torch.cuda.reset_peak_memory_stats()
+                    ds_name = _canonicalize_dataset_name(dataset)
+                    max_frames = args.max_frames_videomme if ds_name in {"video-mme", "videomme"} else args.max_frames_other
                     pred, reasoning = run_inference(
                         model,
                         processor,
@@ -500,6 +851,7 @@ def main():
                         args.max_pixels,
                         args.max_new_tokens,
                         use_audio,
+                        max_frames=max_frames,
                     )
                     peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
                     peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
@@ -508,7 +860,13 @@ def main():
                     vram_entry = {
                         "entry": entry_label,
                         "task_type": task_type,
+                        "status": "ok",
+                        "quantization": args.quantization,
                         "duration_s": entry.get("duration_s"),
+                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
+                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
+                        "before_alloc_gb": round(before_alloc_gb, 2),
+                        "before_reserved_gb": round(before_resv_gb, 2),
                         "peak_alloc_gb": round(peak_alloc_gb, 2),
                         "peak_reserved_gb": round(peak_resv_gb, 2),
                         "after_alloc_gb": round(curr_alloc_gb, 2),
@@ -520,6 +878,28 @@ def main():
                     import traceback
                     tb = traceback.format_exc()
                     print(f"  ERROR {entry_label}: {type(e).__name__}: {e!r}")
+                    peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
+                    peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
+                    curr_alloc_gb, curr_resv_gb = _capture_current_vram_gb()
+                    vram_entry = {
+                        "entry": entry_label,
+                        "task_type": task_type,
+                        "status": "error",
+                        "quantization": args.quantization,
+                        "duration_s": entry.get("duration_s"),
+                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
+                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
+                        "before_alloc_gb": round(before_alloc_gb, 2),
+                        "before_reserved_gb": round(before_resv_gb, 2),
+                        "peak_alloc_gb": round(peak_alloc_gb, 2),
+                        "peak_reserved_gb": round(peak_resv_gb, 2),
+                        "after_alloc_gb": round(curr_alloc_gb, 2),
+                        "after_reserved_gb": round(curr_resv_gb, 2),
+                        "error_type": type(e).__name__,
+                        "error_message": str(e),
+                    }
+                    vram_f.write(json.dumps(vram_entry) + "\n")
+                    vram_f.flush()
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
@@ -531,6 +911,7 @@ def main():
 
                 result = {
                     "model_variant": args.model_variant,
+                    "quantization": args.quantization,
                     "dataset":    entry.get("dataset"),
                     "task_type":  task_type,
                     "duration_s": entry.get("duration_s"),
@@ -551,6 +932,7 @@ def main():
     acc = correct / total if total else 0
     print(f"\n{'='*50}")
     print(f"Model variant: {args.model_variant}")
+    print(f"Quantization:  {args.quantization}")
     print(f"Accuracy:      {correct}/{total} = {acc:.2%}")
     print(f"Skipped (no video): {skipped_no_video}")
     print(f"Results saved: {args.output}")
