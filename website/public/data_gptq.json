@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-04-06T20:13:36.589Z",
+  "generated_at": "2026-04-06T20:35:20.429Z",
   "stats": {
-    "total_correct": 33,
+    "total_correct": 34,
     "total_questions": 118,
-    "accuracy": 0.2796610169491525,
+    "accuracy": 0.288135593220339,
     "by_dataset": {
       "video-mme": {
         "correct": 11,
@@ -14,7 +14,7 @@
         "total": 18
       },
       "worldsense": {
-        "correct": 18,
+        "correct": 19,
         "total": 64
       }
     }
@@ -936,9 +936,9 @@
           ],
           "answer": "B",
           "task_type": "Audio Recognition",
-          "prediction": "A",
-          "correct": false,
-          "reasoning": "A."
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "B."
         },
         {
           "question": "What is the relationship between the one-armed monster in the video and the television on the wall?",
@@ -950,9 +950,9 @@
           ],
           "answer": "B",
           "task_type": "Relation Reasoning",
-          "prediction": "C",
-          "correct": false,
-          "reasoning": "C"
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "B"
         },
         {
           "question": "How many times does the one-armed monster appear in the video?",
@@ -966,7 +966,7 @@
           "task_type": "Action Counting",
           "prediction": "D",
           "correct": false,
-          "reasoning": "D"
+          "reasoning": "D."
         }
       ]
     },
@@ -1058,9 +1058,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": "C",
-          "correct": false,
-          "reasoning": "C."
+          "prediction": "D",
+          "correct": true,
+          "reasoning": "D."
         },
         {
           "question": "What is the process followed by the security officer after discovering a firearm?",
@@ -1086,9 +1086,9 @@
           ],
           "answer": "A",
           "task_type": "Event Recognition",
-          "prediction": "C",
-          "correct": false,
-          "reasoning": "C."
+          "prediction": "A",
+          "correct": true,
+          "reasoning": "A"
         },
         {
           "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
@@ -1100,9 +1100,9 @@
           ],
           "answer": "C",
           "task_type": "Attribute Recognition",
-          "prediction": "C",
-          "correct": true,
-          "reasoning": "C."
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "B"
         }
       ]
     },
@@ -1123,7 +1123,7 @@
           "task_type": "Audio Change",
           "prediction": "C",
           "correct": false,
-          "reasoning": "C. What do you think about that?"
+          "reasoning": "C."
         },
         {
           "question": "At what point in the video do the audience members cheer?",
@@ -1179,9 +1179,9 @@
           ],
           "answer": "D",
           "task_type": "Audio Recognition",
-          "prediction": "B",
-          "correct": false,
-          "reasoning": "B"
+          "prediction": "D",
+          "correct": true,
+          "reasoning": "D"
         },
         {
           "question": "What did the woman in red do to the guzheng during the performance in the video?",
@@ -1193,9 +1193,9 @@
           ],
           "answer": "C",
           "task_type": "Human-object Interaction",
-          "prediction": "C",
-          "correct": true,
-          "reasoning": "C."
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "B"
         }
       ]
     },
@@ -1251,9 +1251,9 @@
           ],
           "answer": "B",
           "task_type": "Text and Diagram Understanding",
-          "prediction": "A",
-          "correct": false,
-          "reasoning": "A"
+          "prediction": "B",
+          "correct": true,
+          "reasoning": "B"
         },
         {
           "question": "Which car is driven by the girl with yellow hair and black eyes?",
@@ -1279,9 +1279,9 @@
           ],
           "answer": "B",
           "task_type": "Causal Reasoning",
-          "prediction": "B",
-          "correct": true,
-          "reasoning": "B."
+          "prediction": "A",
+          "correct": false,
+          "reasoning": "A"
         }
       ]
     },
@@ -1301,9 +1301,9 @@
           ],
           "answer": "C",
           "task_type": "Emotion Change",
-          "prediction": "A",
+          "prediction": "D",
           "correct": false,
-          "reasoning": "A"
+          "reasoning": "D"
         },
         {
           "question": "Where does the scene of the baby alpaca playing with toys in the video take place?",
@@ -1315,9 +1315,9 @@
           ],
           "answer": "C",
           "task_type": "Scene Recognition",
-          "prediction": "B",
+          "prediction": "A",
           "correct": false,
-          "reasoning": "B"
+          "reasoning": "A."
         }
       ]
     },
@@ -1337,9 +1337,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": "C",
+          "prediction": "B",
           "correct": false,
-          "reasoning": "C."
+          "reasoning": "B."
         },
         {
           "question": "What is the process followed by the security officer after discovering a firearm?",
@@ -1379,9 +1379,9 @@
           ],
           "answer": "C",
           "task_type": "Attribute Recognition",
-          "prediction": "C",
-          "correct": true,
-          "reasoning": "C."
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "B"
         }
       ]
     },
@@ -1401,9 +1401,9 @@
           ],
           "answer": "D",
           "task_type": "Video Emotions",
-          "prediction": "C",
+          "prediction": "B",
           "correct": false,
-          "reasoning": "C."
+          "reasoning": "B."
         },
         {
           "question": "What is the process followed by the security officer after discovering a firearm?",
@@ -1443,9 +1443,9 @@
           ],
           "answer": "C",
           "task_type": "Attribute Recognition",
-          "prediction": "C",
-          "correct": true,
-          "reasoning": "C."
+          "prediction": "B",
+          "correct": false,
+          "reasoning": "B"
         }
       ]
     },

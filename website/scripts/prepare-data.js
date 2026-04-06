@@ -75,19 +75,17 @@ function main() {
   const metadata = JSON.parse(fs.readFileSync(META_FILE, "utf8"));
   const results = loadResults();
 
-  // Index results by dataset+task_type+question for fast lookup
-  const resultIndex = {};
-  for (const r of results) {
-    const key = `${r.dataset}||${r.task_type}||${r.question}`;
-    resultIndex[key] = r;
-  }
+  // Positional matching: results.jsonl rows are in the same order as
+  // flattened metadata questions. Key-based matching fails when worldsense
+  // has duplicate dataset||task_type||question keys across different videos.
+  let resultIdx = 0;
 
   // Merge
   const entries = metadata.map((entry) => {
     const videoUrl = toVideoUrl(entry.file);
     const enrichedQuestions = (entry.questions || []).map((q) => {
-      const key = `${entry.dataset}||${q.task_type || entry.task_type}||${q.question}`;
-      const result = resultIndex[key] || null;
+      const result = resultIdx < results.length ? results[resultIdx] : null;
+      resultIdx++;
       return {
         question: q.question,
         choices: q.choices,
