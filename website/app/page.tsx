@@ -33,6 +33,45 @@ interface Data {
   entries: Entry[];
 }
 
+interface ModelConfig {
+  key: string;
+  label: string;
+  shortLabel: string;
+  file: string;
+  color: string;        // tailwind text color
+  borderColor: string;  // tailwind border color
+  bgColor: string;      // tailwind bg color
+  barGradient: string;  // tailwind gradient
+  dotColor: string;     // for small indicators
+}
+
+const MODELS: ModelConfig[] = [
+  {
+    key: "baseline", label: "Baseline", shortLabel: "Base",
+    file: "/data_baseline.json",
+    color: "text-emerald-300", borderColor: "border-white/10", bgColor: "bg-white/[0.02]",
+    barGradient: "from-emerald-500 to-emerald-300", dotColor: "text-emerald-400",
+  },
+  {
+    key: "omnizip", label: "OmniZip", shortLabel: "Zip",
+    file: "/data_omnizip.json",
+    color: "text-blue-300", borderColor: "border-blue-500/30", bgColor: "bg-blue-500/[0.04]",
+    barGradient: "from-blue-500 to-blue-300", dotColor: "text-blue-400",
+  },
+  {
+    key: "gptq", label: "GPTQ-Int4", shortLabel: "GPTQ",
+    file: "/data_gptq.json",
+    color: "text-purple-300", borderColor: "border-purple-500/30", bgColor: "bg-purple-500/[0.04]",
+    barGradient: "from-purple-500 to-purple-300", dotColor: "text-purple-400",
+  },
+  {
+    key: "awq", label: "AWQ", shortLabel: "AWQ",
+    file: "/data_awq.json",
+    color: "text-orange-300", borderColor: "border-orange-500/30", bgColor: "bg-orange-500/[0.04]",
+    barGradient: "from-orange-500 to-orange-300", dotColor: "text-orange-400",
+  },
+];
+
 const DATASET_COLORS: Record<string, string> = {
   "video-mme":      "bg-violet-500/20 text-violet-300 border-violet-500/30",
   "daily-omni":     "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
@@ -50,10 +89,7 @@ const DATASET_DOT: Record<string, string> = {
 
 function pct(n: number) { return (n * 100).toFixed(1) + "%"; }
 
-function AccuracyBar({ value, color = "emerald" }: { value: number; color?: string }) {
-  const gradient = color === "blue"
-    ? "from-blue-500 to-blue-300"
-    : "from-emerald-500 to-emerald-300";
+function AccuracyBar({ value, gradient }: { value: number; gradient: string }) {
   return (
     <div className="h-1 w-full rounded-full bg-white/10 overflow-hidden mt-1">
       <div className={`h-full rounded-full bg-gradient-to-r ${gradient}`}
@@ -117,18 +153,19 @@ function ChoicesPanel({ q, label, labelColor }: { q: Question; label: string; la
   );
 }
 
-// ── Question cell (side-by-side) ──────────────────────────────────────────────
+// ── Question cell (all models side-by-side) ──────────────────────────────────
 
-function QuestionCell({ q, qZip }: { q: Question; qZip: Question | null }) {
+function QuestionCell({ q, modelQuestions }: { q: Question; modelQuestions: (Question | null)[] }) {
   return (
-    <div className="flex flex-col gap-2 min-w-[460px] max-w-[600px]">
+    <div className="flex flex-col gap-2 min-w-[240px]">
       <p className="text-xs text-white/70 leading-snug break-words">{q.question}</p>
-      <div className="grid grid-cols-2 gap-2">
-        <ChoicesPanel q={q} label="Qwen" labelColor="text-white/40" />
-        {qZip
-          ? <ChoicesPanel q={qZip} label="OmniZip" labelColor="text-blue-400/70" />
-          : <div className="text-white/15 text-xs pt-4">—</div>
-        }
+      <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${MODELS.length}, minmax(0, 1fr))` }}>
+        {MODELS.map((m, mi) => {
+          const mq = modelQuestions[mi];
+          return mq
+            ? <ChoicesPanel key={m.key} q={mq} label={m.shortLabel} labelColor={m.dotColor} />
+            : <div key={m.key} className="text-white/15 text-xs pt-4">—</div>;
+        })}
       </div>
     </div>
   );
@@ -136,11 +173,13 @@ function QuestionCell({ q, qZip }: { q: Question; qZip: Question | null }) {
 
 // ── Table row ─────────────────────────────────────────────────────────────────
 
-function TableRow({ entry, entryZip, maxQ }: { entry: Entry; entryZip: Entry | null; maxQ: number }) {
-  const baseAnswered = entry.questions.filter((q) => q.prediction !== null && q.prediction !== "ERROR");
-  const baseCorrect = baseAnswered.filter((q) => q.correct).length;
-  const zipAnswered = entryZip ? entryZip.questions.filter((q) => q.prediction !== null && q.prediction !== "ERROR") : [];
-  const zipCorrect = zipAnswered.filter((q) => q.correct).length;
+function TableRow({ entry, modelEntries, maxQ }: { entry: Entry; modelEntries: (Entry | null)[]; maxQ: number }) {
+  const modelScores = MODELS.map((_, mi) => {
+    const e = modelEntries[mi];
+    if (!e) return { correct: 0, answered: 0 };
+    const answered = e.questions.filter((q) => q.prediction !== null && q.prediction !== "ERROR");
+    return { correct: answered.filter((q) => q.correct).length, answered: answered.length };
+  });
 
   return (
     <tr className="border-b border-white/6 hover:bg-white/[0.015] transition-colors align-top">
@@ -158,14 +197,15 @@ function TableRow({ entry, entryZip, maxQ }: { entry: Entry; entryZip: Entry | n
           {entry.duration_s && <span className="text-[10px] font-mono text-white/25">{entry.duration_s}s</span>}
           {/* Per-model scores */}
           <div className="flex flex-col gap-0.5 mt-0.5">
-            <span className={`text-[10px] font-mono ${baseCorrect === baseAnswered.length ? "text-emerald-400" : baseCorrect === 0 ? "text-red-400" : "text-amber-400"}`}>
-              Qwen&nbsp;&nbsp;&nbsp;&nbsp;{baseCorrect}/{baseAnswered.length}
-            </span>
-            {entryZip && (
-              <span className={`text-[10px] font-mono ${zipCorrect === zipAnswered.length ? "text-blue-400" : zipCorrect === 0 ? "text-red-400" : "text-amber-400"}`}>
-                OmniZip&nbsp;{zipCorrect}/{zipAnswered.length}
-              </span>
-            )}
+            {MODELS.map((m, mi) => {
+              const s = modelScores[mi];
+              if (s.answered === 0) return null;
+              return (
+                <span key={m.key} className={`text-[10px] font-mono ${s.correct === s.answered ? m.dotColor : s.correct === 0 ? "text-red-400" : "text-amber-400"}`}>
+                  {m.shortLabel.padEnd(5)}{s.correct}/{s.answered}
+                </span>
+              );
+            })}
           </div>
         </div>
       </td>
@@ -173,11 +213,11 @@ function TableRow({ entry, entryZip, maxQ }: { entry: Entry; entryZip: Entry | n
       {/* Question columns */}
       {Array.from({ length: maxQ }).map((_, qi) => {
         const q = entry.questions[qi];
-        const qZip = entryZip?.questions[qi] ?? null;
+        const modelQs = MODELS.map((_, mi) => modelEntries[mi]?.questions[qi] ?? null);
         return (
           <td key={qi} className="p-3 border-r border-white/6 align-top">
             {q
-              ? <QuestionCell q={q} qZip={qZip} />
+              ? <QuestionCell q={q} modelQuestions={modelQs} />
               : <span className="text-white/15 text-xs">—</span>
             }
           </td>
@@ -185,42 +225,30 @@ function TableRow({ entry, entryZip, maxQ }: { entry: Entry; entryZip: Entry | n
       })}
 
       {/* Prediction summary */}
-      <td className="p-3 align-top min-w-[160px]">
+      <td className="p-3 align-top min-w-[200px]">
         <div className="flex flex-col gap-2">
-          {entry.questions.map((q, qi) => {
-            const qz = entryZip?.questions[qi];
-            return (
-              <div key={qi} className="flex flex-col gap-0.5">
-                <span className="text-[9px] text-white/25 font-mono">Q{qi + 1} → {q.answer}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] text-white/30 w-10 font-mono">Qwen</span>
-                  {q.prediction && q.prediction !== "ERROR" ? (
-                    <span className={`font-mono text-sm font-bold ${q.correct ? "text-emerald-400" : "text-red-400"}`}>
-                      {q.prediction}
-                    </span>
-                  ) : q.prediction === "ERROR" ? (
-                    <span className="text-orange-400 text-xs font-mono">ERR</span>
-                  ) : (
-                    <span className="text-white/20 text-xs">—</span>
-                  )}
-                </div>
-                {qz && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] text-blue-400/40 w-10 font-mono">Zip</span>
-                    {qz.prediction && qz.prediction !== "ERROR" ? (
-                      <span className={`font-mono text-sm font-bold ${qz.correct ? "text-blue-400" : "text-red-400"}`}>
-                        {qz.prediction}
+          {entry.questions.map((q, qi) => (
+            <div key={qi} className="flex flex-col gap-0.5">
+              <span className="text-[9px] text-white/25 font-mono">Q{qi + 1} → {q.answer}</span>
+              {MODELS.map((m, mi) => {
+                const mq = modelEntries[mi]?.questions[qi];
+                return (
+                  <div key={m.key} className="flex items-center gap-2">
+                    <span className={`text-[9px] w-10 font-mono ${m.dotColor}/60`}>{m.shortLabel}</span>
+                    {mq?.prediction && mq.prediction !== "ERROR" ? (
+                      <span className={`font-mono text-sm font-bold ${mq.correct ? m.dotColor : "text-red-400"}`}>
+                        {mq.prediction}
                       </span>
-                    ) : qz.prediction === "ERROR" ? (
+                    ) : mq?.prediction === "ERROR" ? (
                       <span className="text-orange-400 text-xs font-mono">ERR</span>
                     ) : (
                       <span className="text-white/20 text-xs">—</span>
                     )}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          ))}
         </div>
       </td>
     </tr>
@@ -230,8 +258,7 @@ function TableRow({ entry, entryZip, maxQ }: { entry: Entry; entryZip: Entry | n
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const [data, setData] = useState<Data | null>(null);
-  const [dataZip, setDataZip] = useState<Data | null>(null);
+  const [modelData, setModelData] = useState<Record<string, Data | null>>({});
   const [activeDataset, setActiveDataset] = useState<string | null>(null);
   const [activeTaskType, setActiveTaskType] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -241,8 +268,12 @@ export default function Home() {
   const [entriesBarHeight, setEntriesBarHeight] = useState(40);
 
   useEffect(() => {
-    fetch("/data.json").then((r) => r.json()).then(setData);
-    fetch("/data_zip.json").then((r) => r.json()).then(setDataZip);
+    for (const m of MODELS) {
+      fetch(m.file)
+        .then((r) => r.json())
+        .then((d) => setModelData((prev) => ({ ...prev, [m.key]: d })))
+        .catch(() => setModelData((prev) => ({ ...prev, [m.key]: null })));
+    }
   }, []);
 
   useEffect(() => {
@@ -263,13 +294,20 @@ export default function Home() {
     ro.observe(el);
     update();
     return () => ro.disconnect();
-  }, [data]);
+  }, [modelData]);
 
-  // Build a lookup from video_url → zip entry
-  const zipByUrl = useMemo(() => {
-    if (!dataZip) return new Map<string, Entry>();
-    return new Map(dataZip.entries.map((e) => [e.video_url, e]));
-  }, [dataZip]);
+  // Use baseline as the primary data source for entries/structure
+  const data = modelData["baseline"] ?? null;
+
+  // Build lookups from video_url → entry for each model
+  const modelByUrl = useMemo(() => {
+    const result: Record<string, Map<string, Entry>> = {};
+    for (const m of MODELS) {
+      const d = modelData[m.key];
+      result[m.key] = d ? new Map(d.entries.map((e) => [e.video_url, e])) : new Map();
+    }
+    return result;
+  }, [modelData]);
 
   const datasets = useMemo(() => {
     if (!data) return [];
@@ -298,7 +336,8 @@ export default function Home() {
 
   const maxQ = useMemo(() => Math.max(1, ...filtered.map((e) => e.questions.length)), [filtered]);
 
-  if (!data) {
+  const loaded = Object.keys(modelData).length;
+  if (!data && loaded < MODELS.length) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-white/40 font-mono text-sm animate-pulse">Loading…</div>
@@ -306,8 +345,15 @@ export default function Home() {
     );
   }
 
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-red-400/60 font-mono text-sm">Failed to load baseline data.</div>
+      </div>
+    );
+  }
+
   const { stats } = data;
-  const zipStats = dataZip?.stats;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col">
@@ -316,60 +362,58 @@ export default function Home() {
         <div className="px-6 py-4 flex items-start justify-between gap-6 flex-wrap">
           <div>
             <div className="flex items-baseline gap-4 flex-wrap">
-              <h1 className="text-lg font-semibold tracking-tight">Qwen2.5-Omni Eval</h1>
+              <h1 className="text-lg font-semibold tracking-tight">Qwen2.5-Omni Eval — Run 3</h1>
               <a href="/vram" className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors">
-                VRAM (run2)
+                VRAM
               </a>
             </div>
             <p className="text-xs text-white/35 font-mono mt-0.5">
-              {data.entries.length} clips · {stats.total_questions} questions · video + audio benchmark
+              {data.entries.length} clips · {stats.total_questions} questions · FPS=2.0 · max_pixels=100352 · flash_attention_2
             </p>
           </div>
 
           {/* Model comparison cards */}
-          <div className="flex items-start gap-6 flex-wrap">
-            {/* Qwen */}
-            <div className="border border-white/10 rounded-lg px-4 py-3 bg-white/[0.02]">
-              <p className="text-[10px] font-mono text-white/35 uppercase tracking-widest mb-1">Qwen2.5-Omni</p>
-              <p className="text-2xl font-mono font-bold">{pct(stats.accuracy)}</p>
-              <p className="text-xs text-white/35 font-mono">{stats.total_correct}/{stats.total_questions}</p>
-            </div>
-            {/* OmniZip */}
-            {zipStats && (
-              <div className="border border-blue-500/30 rounded-lg px-4 py-3 bg-blue-500/[0.04]">
-                <p className="text-[10px] font-mono text-blue-400/60 uppercase tracking-widest mb-1">+ OmniZip</p>
-                <p className="text-2xl font-mono font-bold text-blue-300">{pct(zipStats.accuracy)}</p>
-                <p className="text-xs text-blue-400/50 font-mono">{zipStats.total_correct}/{zipStats.total_questions}</p>
-              </div>
-            )}
+          <div className="flex items-start gap-4 flex-wrap">
+            {MODELS.map((m) => {
+              const d = modelData[m.key];
+              if (!d) return null;
+              return (
+                <div key={m.key} className={`border ${m.borderColor} rounded-lg px-4 py-3 ${m.bgColor}`}>
+                  <p className={`text-[10px] font-mono ${m.dotColor}/60 uppercase tracking-widest mb-1`}>{m.label}</p>
+                  <p className={`text-2xl font-mono font-bold ${m.color}`}>{pct(d.stats.accuracy)}</p>
+                  <p className={`text-xs ${m.dotColor}/50 font-mono`}>{d.stats.total_correct}/{d.stats.total_questions}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-            {/* Per-dataset split bars */}
-            <div className="flex gap-5 flex-wrap items-start">
-              {Object.entries(stats.by_dataset).map(([ds, s]) => {
-                const zs = zipStats?.by_dataset[ds];
+        {/* Per-dataset bars */}
+        <div className="px-6 pb-4 flex gap-6 flex-wrap">
+          {Object.entries(stats.by_dataset).map(([ds, s]) => (
+            <div key={ds} className="min-w-[100px]">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className={`w-2 h-2 rounded-full ${DATASET_DOT[ds] ?? "bg-white/30"}`} />
+                <span className="text-[10px] font-mono text-white/40">{ds}</span>
+              </div>
+              {MODELS.map((m) => {
+                const d = modelData[m.key];
+                const ms = d?.stats.by_dataset[ds];
+                if (!ms) return null;
+                const acc = ms.correct / ms.total;
                 return (
-                  <div key={ds} className="min-w-[80px]">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className={`w-2 h-2 rounded-full ${DATASET_DOT[ds] ?? "bg-white/30"}`} />
-                      <span className="text-[10px] font-mono text-white/40">{ds}</span>
+                  <div key={m.key} className="mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] font-mono w-8 ${m.dotColor}/60`}>{m.shortLabel}</span>
+                      <span className={`text-xs font-mono font-bold ${m.color}`}>{pct(acc)}</span>
+                      <span className="text-[10px] font-mono text-white/25">{ms.correct}/{ms.total}</span>
                     </div>
-                    {/* Qwen bar */}
-                    <p className="text-sm font-mono font-bold text-white/80">{pct(s.correct / s.total)}</p>
-                    <AccuracyBar value={s.correct / s.total} />
-                    <p className="text-[10px] font-mono text-white/30 mt-0.5">{s.correct}/{s.total}</p>
-                    {/* OmniZip bar */}
-                    {zs && (
-                      <>
-                        <p className="text-sm font-mono font-bold text-blue-300 mt-1">{pct(zs.correct / zs.total)}</p>
-                        <AccuracyBar value={zs.correct / zs.total} color="blue" />
-                        <p className="text-[10px] font-mono text-blue-400/40 mt-0.5">{zs.correct}/{zs.total}</p>
-                      </>
-                    )}
+                    <AccuracyBar value={acc} gradient={m.barGradient} />
                   </div>
                 );
               })}
             </div>
-          </div>
+          ))}
         </div>
       </header>
 
@@ -439,29 +483,34 @@ export default function Home() {
                 </th>
                 {Array.from({ length: maxQ }).map((_, i) => (
                   <th key={i} className="px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-white/30 border-r border-white/6 min-w-[480px]">
-                    <div className="flex items-center gap-3">
-                      <span>Question {i + 1}</span>
-                      <span className="text-white/20">·</span>
-                      <span className="text-white/20">Qwen</span>
-                      <span className="text-white/10">/</span>
-                      <span className="text-blue-400/40">OmniZip</span>
+                    <div className="flex items-center gap-2">
+                      <span>Q{i + 1}</span>
+                      {MODELS.map((m, mi) => (
+                        <span key={m.key}>
+                          {mi > 0 && <span className="text-white/10 mr-2">/</span>}
+                          <span className={`${m.dotColor}/50`}>{m.shortLabel}</span>
+                        </span>
+                      ))}
                     </div>
                   </th>
                 ))}
-                <th className="px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-white/30 min-w-[160px]">
+                <th className="px-3 py-2.5 text-[10px] font-mono uppercase tracking-widest text-white/30 min-w-[200px]">
                   Prediction
                 </th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((entry, i) => (
-                <TableRow
-                  key={`${entry.dataset}-${entry.task_type}-${i}`}
-                  entry={entry}
-                  entryZip={zipByUrl.get(entry.video_url) ?? null}
-                  maxQ={maxQ}
-                />
-              ))}
+              {filtered.map((entry, i) => {
+                const mEntries = MODELS.map((m) => modelByUrl[m.key].get(entry.video_url) ?? null);
+                return (
+                  <TableRow
+                    key={`${entry.dataset}-${entry.task_type}-${i}`}
+                    entry={entry}
+                    modelEntries={mEntries}
+                    maxQ={maxQ}
+                  />
+                );
+              })}
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={maxQ + 2} className="text-center py-20 text-white/20 font-mono text-sm">
