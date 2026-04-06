@@ -2469,6 +2469,11 @@ class Qwen2_5OmniThinkerForConditionalGeneration(Qwen2_5OmniPreTrainedModelForCo
             # 1. Extract the input embeddings
             inputs_embeds = self.get_input_embeddings()(input_ids)
 
+        # OmniZip block below reads these; they are only set when input_features is passed (see merge step).
+        audio_features = None
+        attn_logits = None
+        attn_key = None
+
         # 2. Merge text , audios , image and video
         if input_ids is not None and input_ids.shape[1] != 1:  # Prefill stage
             if input_features is not None:

@@ -122,6 +122,11 @@ def process_audio_info(conversations: list[dict] | list[list[dict]], use_audio_i
                                 data = audioread.ffdec.FFmpegAudioFile(path)
                             elif path.startswith("file://"):
                                 data = path[len("file://") :]
+                            elif isinstance(path, str) and path.lower().endswith(
+                                (".mp4", ".mkv", ".webm", ".avi", ".mov", ".m4v")
+                            ):
+                                # Local container formats: same as remote — plain paths confuse soundfile; use ffmpeg.
+                                data = audioread.ffdec.FFmpegAudioFile(path)
                             else:
                                 data = path
                     else:

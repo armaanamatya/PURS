@@ -53,10 +53,11 @@ Prefer **`rsync` from Git Bash** (same flags as above); it preserves partial tra
 
 Same outputs as timestamped `runs/…` folders, but under a single **`run2`** directory with separate logs for baseline vs OmniZip.
 
+The eval scripts create missing parent directories for `--log` / `--output` / etc. **`--stderr_log`** captures stderr inside Python after those dirs exist. Avoid **`2>&1 | tee run2/.../stderr.log`** unless you **`mkdir -p run2/baseline`** first—`tee` opens its file before Python runs, so a missing directory makes `tee` fail.
+
 ```bash
 source /data/armaan/venvs/omnizip_clean/bin/activate
 cd /data/armaan/purs
-mkdir -p run2/baseline run2/omnizip
 
 # Baseline (pick GPU)
 CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py \
@@ -66,9 +67,9 @@ CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py \
   --log run2/baseline/console.log \
   --vram_log run2/baseline/vram_log.jsonl \
   --errors_log run2/baseline/errors.log \
+  --stderr_log run2/baseline/stderr.log \
   --model_variant qwen2.5-omni \
-  --fps 0.5 --max_pixels 50176 --max_new_tokens 256 \
-  2>&1 | tee run2/baseline/stderr.log
+  --fps 0.5 --max_pixels 50176 --max_new_tokens 256
 
 # OmniZip (use another GPU in parallel if you want)
 CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py \
@@ -78,10 +79,192 @@ CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py \
   --log run2/omnizip/console.log \
   --vram_log run2/omnizip/vram_log.jsonl \
   --errors_log run2/omnizip/errors.log \
+  --stderr_log run2/omnizip/stderr.log \
   --fps 0.5 --max_pixels 50176 \
-  --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 \
-  2>&1 | tee run2/omnizip/stderr.log
+  --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05
 ```
+
+---
+
+## Recommended Full-Set Runs (`runs/...`, strict audio, clean stderr)
+
+These commands run the full dataset in `videos/metadata.json`:
+
+- **44** video entries
+- **118** total questions
+
+They use:
+
+- the recommended **`omnizip_clean`** venv
+- timestamped output folders under `runs/`
+- **`--stderr_log`** instead of `2>&1 | tee ...`
+- the patched eval scripts, which keep **video + audio + text** as input by default and only generate **text** output
+
+Important:
+
+- If a video has an audio stream and audio decoding fails, the run now errors instead of silently falling back to video-only.
+- If a video genuinely has **no audio stream**, the script logs that and uses **video + text** for that item because no audio exists to consume.
+- `qwen-vl-utils` / `decord` logs the source file's native FPS (for example `video_fps=30.0`); that is **not** your requested `--fps` sampling rate.
+
+Set common inputs once, then launch any of the runs below:
+
+```bash
+source /data/armaan/venvs/omnizip_clean/bin/activate
+cd /data/armaan/purs
+
+export META=videos/metadata.json
+export VIDS=videos
+export FPS=0.5
+export MAX_PIXELS=50176
+export MAX_NEW_TOKENS=256
+```
+
+### 1. Qwen2.5-Omni-7B Baseline (full 44 / 118)
+
+```bash
+TS=$(date +%Y%m%d_%H%M%S)
+DIR=/data/armaan/purs/runs/qwen25_baseline_${TS}
+mkdir -p "$DIR"
+
+CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py \
+  --metadata "$META" \
+  --videos "$VIDS" \
+  --output "$DIR/results.jsonl" \
+  --log "$DIR/console.log" \
+  --vram_log "$DIR/vram_log.jsonl" \
+  --errors_log "$DIR/errors.log" \
+  --stderr_log "$DIR/stderr.log" \
+  --model_variant qwen2.5-omni \
+  --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS"
+```
+
+**Model**: `/data/armaan/models/Qwen2.5-Omni-7B` (auto-detected)
+
+### 2. Qwen2.5-Omni-7B + OmniZip (full 44 / 118)
+
+```bash
+TS=$(date +%Y%m%d_%H%M%S)
+DIR=/data/armaan/purs/runs/qwen25_omnizip_${TS}
+mkdir -p "$DIR"
+
+CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py \
+  --metadata "$META" \
+  --videos "$VIDS" \
+  --output "$DIR/results.jsonl" \
+  --log "$DIR/console.log" \
+  --vram_log "$DIR/vram_log.jsonl" \
+  --errors_log "$DIR/errors.log" \
+  --stderr_log "$DIR/stderr.log" \
+  --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" \
+  --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05
+```
+
+**Model**: `/data/armaan/models/Qwen2.5-Omni-7B` (auto-detected)
+
+### 3. Qwen2.5-Omni-7B GPTQ (full 44 / 118)
+
+```bash
+TS=$(date +%Y%m%d_%H%M%S)
+DIR=/data/armaan/purs/runs/qwen25_gptq_${TS}
+mkdir -p "$DIR"
+
+CUDA_VISIBLE_DEVICES=2 python eval_qwen_omni.py \
+  --metadata "$META" \
+  --videos "$VIDS" \
+  --output "$DIR/results.jsonl" \
+  --log "$DIR/console.log" \
+  --vram_log "$DIR/vram_log.jsonl" \
+  --errors_log "$DIR/errors.log" \
+  --stderr_log "$DIR/stderr.log" \
+  --model_variant qwen2.5-omni \
+  --quantization gptq \
+  --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS"
+```
+
+**Model**: `/data/armaan/models/Qwen2.5-Omni-7B-GPTQ-Int4` (auto-detected)
+
+### 4. Qwen2.5-Omni-7B AWQ (full 44 / 118)
+
+```bash
+TS=$(date +%Y%m%d_%H%M%S)
+DIR=/data/armaan/purs/runs/qwen25_awq_${TS}
+mkdir -p "$DIR"
+
+CUDA_VISIBLE_DEVICES=3 python eval_qwen_omni.py \
+  --metadata "$META" \
+  --videos "$VIDS" \
+  --output "$DIR/results.jsonl" \
+  --log "$DIR/console.log" \
+  --vram_log "$DIR/vram_log.jsonl" \
+  --errors_log "$DIR/errors.log" \
+  --stderr_log "$DIR/stderr.log" \
+  --model_variant qwen2.5-omni \
+  --quantization awq \
+  --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS"
+```
+
+**Model**: `/data/armaan/models/Qwen2.5-Omni-7B-AWQ` (auto-detected)
+
+### Notes for GPTQ / AWQ
+
+- These quantized commands run through `eval_qwen_omni.py`, **not** `eval_qwen_omni_zip.py`.
+- Quantized + OmniZip is **not** wired up yet in `eval_qwen_omni_zip.py`.
+- GPTQ / AWQ force `torch_dtype=float16` internally.
+- Start with the same conservative `FPS`, `MAX_PIXELS`, and `MAX_NEW_TOKENS` as baseline; increase only after a clean full run.
+
+---
+
+## Run 3 — FlashAttention-2, paper-default resolution + frame caps (`run3/`)
+
+Now using `flash_attention_2` (flash-attn 2.7.4.post1 built from source) with the OmniZip paper's default settings:
+- `FPS=2.0` (paper default, was 0.5)
+- `MAX_PIXELS=100352` (128×28×28 = `VIDEO_MAX_PIXELS` default, was 50176)
+- `MAX_NEW_TOKENS=256`
+- `--max_frames_videomme 768` / `--max_frames_other 128` (paper defaults, auto-applied per dataset)
+
+Frame caps are applied automatically: VideoMME gets up to 768 frames, all other datasets (worldsense, daily-omni) get up to 128 frames. This matches the paper exactly and prevents OOM on long videos.
+
+All 4 runs can launch **simultaneously** on different GPUs.
+
+```bash
+source /data/armaan/venvs/omnizip_clean/bin/activate
+cd /data/armaan/purs
+
+export META=videos/metadata.json
+export VIDS=videos
+export FPS=2.0
+export MAX_PIXELS=100352
+export MAX_NEW_TOKENS=256
+```
+
+### 3.1 Baseline
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/baseline/results.jsonl --log run3/baseline/console.log --vram_log run3/baseline/vram_log.jsonl --errors_log run3/baseline/errors.log --stderr_log run3/baseline/stderr.log --model_variant qwen2.5-omni --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+```
+
+### 3.2 OmniZip
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py --metadata "$META" --videos "$VIDS" --output run3/omnizip/results.jsonl --log run3/omnizip/console.log --vram_log run3/omnizip/vram_log.jsonl --errors_log run3/omnizip/errors.log --stderr_log run3/omnizip/stderr.log --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 &
+```
+
+### 3.3 GPTQ
+
+```bash
+CUDA_VISIBLE_DEVICES=2 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/gptq/results.jsonl --log run3/gptq/console.log --vram_log run3/gptq/vram_log.jsonl --errors_log run3/gptq/errors.log --stderr_log run3/gptq/stderr.log --model_variant qwen2.5-omni --quantization gptq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+```
+
+### 3.4 AWQ
+
+```bash
+CUDA_VISIBLE_DEVICES=3 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/awq/results.jsonl --log run3/awq/console.log --vram_log run3/awq/vram_log.jsonl --errors_log run3/awq/errors.log --stderr_log run3/awq/stderr.log --model_variant qwen2.5-omni --quantization awq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+```
+
+**Notes**:
+- Frame caps (`--max_frames_videomme 768 --max_frames_other 128`) are the defaults — no need to pass them explicitly.
+- GPTQ/AWQ still use `sdpa` (quantization libraries may not support FA2). Baseline and OmniZip use `flash_attention_2`.
+- All commands are single-line to avoid line-continuation issues when pasting into terminal.
 
 ---
 
