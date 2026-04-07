@@ -33,6 +33,14 @@ interface Data {
   entries: Entry[];
 }
 
+interface VramStats {
+  weights_gb: number;
+  peak_mean_gb: number;
+  peak_max_gb: number;
+  inference_delta_mean_gb: number;
+  inference_delta_max_gb: number;
+}
+
 interface ModelConfig {
   key: string;
   label: string;
@@ -259,6 +267,7 @@ function TableRow({ entry, modelEntries, maxQ }: { entry: Entry; modelEntries: (
 
 export default function Home() {
   const [modelData, setModelData] = useState<Record<string, Data | null>>({});
+  const [vramSummary, setVramSummary] = useState<Record<string, VramStats> | null>(null);
   const [activeDataset, setActiveDataset] = useState<string | null>(null);
   const [activeTaskType, setActiveTaskType] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -274,6 +283,10 @@ export default function Home() {
         .then((d) => setModelData((prev) => ({ ...prev, [m.key]: d })))
         .catch(() => setModelData((prev) => ({ ...prev, [m.key]: null })));
     }
+    fetch("/vram_summary.json")
+      .then((r) => r.json())
+      .then(setVramSummary)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -377,11 +390,50 @@ export default function Home() {
             {MODELS.map((m) => {
               const d = modelData[m.key];
               if (!d) return null;
+              const v = vramSummary?.[m.key];
+              const vBase = vramSummary?.["baseline"];
+              const weightsSave = v && vBase && m.key !== "baseline"
+                ? Math.round((1 - v.weights_gb / vBase.weights_gb) * 100) : null;
+              const peakSave = v && vBase && m.key !== "baseline"
+                ? Math.round((1 - v.peak_max_gb / vBase.peak_max_gb) * 100) : null;
+              const deltaSave = v && vBase && m.key !== "baseline"
+                ? Math.round((1 - v.inference_delta_mean_gb / vBase.inference_delta_mean_gb) * 100) : null;
               return (
-                <div key={m.key} className={`border ${m.borderColor} rounded-lg px-4 py-3 ${m.bgColor}`}>
+                <div key={m.key} className={`border ${m.borderColor} rounded-lg px-4 py-3 ${m.bgColor} min-w-[130px]`}>
                   <p className={`text-[10px] font-mono ${m.dotColor}/60 uppercase tracking-widest mb-1`}>{m.label}</p>
                   <p className={`text-2xl font-mono font-bold ${m.color}`}>{pct(d.stats.accuracy)}</p>
                   <p className={`text-xs ${m.dotColor}/50 font-mono`}>{d.stats.total_correct}/{d.stats.total_questions}</p>
+                  {v && (
+                    <div className="mt-2 pt-2 border-t border-white/6 flex flex-col gap-0.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[9px] font-mono text-white/30">Weights</span>
+                        <span className="text-[10px] font-mono text-white/50">{v.weights_gb} GB</span>
+                        {weightsSave !== null && weightsSave !== 0 && (
+                          <span className={`text-[9px] font-mono ${weightsSave > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {weightsSave > 0 ? `-${weightsSave}%` : `+${-weightsSave}%`}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[9px] font-mono text-white/30">Peak</span>
+                        <span className="text-[10px] font-mono text-white/50">{v.peak_max_gb} GB</span>
+                        {peakSave !== null && peakSave !== 0 && (
+                          <span className={`text-[9px] font-mono ${peakSave > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {peakSave > 0 ? `-${peakSave}%` : `+${-peakSave}%`}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[9px] font-mono text-white/30">KV cache</span>
+                        <span className="text-[10px] font-mono text-white/50">{v.inference_delta_mean_gb} GB</span>
+                        {deltaSave !== null && deltaSave !== 0 && (
+                          <span className={`text-[9px] font-mono ${deltaSave > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {deltaSave > 0 ? `-${deltaSave}%` : `+${-deltaSave}%`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

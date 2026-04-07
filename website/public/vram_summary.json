@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "weights_gb": 16.64,
+    "peak_mean_gb": 20.38,
+    "peak_max_gb": 22.15,
+    "inference_delta_mean_gb": 3.73,
+    "inference_delta_max_gb": 5.5
+  },
+  "omnizip": {
+    "weights_gb": 16.64,
+    "peak_mean_gb": 18.5,
+    "peak_max_gb": 19.29,
+    "inference_delta_mean_gb": 1.85,
+    "inference_delta_max_gb": 2.65
+  },
+  "gptq": {
+    "weights_gb": 7.65,
+    "peak_mean_gb": 8.99,
+    "peak_max_gb": 10.71,
+    "inference_delta_mean_gb": 3.76,
+    "inference_delta_max_gb": 5.5
+  },
+  "awq": {
+    "weights_gb": 7.68,
+    "peak_mean_gb": 9.01,
+    "peak_max_gb": 10.73,
+    "inference_delta_mean_gb": 3.76,
+    "inference_delta_max_gb": 5.5
+  }
+}
