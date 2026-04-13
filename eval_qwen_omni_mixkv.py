@@ -554,6 +554,13 @@ def load_model(dtype_name, budget, window_size, select_method, head_score_path):
     dt = resolve_model_dtype(dtype_name)
     print(f"Loading model from {MODEL_PATH} (dtype={dtype_name}) ...")
 
+    # MixKV monkeypatches the full attention forward, so the model-level
+    # attn_implementation only affects un-patched layers.  The original MixKV
+    # repo uses flash_attention_2 internally via _flash_attention_forward;
+    # our patch uses F.scaled_dot_product_attention (sdpa) instead because
+    # FA2's API requires different inputs (no explicit causal mask, packed
+    # format).  This may cause minor speed differences vs the paper but
+    # does not affect KV compression logic or accuracy.
     model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
         MODEL_PATH,
         torch_dtype=dt,

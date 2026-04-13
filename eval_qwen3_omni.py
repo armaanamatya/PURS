@@ -240,7 +240,7 @@ def load_model(dtype_name: str):
         MODEL_PATH,
         torch_dtype=dt,
         device_map="auto",
-        attn_implementation="sdpa",
+        attn_implementation="flash_attention_2",
     )
     processor = Qwen3OmniMoeProcessor.from_pretrained(MODEL_PATH)
     if hasattr(model, "disable_talker"):
