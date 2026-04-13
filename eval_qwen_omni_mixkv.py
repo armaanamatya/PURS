@@ -51,6 +51,18 @@ from transformers.cache_utils import DynamicCache
 from qwen_omni_utils import process_mm_info
 from mcq_answer_parse import parse_answer
 
+
+def cuda_time_ms(fn):
+    """Run fn() with CUDA event timing. Returns (elapsed_ms, result)."""
+    torch.cuda.synchronize()
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    out = fn()
+    end.record()
+    torch.cuda.synchronize()
+    return start.elapsed_time(end), out
+
 # ── Constants ──────────────────────────────────────���─────────────────────────
 
 ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
@@ -581,7 +593,7 @@ def _generation_output_token_ids(gen_out):
 
 
 def run_inference(model, processor, video_path, dataset, question, choices,
-                  fps, max_pixels, max_new_tokens, use_audio):
+                  fps, max_pixels, max_new_tokens, use_audio, measure_prefill=False):
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
     messages = [
@@ -623,14 +635,30 @@ def run_inference(model, processor, video_path, dataset, question, choices,
         gen_kw["do_sample"] = False
 
     gen_in = {k: v for k, v in inputs.items() if k not in _OMNI_GENERATE_BATCH_DROP}
+
+    timing = {}
+    if measure_prefill:
+        prefill_kw = dict(gen_kw)
+        if "thinker_max_new_tokens" in prefill_kw:
+            prefill_kw["thinker_max_new_tokens"] = 1
+        else:
+            prefill_kw["max_new_tokens"] = 1
+        with torch.no_grad():
+            prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+        timing["prefill_ms"] = round(prefill_ms, 2)
+
     with torch.no_grad():
-        raw_out = model.generate(**gen_in, **gen_kw)
+        if measure_prefill:
+            e2e_ms, raw_out = cuda_time_ms(lambda: model.generate(**gen_in, **gen_kw))
+            timing["e2e_ms"] = round(e2e_ms, 2)
+        else:
+            raw_out = model.generate(**gen_in, **gen_kw)
 
     seq_ids = _generation_output_token_ids(raw_out)
     trimmed = [o[len(i):] for i, o in zip(inputs.input_ids, seq_ids)]
     decoded = processor.batch_decode(trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0].strip()
     letter = parse_answer(decoded, choices)
-    return letter, decoded
+    return letter, decoded, timing
 
 
 # ── Main ─────────────────��─────────────────────────���─────────────────────────
@@ -661,6 +689,8 @@ def main():
                         help="MixKV token selection method")
     parser.add_argument("--head_score_path", default=None,
                         help="Path to pre-computed head similarity JSON (required for headwisemixkv)")
+    parser.add_argument("--measure_prefill", action="store_true",
+                        help="Measure prefill time (TTFT) via generate(max_new_tokens=1) with CUDA events.")
     args = parser.parse_args()
 
     global MODEL_PATH
@@ -730,9 +760,10 @@ def main():
 
                 try:
                     torch.cuda.reset_peak_memory_stats()
-                    pred, reasoning = run_inference(
+                    pred, reasoning, timing = run_inference(
                         model, processor, video_path, dataset, question, choices,
                         args.fps, args.max_pixels, args.max_new_tokens, use_audio,
+                        measure_prefill=args.measure_prefill,
                     )
                     vram_entry = {
                         "entry": entry_label, "task_type": task_type,
@@ -741,6 +772,7 @@ def main():
                         "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 1024**3, 2),
                         "after_alloc_gb": round(torch.cuda.memory_allocated() / 1024**3, 2),
                         "after_reserved_gb": round(torch.cuda.memory_reserved() / 1024**3, 2),
+                        **timing,
                     }
                     vram_f.write(json.dumps(vram_entry) + "\n")
                     vram_f.flush()
@@ -750,6 +782,7 @@ def main():
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{traceback.format_exc()}\n")
                     pred, reasoning = "ERROR", str(e)
+                    timing = {}
 
                 torch.cuda.empty_cache()
                 is_correct = pred.strip().upper() == answer
@@ -767,6 +800,7 @@ def main():
                     "correct": is_correct, "reasoning": reasoning,
                     "method": f"mixkv-{args.select_method}",
                     "budget": args.budget,
+                    **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
                 results.append(result)

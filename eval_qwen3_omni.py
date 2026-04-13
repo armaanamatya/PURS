@@ -1,22 +1,16 @@
 """
-eval_qwen_omni_zip.py
-Runs Qwen2.5-Omni-7B + OmniZip token compression on all videos in metadata.json.
+eval_qwen3_omni.py
+Runs Qwen3-Omni (MoE) on all videos in metadata.json and answers MCQ questions.
+Reads Q&A from metadata.json — no HuggingFace needed on the server.
 
-OmniZip compresses audio-visual tokens dynamically, giving ~3.4x speedup and
-~1.4x memory reduction with minimal accuracy loss — so we can afford fps=2.0
-and higher resolution vs the plain eval.
+Requires transformers with Qwen3-Omni classes (Qwen3OmniMoeForConditionalGeneration).
+
+Generation is always text-only (disable_talker + return_audio=False). Default input is
+video+audio+text when the video has an audio stream; --no_audio only disables input audio.
 
 Usage:
-    python eval_qwen_omni_zip.py --metadata /workspace/metadata.json \\
-        --videos /workspace/videos --output /workspace/results_zip.jsonl
-
-OmniZip defaults match lmms-eval models/simple/qwen2_5_omni.py (WRAPPER=OmniZip):
-    --rho_audio 0.3  --rho_video 0.6  --g 3  --contextual_ratio 0.05
-
-Prompts are defined in this file (aligned with Qwen2.5-Omni web_demo + lmms-eval task utils).
-
-Generation is always text-only (speech output disabled: disable_talker + return_audio=False).
-Use video+audio+text as input by default; --no_audio only skips loading the video's audio track for input.
+    python eval_qwen3_omni.py --metadata metadata.json --videos /workspace/videos --output results.jsonl
+    python eval_qwen3_omni.py --metadata metadata.json --videos /workspace/videos --output results.jsonl --category lecture
 """
 
 import argparse
@@ -31,18 +25,11 @@ from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-# OmniZip replaces the standard model class — must be importable from OmniZip-main/
-# (same layout as viz_attention_omnizip.py).
 OMNIZIP_DIR = os.path.join(_REPO_ROOT, "OmniZip-main")
 QWEN_OMNI_UTILS_SRC = os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src")
-if OMNIZIP_DIR not in sys.path:
-    sys.path.insert(0, OMNIZIP_DIR)
 if QWEN_OMNI_UTILS_SRC not in sys.path:
     sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
 
-from omnizip.modeling_qwen2_5_omni import Qwen2_5OmniForConditionalGeneration
-from transformers import Qwen2_5OmniProcessor
 from qwen_omni_utils import process_mm_info
 
 from mcq_answer_parse import parse_answer
@@ -59,29 +46,65 @@ def cuda_time_ms(fn):
     torch.cuda.synchronize()
     return start.elapsed_time(end), out
 
-ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
-DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
+
+class Tee:
+    """Writes to both stdout and a log file simultaneously."""
+    def __init__(self, log_path: str):
+        self.terminal = sys.stdout
+        self.log = open(log_path, "a")
+        self.log.write(f"\n{'='*60}\n")
+        self.log.write(f"RUN: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        self.log.write(f"{'='*60}\n")
+        self.log.flush()
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def isatty(self):
+        return self.terminal.isatty()
+
+    def close(self):
+        self.log.close()
+
+
+class StderrTee:
+    """Duplicate stderr to a file (use instead of shell `| tee` when the directory may not exist yet)."""
+
+    def __init__(self, log_file, terminal):
+        self.log = log_file
+        self.terminal = terminal
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+    def isatty(self):
+        return self.terminal.isatty()
+
+
+ENV_MODEL_PATH_KEY = "QWEN3_OMNI_MODEL_PATH"
+ENV_MODEL_PATH_FALLBACK_KEY = "QWEN_OMNI_MODEL_PATH"
+DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen3-Omni-30B-A3B-Instruct"
 FALLBACK_MODEL_PATH = "/workspace/model"
 
-MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
-MODEL_VARIANT = "qwen2.5-omni"
-MODEL_LOADED_ALLOC_GB: float | None = None
-MODEL_LOADED_RESERVED_GB: float | None = None
+MODEL_PATH = (
+    os.environ.get(ENV_MODEL_PATH_KEY)
+    or os.environ.get(ENV_MODEL_PATH_FALLBACK_KEY)
+    or DEFAULT_MODEL_PATH
+)
 
-# lmms_eval/models/simple/qwen2_5_omni.py defaults when WRAPPER=OmniZip
-OMNIZIP_DEFAULT_RHO_AUDIO = 0.3
-OMNIZIP_DEFAULT_RHO_VIDEO = 0.6
-OMNIZIP_DEFAULT_G = 3
-OMNIZIP_DEFAULT_CONTEXTUAL_RATIO = 0.05
-
-# Mutable run configuration set in main()
-RUN_CONFIG: dict = {
-    "fps": 2.0,
-    "max_pixels": 360 * 420,
-    "max_new_tokens": 4096,
-}
-
-# ── Prompts (Qwen2.5-Omni web_demo + OmniZip lmms-eval task utils) ────────────
+# ── Prompts (same sources as Qwen2.5-Omni web_demo + OmniZip lmms-eval task utils) ─────────
 
 SYSTEM_PROMPT_DEFAULT = (
     "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, "
@@ -183,7 +206,7 @@ def resolve_model_dtype(dtype_name: str):
     return table[dtype_name]
 
 
-# ── Audio check (per-video, matching lmms-eval Qwen2_5_Omni._check_if_video_has_audio) ──
+# ── Audio: lmms-eval Qwen2_5_Omni sets use_audio_in_video per video via _check_if_video_has_audio ──
 
 def check_video_has_audio(video_path: str) -> bool:
     """Return True if the video file contains an audio stream."""
@@ -199,110 +222,30 @@ def check_video_has_audio(video_path: str) -> bool:
 
 # ── Answer parsing: see mcq_answer_parse.py ───────────────────────────────────
 
-# ── Tee logger ────────────────────────────────────────────────────────────────
-
-class Tee:
-    def __init__(self, log_path: str):
-        self.terminal = sys.stdout
-        self.log = open(log_path, "a")
-        self.log.write(f"\n{'='*60}\n")
-        self.log.write(f"RUN (OmniZip): {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        self.log.write(f"{'='*60}\n")
-        self.log.flush()
-
-    def write(self, message):
-        self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
-
-    def flush(self):
-        self.terminal.flush()
-        self.log.flush()
-
-    def isatty(self):
-        return self.terminal.isatty()
-
-    def close(self):
-        self.log.close()
-
-
-class StderrTee:
-    """Duplicate stderr to a file (use instead of shell `| tee` when the directory may not exist yet)."""
-
-    def __init__(self, log_file, terminal):
-        self.log = log_file
-        self.terminal = terminal
-
-    def write(self, message):
-        self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
-
-    def flush(self):
-        self.terminal.flush()
-        self.log.flush()
-
-    def isatty(self):
-        return self.terminal.isatty()
-
-
-def _capture_current_vram_gb() -> tuple[float, float]:
-    if not torch.cuda.is_available():
-        return 0.0, 0.0
-    return (
-        torch.cuda.memory_allocated() / 1024**3,
-        torch.cuda.memory_reserved() / 1024**3,
-    )
-
-
-def _record_model_loaded_vram() -> None:
-    global MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB
-    MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB = _capture_current_vram_gb()
-    print(
-        f"Model loaded. VRAM: {MODEL_LOADED_ALLOC_GB:.1f} GB allocated, "
-        f"{MODEL_LOADED_RESERVED_GB:.1f} GB reserved"
-    )
-
-
 # ── Model ─────────────────────────────────────────────────────────────────────
 
-def load_model(
-    rho_audio: float,
-    rho_video: float,
-    g: int,
-    contextual_ratio: float,
-    dtype_name: str,
-    quantization: str,
-):
-    if quantization != "none":
-        raise NotImplementedError(
-            "Quantized + OmniZip is not wired into this script yet. "
-            "Use eval_qwen_omni.py for quantized baseline runs first."
-        )
+def load_model(dtype_name: str):
     dt = resolve_model_dtype(dtype_name)
-    print(f"Loading model from {MODEL_PATH} with OmniZip ...")
-    print(f"  rho_audio={rho_audio}  rho_video={rho_video}  g={g}  contextual_ratio={contextual_ratio}")
-    print(f"  torch_dtype={dtype_name}")
+    try:
+        from transformers import Qwen3OmniMoeForConditionalGeneration, Qwen3OmniMoeProcessor
+    except ImportError as e:
+        raise ImportError(
+            "Qwen3 Omni classes not found in your installed transformers. "
+            "Install a transformers version that includes Qwen3-Omni support "
+            "(e.g. pip install git+https://github.com/huggingface/transformers)."
+        ) from e
 
-    model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
+    print(f"Loading qwen3-omni from {MODEL_PATH} (torch_dtype={dtype_name}) ...")
+    model = Qwen3OmniMoeForConditionalGeneration.from_pretrained(
         MODEL_PATH,
         torch_dtype=dt,
         device_map="auto",
-        attn_implementation="flash_attention_2",
+        attn_implementation="sdpa",
     )
-
-    omnizip_config = {
-        "rho_audio":        rho_audio,
-        "rho_video":        rho_video,
-        "g":                g,
-        "contextual_ratio": contextual_ratio,
-    }
-    model.thinker.omnizip_config = omnizip_config
-
-    processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+    processor = Qwen3OmniMoeProcessor.from_pretrained(MODEL_PATH)
     if hasattr(model, "disable_talker"):
         model.disable_talker()
-    _record_model_loaded_vram()
+    print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
     return model, processor
 
 
@@ -323,6 +266,7 @@ def _generation_output_token_ids(gen_out: object) -> torch.Tensor:
     return gen_out
 
 
+# Keys Qwen3-OmniProcessor may put on the batch but model.generate() does not accept (HF warnings).
 _OMNI_GENERATE_BATCH_DROP = frozenset({"images", "return_tensors", "text"})
 
 
@@ -332,19 +276,25 @@ def _batch_for_omni_generate(batch: object) -> dict:
 
 # ── Inference ─────────────────────────────────────────────────────────────────
 
-def run_inference(model, processor, video_path: str, dataset: str, question: str,
-                  choices: list, use_audio: bool, measure_prefill: bool = False) -> tuple[str, str, dict]:
+def run_inference(
+    model,
+    processor,
+    video_path: str,
+    dataset: str,
+    question: str,
+    choices: list,
+    fps: float,
+    max_pixels: int,
+    max_new_tokens: int,
+    use_audio: bool,
+    measure_prefill: bool = False,
+) -> tuple[str, str, dict]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
-    ds_name = _canonicalize_dataset_name(dataset)
-    max_frames = RUN_CONFIG["max_frames_videomme"] if ds_name in {"video-mme", "videomme"} else RUN_CONFIG["max_frames_other"]
-
-    system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
-    video_element = {"type": "video", "video": video_path, "fps": RUN_CONFIG["fps"], "max_pixels": RUN_CONFIG["max_pixels"], "max_frames": max_frames}
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": system_text}]},
+        {"role": "system", "content": [{"type": "text", "text": SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX}]},
         {"role": "user", "content": [
-            video_element,
+            {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -353,20 +303,16 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
     effective_use_audio = use_audio
     try:
         audios, images, videos = process_mm_info(messages, use_audio_in_video=effective_use_audio)
-    except Exception as err:
+    except Exception as first_err:
+        # qwen_omni_utils loads video audio via librosa on the .mp4 path; soundfile often fails on mp4 and
+        # the chained exception may not match substring checks — retry without separate audio extraction.
         if not effective_use_audio:
-            raise
-        raise RuntimeError(
-            f"Audio input was requested for {video_path} but audio decoding failed. "
-            "This evaluator keeps audio mandatory unless you explicitly pass --no_audio."
-        ) from err
-
-    if not videos or videos[0] is None or getattr(videos[0], "shape", None) is None or videos[0].shape[0] <= 0:
-        raise ValueError("Decoded 0 video frames (video reader backend failed). Try lower --fps/--max_pixels.")
-
-    # OmniZip requires nframes to be set on thinker before each forward pass
-    num_input_frames = videos[0].shape[0] if videos else 1
-    model.thinker.nframes = num_input_frames
+            raise first_err
+        try:
+            audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+            effective_use_audio = False
+        except Exception as second_err:
+            raise second_err from first_err
 
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
@@ -374,21 +320,33 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
     )
     inputs = _prepare_omni_inputs(model, inputs)
 
-    max_new_tokens = RUN_CONFIG["max_new_tokens"]
     tokenizer = processor.tokenizer
+    # Text-only: use return_audio=False on the top-level Omni wrapper. Do not pass generation_mode here —
+    # many transformers builds forward unknown kwargs to thinker.generate(), which then errors on
+    # unused model_kwargs (generation_mode is only valid on some wrapper versions).
+    gen_kw: dict = {
+        "use_audio_in_video": effective_use_audio,
+        "return_audio": False,
+        "eos_token_id": tokenizer.eos_token_id,
+        "pad_token_id": tokenizer.pad_token_id,
+    }
+    if hasattr(model, "thinker"):
+        gen_kw["thinker_max_new_tokens"] = max_new_tokens
+        gen_kw["thinker_do_sample"] = False
+    else:
+        gen_kw["max_new_tokens"] = max_new_tokens
+        gen_kw["temperature"] = 0.0
+        gen_kw["do_sample"] = False
+
     gen_in = _batch_for_omni_generate(inputs)
-    gen_kw = dict(
-        use_audio_in_video=effective_use_audio,
-        return_audio=False,
-        thinker_max_new_tokens=max_new_tokens,
-        thinker_do_sample=False,
-        eos_token_id=tokenizer.eos_token_id,
-        pad_token_id=tokenizer.pad_token_id,
-    )
 
     timing = {}
     if measure_prefill:
-        prefill_kw = dict(gen_kw, thinker_max_new_tokens=1)
+        prefill_kw = dict(gen_kw)
+        if "thinker_max_new_tokens" in prefill_kw:
+            prefill_kw["thinker_max_new_tokens"] = 1
+        else:
+            prefill_kw["max_new_tokens"] = 1
         with torch.no_grad():
             prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
         timing["prefill_ms"] = round(prefill_ms, 2)
@@ -413,86 +371,69 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
 def resolve_video_path(file_field: str, videos_dir: str) -> str | None:
+    """Try the stored path, then search videos_dir by filename."""
+    # Try stored path directly (works if running locally)
     if os.path.exists(file_field):
         return file_field
+
+    # Normalize Windows backslashes → forward slashes, then get filename
     normalized = file_field.replace("\\", "/")
-    if os.path.exists(normalized):
-        return normalized
-    # Try path relative to videos_dir: strip leading "videos/" prefix
-    rel = normalized
-    for prefix in ("videos/", "videos\\"):
-        if normalized.startswith(prefix):
-            rel = normalized[len(prefix):]
-            break
-    candidate = os.path.normpath(os.path.join(videos_dir, rel))
+    filename = normalized.split("/")[-1]          # e.g. soccer_matches_1.mp4
+    stem = filename.rsplit(".", 1)[0]             # e.g. soccer_matches_1
+
+    # Try flat in videos_dir
+    candidate = os.path.join(videos_dir, filename)
     if os.path.exists(candidate):
         return candidate
-    rel_norm = rel.replace("\\", "/")
-    filename = rel_norm.split("/")[-1]
-    suffix_matches = []
-    for match in glob.glob(os.path.join(videos_dir, "**", filename), recursive=True):
-        if match.replace("\\", "/").endswith(rel_norm):
-            suffix_matches.append(match)
-    if suffix_matches:
-        return suffix_matches[0]
-    basename_matches = glob.glob(os.path.join(videos_dir, "**", filename), recursive=True)
-    if len(basename_matches) == 1:
-        return basename_matches[0]
+
+    # Recursive search in videos_dir
+    for ext in ("mp4", "mkv", "webm", "avi"):
+        matches = glob.glob(os.path.join(videos_dir, "**", f"{stem}.{ext}"), recursive=True)
+        if matches:
+            return matches[0]
+
     return None
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model",            default=None, help=f"Model path (or set {ENV_MODEL_PATH_KEY}).")
-    parser.add_argument("--metadata",         default="/workspace/metadata.json")
-    parser.add_argument("--videos",           default="/workspace/videos")
-    parser.add_argument("--output",           default="/workspace/results_zip.jsonl")
-    parser.add_argument("--log",              default="/workspace/eval_zip.log")
-    parser.add_argument("--errors_log",       default=None, help="Where to append tracebacks (default: alongside --log).")
-    parser.add_argument("--category",         default=None, help="Filter by dataset or task_type")
-    parser.add_argument("--fps",              type=float, default=2.0, help="Video sampling fps")
-    parser.add_argument("--max_pixels",       type=int, default=360*420, help="Max pixels per frame")
-    parser.add_argument("--max_frames_videomme", type=int, default=768,
-                        help="Max frames for VideoMME videos (paper default: 768)")
-    parser.add_argument("--max_frames_other", type=int, default=128,
-                        help="Max frames for non-VideoMME datasets (paper default: 128)")
     parser.add_argument(
-        "--no_audio",
-        action="store_true",
-        help="Input: do not load or use audio from the video (video frames + text only). "
-        "Does not affect output mode — generation is always text-only.",
+        "--model",
+        default=None,
+        help=f"Model path (or set {ENV_MODEL_PATH_KEY} or {ENV_MODEL_PATH_FALLBACK_KEY}).",
     )
-    parser.add_argument("--rho_audio",        type=float, default=OMNIZIP_DEFAULT_RHO_AUDIO,
-                        help="OmniZip: fraction of audio tokens to keep (lmms-eval qwen2_5_omni default)")
-    parser.add_argument("--rho_video",        type=float, default=OMNIZIP_DEFAULT_RHO_VIDEO,
-                        help="OmniZip: fraction of video tokens to keep")
-    parser.add_argument("--g",                type=int,   default=OMNIZIP_DEFAULT_G)
-    parser.add_argument("--contextual_ratio", type=float, default=OMNIZIP_DEFAULT_CONTEXTUAL_RATIO)
-    parser.add_argument("--max_new_tokens",   type=int,   default=4096, help="Generation cap")
+    parser.add_argument("--metadata", default="metadata.json", help="Path to enriched metadata.json")
+    parser.add_argument("--videos",   default="/workspace/videos", help="Directory containing video files")
+    parser.add_argument("--output",   default="/workspace/results.jsonl", help="Output JSONL file")
+    parser.add_argument("--log",      default="/workspace/eval.log", help="Log file (appended each run)")
+    parser.add_argument("--errors_log", default=None, help="Where to append tracebacks (default: alongside --log).")
+    parser.add_argument("--category", default=None, help="Only run this category (e.g. lecture)")
+    parser.add_argument("--fps",      type=float, default=2.0, help="Video sampling fps")
+    parser.add_argument("--max_pixels", type=int, default=360*420, help="Max pixels per frame")
+    parser.add_argument("--max_new_tokens", type=int, default=4096, help="Generation cap (lmms-eval qwen2_5_omni default)")
     parser.add_argument(
         "--dtype",
         default="bfloat16",
         choices=["bfloat16", "float16", "float32"],
-        help="Model weights dtype (explicit; avoid 'auto' if it fails)",
+        help="Model weights dtype (use explicit values; torch_dtype='auto' often fails on Windows/some GPUs)",
     )
     parser.add_argument(
-        "--quantization",
-        default="none",
-        choices=["none", "gptq", "awq"],
-        help="Reserved for future quantized OmniZip support. Non-'none' currently raises.",
-    )
-    parser.add_argument("--vram_log",         default="/workspace/vram_log.jsonl")
-    parser.add_argument(
-        "--stderr_log",
-        default=None,
-        help="Append stderr to this file (parent dirs created automatically). Prefer this over `| tee` when run2/... may not exist yet.",
+        "--no_audio",
+        action="store_true",
+        help="Input: do not load audio from the video. Generation stays text-only either way.",
     )
     parser.add_argument(
         "--measure_prefill",
         action="store_true",
         help="Measure prefill time (TTFT) via generate(max_new_tokens=1) with CUDA events. "
              "Adds a second generate() call per question — use for benchmarking only.",
+    )
+    parser.add_argument("--vram_log", default="/workspace/vram_log.jsonl", help="Per-question VRAM JSONL (allocated/reserved)")
+    parser.add_argument(
+        "--stderr_log",
+        default=None,
+        help="Append stderr to this file (parent dirs created automatically). Prefer this over `| tee` when run2/... may not exist yet.",
     )
     args = parser.parse_args()
 
@@ -526,47 +467,30 @@ def main():
     tee = Tee(args.log)
     sys.stdout = tee
 
-    global RUN_CONFIG
-    RUN_CONFIG = {
-        "fps": args.fps,
-        "max_pixels": args.max_pixels,
-        "max_new_tokens": args.max_new_tokens,
-        "max_frames_videomme": args.max_frames_videomme,
-        "max_frames_other": args.max_frames_other,
-    }
-
     meta = json.loads(Path(args.metadata).read_text())
     print(f"Loaded {len(meta)} entries")
 
+    # Filter by dataset
     if args.category:
         meta = [e for e in meta if e.get("dataset") == args.category or e.get("task_type") == args.category]
         print(f"Filtered to {len(meta)} entries for '{args.category}'")
 
+    # Only entries that have questions
     runnable = [e for e in meta if e.get("questions")]
-    print(f"Running {len(runnable)} entries with OmniZip")
+    skipped_no_qa = len(meta) - len(runnable)
+    if skipped_no_qa:
+        print(f"Skipping {skipped_no_qa} entries with no Q&A")
+    print(f"Running {len(runnable)} entries")
     print(
         "Each line in --output is written after one question finishes; the first can take many minutes "
         "(video decode + optional MP4 audio via librosa/audioread + generation). Use --no_audio to skip separate audio loading.\n"
     )
-    audio_mode = "video+audio+text" if not args.no_audio else "video+text (--no_audio)"
-    print(
-        f"Input mode: {audio_mode}; sample_fps={args.fps}; max_pixels={args.max_pixels}; "
-        f"max_new_tokens={args.max_new_tokens}"
-    )
-    print("Note: qwen-vl-utils/decord logs the source video's native fps, not the requested sample_fps.\n")
 
     if not runnable:
         print("Nothing to run. Exiting.")
         return
 
-    model, processor = load_model(
-        args.rho_audio,
-        args.rho_video,
-        args.g,
-        args.contextual_ratio,
-        args.dtype,
-        args.quantization,
-    )
+    model, processor = load_model(args.dtype)
 
     correct = total = skipped_no_video = 0
     results = []
@@ -576,13 +500,11 @@ def main():
             video_path = resolve_video_path(entry["file"], args.videos)
             entry_label = f"{entry.get('dataset','?')}/{entry.get('task_type','?')}"
             if video_path is None:
-                print(f"  SKIP {entry_label}: video not found")
+                print(f"  SKIP {entry_label}: video file not found")
                 skipped_no_video += 1
                 continue
 
             use_audio = (not args.no_audio) and check_video_has_audio(video_path)
-            if (not args.no_audio) and (not use_audio):
-                print(f"  INFO {entry_label}: no audio stream detected; using video+text input only.")
 
             for q in entry["questions"]:
                 question  = q["question"]
@@ -592,7 +514,6 @@ def main():
                 dataset   = entry.get("dataset", "")
 
                 try:
-                    before_alloc_gb, before_reserved_gb = _capture_current_vram_gb()
                     torch.cuda.reset_peak_memory_stats()
                     pred, reasoning, timing = run_inference(
                         model,
@@ -601,26 +522,24 @@ def main():
                         dataset,
                         question,
                         choices,
+                        args.fps,
+                        args.max_pixels,
+                        args.max_new_tokens,
                         use_audio,
                         measure_prefill=args.measure_prefill,
                     )
                     peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
-                    peak_reserved_gb = torch.cuda.max_memory_reserved() / 1024**3
+                    peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
                     curr_alloc_gb = torch.cuda.memory_allocated() / 1024**3
-                    curr_reserved_gb = torch.cuda.memory_reserved() / 1024**3
+                    curr_resv_gb = torch.cuda.memory_reserved() / 1024**3
                     vram_entry = {
-                        "entry": entry_label, "task_type": task_type,
-                        "status": "ok",
-                        "quantization": args.quantization,
+                        "entry": entry_label,
+                        "task_type": task_type,
                         "duration_s": entry.get("duration_s"),
-                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
-                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
-                        "before_alloc_gb": round(before_alloc_gb, 2),
-                        "before_reserved_gb": round(before_reserved_gb, 2),
                         "peak_alloc_gb": round(peak_alloc_gb, 2),
-                        "peak_reserved_gb": round(peak_reserved_gb, 2),
+                        "peak_reserved_gb": round(peak_resv_gb, 2),
                         "after_alloc_gb": round(curr_alloc_gb, 2),
-                        "after_reserved_gb": round(curr_reserved_gb, 2),
+                        "after_reserved_gb": round(curr_resv_gb, 2),
                         **timing,
                     }
                     vram_f.write(json.dumps(vram_entry) + "\n")
@@ -629,27 +548,6 @@ def main():
                     import traceback
                     tb = traceback.format_exc()
                     print(f"  ERROR {entry_label}: {type(e).__name__}: {e!r}")
-                    peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
-                    peak_reserved_gb = torch.cuda.max_memory_reserved() / 1024**3
-                    curr_alloc_gb, curr_reserved_gb = _capture_current_vram_gb()
-                    vram_entry = {
-                        "entry": entry_label, "task_type": task_type,
-                        "status": "error",
-                        "quantization": args.quantization,
-                        "duration_s": entry.get("duration_s"),
-                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
-                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
-                        "before_alloc_gb": round(before_alloc_gb, 2),
-                        "before_reserved_gb": round(before_reserved_gb, 2),
-                        "peak_alloc_gb": round(peak_alloc_gb, 2),
-                        "peak_reserved_gb": round(peak_reserved_gb, 2),
-                        "after_alloc_gb": round(curr_alloc_gb, 2),
-                        "after_reserved_gb": round(curr_reserved_gb, 2),
-                        "error_type": type(e).__name__,
-                        "error_message": str(e),
-                    }
-                    vram_f.write(json.dumps(vram_entry) + "\n")
-                    vram_f.flush()
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
@@ -661,8 +559,7 @@ def main():
                 total += 1
 
                 result = {
-                    "model_variant": MODEL_VARIANT,
-                    "quantization": args.quantization,
+                    "model_variant": "qwen3-omni",
                     "dataset":    entry.get("dataset"),
                     "task_type":  task_type,
                     "duration_s": entry.get("duration_s"),
@@ -672,7 +569,6 @@ def main():
                     "prediction": pred,
                     "correct":    is_correct,
                     "reasoning":  reasoning,
-                    "method":     "omnizip",
                     **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
@@ -681,14 +577,15 @@ def main():
                 status = "✓" if is_correct else "✗"
                 print(f"  [{status}] {entry_label} [{task_type}] pred={pred} ans={answer}")
 
+    # Final summary
     acc = correct / total if total else 0
     print(f"\n{'='*50}")
-    print(f"Model variant: {MODEL_VARIANT} + omnizip")
-    print(f"Quantization:  {args.quantization}")
-    print(f"OmniZip Accuracy: {correct}/{total} = {acc:.2%}")
+    print("Model variant: qwen3-omni")
+    print(f"Accuracy:      {correct}/{total} = {acc:.2%}")
     print(f"Skipped (no video): {skipped_no_video}")
-    print(f"Results: {args.output}")
+    print(f"Results saved: {args.output}")
 
+    # Per-dataset breakdown
     datasets: dict = {}
     for r in results:
         d = r["dataset"]

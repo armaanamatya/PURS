@@ -35,6 +35,18 @@ from qwen_omni_utils import process_mm_info
 from mcq_answer_parse import parse_answer
 
 
+def cuda_time_ms(fn):
+    """Run fn() with CUDA event timing. Returns (elapsed_ms, result)."""
+    torch.cuda.synchronize()
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    out = fn()
+    end.record()
+    torch.cuda.synchronize()
+    return start.elapsed_time(end), out
+
+
 class Tee:
     """Writes to both stdout and a log file simultaneously."""
     def __init__(self, log_path: str):
@@ -604,7 +616,8 @@ def run_inference(
     max_new_tokens: int,
     use_audio: bool,
     max_frames: int | None = None,
-) -> tuple[str, str]:
+    measure_prefill: bool = False,
+) -> tuple[str, str, dict]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
@@ -656,8 +669,24 @@ def run_inference(
         gen_kw["do_sample"] = False
 
     gen_in = _batch_for_omni_generate(inputs, model=model)
+
+    timing = {}
+    if measure_prefill:
+        prefill_kw = dict(gen_kw)
+        if "thinker_max_new_tokens" in prefill_kw:
+            prefill_kw["thinker_max_new_tokens"] = 1
+        else:
+            prefill_kw["max_new_tokens"] = 1
+        with torch.no_grad():
+            prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+        timing["prefill_ms"] = round(prefill_ms, 2)
+
     with torch.no_grad():
-        raw_out = model.generate(**gen_in, **gen_kw)
+        if measure_prefill:
+            e2e_ms, raw_out = cuda_time_ms(lambda: model.generate(**gen_in, **gen_kw))
+            timing["e2e_ms"] = round(e2e_ms, 2)
+        else:
+            raw_out = model.generate(**gen_in, **gen_kw)
 
     seq_ids = _generation_output_token_ids(raw_out)
     generated_ids_trimmed = [out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, seq_ids)]
@@ -667,7 +696,7 @@ def run_inference(
         clean_up_tokenization_spaces=False,
     )[0].strip()
     letter = parse_answer(decoded, choices)
-    return letter, decoded
+    return letter, decoded, timing
 
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
@@ -751,6 +780,12 @@ def main():
         default="qwen2.5-omni",
         choices=["qwen2.5-omni", "qwen3-omni"],
         help="Which Omni model variant to run",
+    )
+    parser.add_argument(
+        "--measure_prefill",
+        action="store_true",
+        help="Measure prefill time (TTFT) via generate(max_new_tokens=1) with CUDA events. "
+             "Adds a second generate() call per question — use for benchmarking only.",
     )
     args = parser.parse_args()
 
@@ -840,7 +875,7 @@ def main():
                     torch.cuda.reset_peak_memory_stats()
                     ds_name = _canonicalize_dataset_name(dataset)
                     max_frames = args.max_frames_videomme if ds_name in {"video-mme", "videomme"} else args.max_frames_other
-                    pred, reasoning = run_inference(
+                    pred, reasoning, timing = run_inference(
                         model,
                         processor,
                         video_path,
@@ -852,6 +887,7 @@ def main():
                         args.max_new_tokens,
                         use_audio,
                         max_frames=max_frames,
+                        measure_prefill=args.measure_prefill,
                     )
                     peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
                     peak_resv_gb = torch.cuda.max_memory_reserved() / 1024**3
@@ -871,6 +907,7 @@ def main():
                         "peak_reserved_gb": round(peak_resv_gb, 2),
                         "after_alloc_gb": round(curr_alloc_gb, 2),
                         "after_reserved_gb": round(curr_resv_gb, 2),
+                        **timing,
                     }
                     vram_f.write(json.dumps(vram_entry) + "\n")
                     vram_f.flush()
@@ -903,6 +940,7 @@ def main():
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
+                    timing = {}
 
                 is_correct = pred.strip().upper() == answer
                 if is_correct:
@@ -921,6 +959,7 @@ def main():
                     "prediction": pred,
                     "correct":    is_correct,
                     "reasoning":  reasoning,
+                    **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
                 results.append(result)
