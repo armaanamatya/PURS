@@ -48,6 +48,18 @@ from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcess
 from qwen_omni_utils import process_mm_info
 from mcq_answer_parse import parse_answer
 
+
+def cuda_time_ms(fn):
+    """Run fn() with CUDA event timing. Returns (elapsed_ms, result)."""
+    torch.cuda.synchronize()
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    out = fn()
+    end.record()
+    torch.cuda.synchronize()
+    return start.elapsed_time(end), out
+
 # ── Constants ────────────────────────────────────────────────────────────────
 
 ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
@@ -386,7 +398,8 @@ def _generation_output_token_ids(gen_out):
 
 
 def run_inference(model, processor, video_path, dataset, question, choices,
-                  fps, max_pixels, max_new_tokens, use_audio, subset_ratio, prune_mode):
+                  fps, max_pixels, max_new_tokens, use_audio, subset_ratio, prune_mode,
+                  measure_prefill=False):
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
     messages = [
@@ -473,14 +486,30 @@ def run_inference(model, processor, video_path, dataset, question, choices,
         gen_kw["do_sample"] = False
 
     gen_in = {k: v for k, v in inputs.items() if k not in _OMNI_GENERATE_BATCH_DROP}
+
+    timing = {}
+    if measure_prefill:
+        prefill_kw = dict(gen_kw)
+        if "thinker_max_new_tokens" in prefill_kw:
+            prefill_kw["thinker_max_new_tokens"] = 1
+        else:
+            prefill_kw["max_new_tokens"] = 1
+        with torch.no_grad():
+            prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+        timing["prefill_ms"] = round(prefill_ms, 2)
+
     with torch.no_grad():
-        raw_out = model.generate(**gen_in, **gen_kw)
+        if measure_prefill:
+            e2e_ms, raw_out = cuda_time_ms(lambda: model.generate(**gen_in, **gen_kw))
+            timing["e2e_ms"] = round(e2e_ms, 2)
+        else:
+            raw_out = model.generate(**gen_in, **gen_kw)
 
     seq_ids = _generation_output_token_ids(raw_out)
     trimmed = [o[len(i):] for i, o in zip(inputs.input_ids, seq_ids)]
     decoded = processor.batch_decode(trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0].strip()
     letter = parse_answer(decoded, choices)
-    return letter, decoded, orig_nframes, pruned_nframes
+    return letter, decoded, orig_nframes, pruned_nframes, timing
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -509,6 +538,8 @@ def main():
     parser.add_argument("--prune_mode", default="frame", choices=["frame", "token"],
                         help="'frame': prune video frames before model (simpler, recommended). "
                              "'token': prune visual token patches after processor (experimental).")
+    parser.add_argument("--measure_prefill", action="store_true",
+                        help="Measure prefill time (TTFT) via generate(max_new_tokens=1) with CUDA events.")
     args = parser.parse_args()
 
     global MODEL_PATH
@@ -577,10 +608,11 @@ def main():
 
                 try:
                     torch.cuda.reset_peak_memory_stats()
-                    pred, reasoning, orig_nf, pruned_nf = run_inference(
+                    pred, reasoning, orig_nf, pruned_nf, timing = run_inference(
                         model, processor, video_path, dataset, question, choices,
                         args.fps, args.max_pixels, args.max_new_tokens, use_audio,
                         args.subset_ratio, args.prune_mode,
+                        measure_prefill=args.measure_prefill,
                     )
                     total_orig_frames += orig_nf
                     total_pruned_frames += pruned_nf
@@ -592,6 +624,7 @@ def main():
                         "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 1024**3, 2),
                         "after_alloc_gb": round(torch.cuda.memory_allocated() / 1024**3, 2),
                         "after_reserved_gb": round(torch.cuda.memory_reserved() / 1024**3, 2),
+                        **timing,
                     }
                     vram_f.write(json.dumps(vram_entry) + "\n")
                     vram_f.flush()
@@ -602,6 +635,7 @@ def main():
                         ef.write(f"\n--- {entry_label} ---\n{traceback.format_exc()}\n")
                     pred, reasoning = "ERROR", str(e)
                     orig_nf = pruned_nf = 0
+                    timing = {}
 
                 torch.cuda.empty_cache()
                 is_correct = pred.strip().upper() == answer
@@ -620,6 +654,7 @@ def main():
                     "method": f"divprune-{args.prune_mode}",
                     "subset_ratio": args.subset_ratio,
                     "orig_frames": orig_nf, "pruned_frames": pruned_nf,
+                    **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
                 results.append(result)
