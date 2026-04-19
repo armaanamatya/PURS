@@ -5,6 +5,19 @@ import { dirname, join } from "path";
 export const dynamic = "force-dynamic";
 
 const RUN_DIR_NAME = "qwen25_matrix_gpu7_all7_snapkv";
+const RUN_ROOT_CANDIDATES = [
+  join("public", "matrix", RUN_DIR_NAME),
+  join("website", "public", "matrix", RUN_DIR_NAME),
+  join("10x", RUN_DIR_NAME),
+];
+
+function hasRunFiles(dir: string) {
+  return [
+    "plan.json",
+    "summary_by_config.json",
+    "run_metrics.jsonl",
+  ].every((filename) => existsSync(join(dir, filename)));
+}
 
 interface SummaryMetric {
   n: number;
@@ -81,9 +94,11 @@ function findRunRoot() {
     let current = start;
     while (!seen.has(current)) {
       seen.add(current);
-      const candidate = join(current, "10x", RUN_DIR_NAME);
-      if (existsSync(candidate)) {
-        return candidate;
+      for (const relativePath of RUN_ROOT_CANDIDATES) {
+        const candidate = join(current, relativePath);
+        if (hasRunFiles(candidate)) {
+          return candidate;
+        }
       }
 
       const parent = dirname(current);
@@ -94,7 +109,7 @@ function findRunRoot() {
     }
   }
 
-  return join(process.cwd(), "..", "10x", RUN_DIR_NAME);
+  return join(process.cwd(), "public", "matrix", RUN_DIR_NAME);
 }
 
 const RUN_ROOT = findRunRoot();
