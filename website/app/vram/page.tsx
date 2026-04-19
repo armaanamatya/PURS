@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import Link from "next/link";
 import { join } from "path";
 import VramCharts from "./VramCharts";
 import { loadVramEntriesFromText } from "./vramNormalize";
@@ -25,15 +26,18 @@ export default function VramPage() {
           <div>
             <h1 className="text-lg font-semibold tracking-tight">VRAM Usage</h1>
             <p className="text-xs text-white/35 font-mono mt-0.5">
-              {n} task types · baseline vs OmniZip (run2) · peak / after / duration
+              {n} task types | baseline vs OmniZip (run2) | peak / after /
+              duration
             </p>
           </div>
-          <a
-            href="/"
-            className="text-xs font-mono text-white/30 hover:text-white/60 transition-colors"
-          >
-            ← eval results
-          </a>
+          <div className="flex items-center gap-4 text-xs font-mono text-white/30">
+            <Link href="/matrix" className="hover:text-white/60 transition-colors">
+              matrix
+            </Link>
+            <Link href="/" className="hover:text-white/60 transition-colors">
+              {"<-"} eval results
+            </Link>
+          </div>
         </div>
       </header>
       <VramCharts baseline={baseline} omnizip={omnizip} />

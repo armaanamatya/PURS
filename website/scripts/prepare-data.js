@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // scripts/prepare-data.js
 // Merges ../videos/metadata.json + ../results.jsonl into public/data.json
 // Also copies videos into public/videos/ (Windows-safe, no symlinks)

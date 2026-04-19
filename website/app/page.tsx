@@ -376,6 +376,9 @@ export default function Home() {
           <div>
             <div className="flex items-baseline gap-4 flex-wrap">
               <h1 className="text-lg font-semibold tracking-tight">Qwen2.5-Omni Eval — Run 3</h1>
+              <a href="/matrix" className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors">
+                Matrix
+              </a>
               <a href="/vram" className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors">
                 VRAM
               </a>
@@ -442,7 +445,7 @@ export default function Home() {
 
         {/* Per-dataset bars */}
         <div className="px-6 pb-4 flex gap-6 flex-wrap">
-          {Object.entries(stats.by_dataset).map(([ds, s]) => (
+          {Object.entries(stats.by_dataset).map(([ds]) => (
             <div key={ds} className="min-w-[100px]">
               <div className="flex items-center gap-1.5 mb-1">
                 <span className={`w-2 h-2 rounded-full ${DATASET_DOT[ds] ?? "bg-white/30"}`} />
