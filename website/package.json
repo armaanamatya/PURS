@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "prepare-data": "node scripts/prepare-data.js",
+    "prepare-matrix": "node scripts/build-matrix-snapshot.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

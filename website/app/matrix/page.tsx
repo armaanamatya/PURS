@@ -1,23 +1,10 @@
-import { existsSync, readFileSync } from "fs";
-import Link from "next/link";
-import { dirname, join } from "path";
+"use client";
 
-export const dynamic = "force-dynamic";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const RUN_DIR_NAME = "qwen25_matrix_gpu7_all7_snapkv";
-const RUN_ROOT_CANDIDATES = [
-  join("public", "matrix", RUN_DIR_NAME),
-  join("website", "public", "matrix", RUN_DIR_NAME),
-  join("10x", RUN_DIR_NAME),
-];
-
-function hasMatrixFiles(dir: string) {
-  return [
-    "plan.json",
-    "summary_by_config.json",
-    "run_metrics.jsonl",
-  ].every((filename) => existsSync(join(dir, filename)));
-}
+const DATA_BASE = `/matrix/${RUN_DIR_NAME}`;
 
 interface SummaryMetric {
   n: number;
@@ -98,44 +85,37 @@ interface PlanData {
   args: PlanArgs;
 }
 
-function findMatrixRoot() {
-  const starts = [
-    process.cwd(),
-    join(process.cwd(), ".."),
-    join(process.cwd(), "..", ".."),
-  ];
-  const seen = new Set<string>();
+interface MatrixData {
+  plan: PlanData;
+  configs: ConfigSummary[];
+  runs: RunMetric[];
+  runsByConfig: Map<string, RunMetric[]>;
+  overview: {
+    totalRuns: number;
+    successfulRuns: number;
+    failedRuns: number;
+    successRate: number;
+    avgAccuracy: number;
+    avgWall: number;
+    bestAccuracyConfig: ConfigSummary | null;
+    fastestConfig: ConfigSummary | null;
+    lowestPeakConfig: ConfigSummary | null;
+  };
+}
 
-  for (const start of starts) {
-    let current = start;
-    while (!seen.has(current)) {
-      seen.add(current);
-      for (const relativePath of RUN_ROOT_CANDIDATES) {
-        const candidate = join(current, relativePath);
-        if (hasMatrixFiles(candidate)) {
-          return candidate;
-        }
-      }
-
-      const parent = dirname(current);
-      if (parent === current) {
-        break;
-      }
-      current = parent;
-    }
+async function fetchText(filename: string) {
+  const response = await fetch(`${DATA_BASE}/${filename}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${filename}: ${response.status}`);
   }
-
-  return join(process.cwd(), "public", "matrix", RUN_DIR_NAME);
+  return response.text();
 }
 
-const MATRIX_ROOT = findMatrixRoot();
-
-function readJsonFile<T>(filename: string): T {
-  return JSON.parse(readFileSync(join(MATRIX_ROOT, filename), "utf8")) as T;
+async function fetchJson<T>(filename: string): Promise<T> {
+  return JSON.parse(await fetchText(filename)) as T;
 }
 
-function loadRunMetrics(): RunMetric[] {
-  const raw = readFileSync(join(MATRIX_ROOT, "run_metrics.jsonl"), "utf8");
+function parseRunMetrics(raw: string): RunMetric[] {
   return raw
     .split(/\r?\n/)
     .filter(Boolean)
@@ -184,21 +164,11 @@ function basename(input: string | null | undefined) {
   return input.split(/[\\/]/).filter(Boolean).at(-1) ?? input;
 }
 
-function loadMatrixData() {
-  const required = [
-    "plan.json",
-    "summary_by_config.json",
-    "run_metrics.jsonl",
-  ];
-
-  if (!required.every((filename) => existsSync(join(MATRIX_ROOT, filename)))) {
-    return null;
-  }
-
-  const plan = readJsonFile<PlanData>("plan.json");
-  const summaryMap = readJsonFile<Record<string, Omit<ConfigSummary, "key">>>(
-    "summary_by_config.json",
-  );
+function buildMatrixData(
+  plan: PlanData,
+  summaryMap: Record<string, Omit<ConfigSummary, "key">>,
+  runMetricsText: string,
+): MatrixData {
   const configs = Object.entries(summaryMap)
     .map(([key, value]) => ({ ...value, key }))
     .sort(
@@ -206,7 +176,7 @@ function loadMatrixData() {
         left.method.localeCompare(right.method) ||
         left.temperature - right.temperature,
     );
-  const runs = loadRunMetrics().sort(
+  const runs = parseRunMetrics(runMetricsText).sort(
     (left, right) =>
       left.method.localeCompare(right.method) ||
       left.temperature - right.temperature ||
@@ -225,24 +195,15 @@ function loadMatrixData() {
   }
 
   const successfulRuns = runs.filter((run) => run.ok);
-  const bestAccuracyConfig =
-    configs.find(
-      (config) =>
-        config.stats.accuracy.mean ===
-        Math.max(...configs.map((entry) => entry.stats.accuracy.mean)),
-    ) ?? null;
-  const fastestConfig =
-    configs.find(
-      (config) =>
-        config.stats.prefill_ms_mean.mean ===
-        Math.min(...configs.map((entry) => entry.stats.prefill_ms_mean.mean)),
-    ) ?? null;
-  const lowestPeakConfig =
-    configs.find(
-      (config) =>
-        config.stats.gpu_process_peak_gb.mean ===
-        Math.min(...configs.map((entry) => entry.stats.gpu_process_peak_gb.mean)),
-    ) ?? null;
+  const bestAccuracy = Math.max(
+    ...configs.map((entry) => entry.stats.accuracy.mean),
+  );
+  const fastestPrefill = Math.min(
+    ...configs.map((entry) => entry.stats.prefill_ms_mean.mean),
+  );
+  const lowestPeak = Math.min(
+    ...configs.map((entry) => entry.stats.gpu_process_peak_gb.mean),
+  );
 
   return {
     plan,
@@ -256,11 +217,31 @@ function loadMatrixData() {
       successRate: runs.length ? successfulRuns.length / runs.length : 0,
       avgAccuracy: average(successfulRuns.map((run) => run.accuracy)),
       avgWall: average(successfulRuns.map((run) => run.run_wall_s)),
-      bestAccuracyConfig,
-      fastestConfig,
-      lowestPeakConfig,
+      bestAccuracyConfig:
+        configs.find((config) => config.stats.accuracy.mean === bestAccuracy) ??
+        null,
+      fastestConfig:
+        configs.find(
+          (config) => config.stats.prefill_ms_mean.mean === fastestPrefill,
+        ) ?? null,
+      lowestPeakConfig:
+        configs.find(
+          (config) => config.stats.gpu_process_peak_gb.mean === lowestPeak,
+        ) ?? null,
     },
   };
+}
+
+async function loadMatrixData() {
+  const [plan, summaryMap, runMetricsText] = await Promise.all([
+    fetchJson<PlanData>("plan.json"),
+    fetchJson<Record<string, Omit<ConfigSummary, "key">>>(
+      "summary_by_config.json",
+    ),
+    fetchText("run_metrics.jsonl"),
+  ]);
+
+  return buildMatrixData(plan, summaryMap, runMetricsText);
 }
 
 function MetricCard({
@@ -309,40 +290,83 @@ function StatBlock({
   );
 }
 
+function MatrixShell({
+  message,
+  detail,
+}: {
+  message: string;
+  detail?: string;
+}) {
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      <header className="border-b border-white/8 px-6 py-4 sticky top-0 bg-[#0a0a0f]/95 backdrop-blur-sm z-30">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-lg font-semibold tracking-tight">
+              Qwen2.5-Omni Benchmark Matrix
+            </h1>
+            <p className="text-xs text-white/35 font-mono mt-0.5">
+              {message}
+            </p>
+            {detail ? (
+              <p className="text-[11px] text-red-300/70 font-mono mt-1">
+                {detail}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-4 text-xs font-mono text-white/30">
+            <Link href="/" className="hover:text-white/60 transition-colors">
+              eval
+            </Link>
+            <Link
+              href="/vram"
+              className="hover:text-white/60 transition-colors"
+            >
+              vram
+            </Link>
+          </div>
+        </div>
+      </header>
+    </div>
+  );
+}
+
 export default function MatrixPage() {
-  const data = loadMatrixData();
+  const [data, setData] = useState<MatrixData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadMatrixData()
+      .then((loaded) => {
+        if (!cancelled) {
+          setData(loaded);
+          setError(null);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <MatrixShell
+        message={`Expected summary files were not found at ${DATA_BASE}.`}
+        detail={error}
+      />
+    );
+  }
 
   if (!data) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white">
-        <header className="border-b border-white/8 px-6 py-4 sticky top-0 bg-[#0a0a0f]/95 backdrop-blur-sm z-30">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight">
-                Qwen2.5-Omni Benchmark Matrix
-              </h1>
-              <p className="text-xs text-white/35 font-mono mt-0.5">
-                Expected summary files were not found in{" "}
-                <span className="text-white/50">
-                  10x/qwen25_matrix_gpu7_all7_snapkv
-                </span>
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-xs font-mono text-white/30">
-              <Link href="/" className="hover:text-white/60 transition-colors">
-                eval
-              </Link>
-              <Link
-                href="/vram"
-                className="hover:text-white/60 transition-colors"
-              >
-                vram
-              </Link>
-            </div>
-          </div>
-        </header>
-      </div>
-    );
+    return <MatrixShell message="Loading matrix summary files..." />;
   }
 
   const { plan, configs, runsByConfig, overview } = data;
@@ -365,8 +389,8 @@ export default function MatrixPage() {
               </span>
             </div>
             <p className="text-xs text-white/35 font-mono mt-0.5">
-              {createdAt} · {overview.totalRuns} runs ·{" "}
-              {overview.successfulRuns}/{overview.totalRuns} successful · GPU{" "}
+              {createdAt} | {overview.totalRuns} runs |{" "}
+              {overview.successfulRuns}/{overview.totalRuns} successful | GPU{" "}
               {plan.gpus.join(", ")}
             </p>
           </div>
@@ -388,7 +412,7 @@ export default function MatrixPage() {
             label="Success Rate"
             value={formatPercent(overview.successRate, 0)}
             tone="text-emerald-300"
-            detail={`${overview.successfulRuns} ok · ${overview.failedRuns} failed`}
+            detail={`${overview.successfulRuns} ok | ${overview.failedRuns} failed`}
           />
           <MetricCard
             label="Avg Run Accuracy"
@@ -412,7 +436,7 @@ export default function MatrixPage() {
             tone="text-emerald-300"
             detail={
               overview.bestAccuracyConfig
-                ? `${overview.bestAccuracyConfig.method} · temp ${formatTemperature(overview.bestAccuracyConfig.temperature)}`
+                ? `${overview.bestAccuracyConfig.method} | temp ${formatTemperature(overview.bestAccuracyConfig.temperature)}`
                 : "No configs"
             }
           />
@@ -426,7 +450,7 @@ export default function MatrixPage() {
             tone="text-sky-300"
             detail={
               overview.fastestConfig
-                ? `${overview.fastestConfig.method} · temp ${formatTemperature(overview.fastestConfig.temperature)}`
+                ? `${overview.fastestConfig.method} | temp ${formatTemperature(overview.fastestConfig.temperature)}`
                 : "No configs"
             }
           />
@@ -440,7 +464,7 @@ export default function MatrixPage() {
             tone="text-violet-300"
             detail={
               overview.lowestPeakConfig
-                ? `${overview.lowestPeakConfig.method} · temp ${formatTemperature(overview.lowestPeakConfig.temperature)}`
+                ? `${overview.lowestPeakConfig.method} | temp ${formatTemperature(overview.lowestPeakConfig.temperature)}`
                 : "No configs"
             }
           />
@@ -477,7 +501,8 @@ export default function MatrixPage() {
                   Sampling
                 </p>
                 <p className="text-white/70 mt-1">
-                  FPS {plan.args.fps ?? "n/a"} · max_pixels {plan.args.max_pixels ?? "n/a"}
+                  FPS {plan.args.fps ?? "n/a"} | max_pixels{" "}
+                  {plan.args.max_pixels ?? "n/a"}
                 </p>
               </div>
               <div className="rounded-lg border border-white/8 bg-black/20 px-3 py-2">
@@ -485,7 +510,7 @@ export default function MatrixPage() {
                   Decode
                 </p>
                 <p className="text-white/70 mt-1">
-                  {plan.args.dtype ?? "n/a"} · max_new_tokens{" "}
+                  {plan.args.dtype ?? "n/a"} | max_new_tokens{" "}
                   {plan.args.max_new_tokens ?? "n/a"}
                 </p>
               </div>
@@ -494,8 +519,8 @@ export default function MatrixPage() {
                   MixKV
                 </p>
                 <p className="text-white/70 mt-1">
-                  {plan.args.mixkv_select_method ?? "n/a"} · budget{" "}
-                  {plan.args.mixkv_budget ?? "n/a"} · window{" "}
+                  {plan.args.mixkv_select_method ?? "n/a"} | budget{" "}
+                  {plan.args.mixkv_budget ?? "n/a"} | window{" "}
                   {plan.args.mixkv_window_size ?? "n/a"}
                 </p>
               </div>
@@ -504,8 +529,8 @@ export default function MatrixPage() {
                   Harness
                 </p>
                 <p className="text-white/70 mt-1">
-                  parallel {plan.args.parallel ?? "n/a"} · prefill{" "}
-                  {plan.args.measure_prefill ? "on" : "off"} · audio{" "}
+                  parallel {plan.args.parallel ?? "n/a"} | prefill{" "}
+                  {plan.args.measure_prefill ? "on" : "off"} | audio{" "}
                   {plan.args.no_audio ? "off" : "on"}
                 </p>
               </div>
@@ -522,7 +547,7 @@ export default function MatrixPage() {
                     href={`#${configSlug(config.method, config.temperature)}`}
                     className="px-2.5 py-1 rounded-full border border-white/10 bg-black/20 text-white/45 hover:text-white/75 hover:border-white/20 transition-colors"
                   >
-                    {config.method} · t={formatTemperature(config.temperature)}
+                    {config.method} | t={formatTemperature(config.temperature)}
                   </a>
                 ))}
               </div>
@@ -560,7 +585,7 @@ export default function MatrixPage() {
                       <StatBlock
                         label="Accuracy"
                         value={formatPercent(accuracy.mean)}
-                        detail={`std ${formatPercent(accuracy.stddev)} · range ${formatPercent(accuracy.min)}-${formatPercent(accuracy.max)}`}
+                        detail={`std ${formatPercent(accuracy.stddev)} | range ${formatPercent(accuracy.min)}-${formatPercent(accuracy.max)}`}
                         tone="text-emerald-300"
                       />
                       <StatBlock
@@ -602,7 +627,8 @@ export default function MatrixPage() {
         </section>
 
         {configs.map((config) => {
-          const runs = runsByConfig.get(configId(config.method, config.temperature)) ?? [];
+          const runs =
+            runsByConfig.get(configId(config.method, config.temperature)) ?? [];
 
           return (
             <section
@@ -616,7 +642,8 @@ export default function MatrixPage() {
                     Run Details
                   </p>
                   <h2 className="text-base font-semibold mt-1">
-                    {config.method} · temp {formatTemperature(config.temperature)}
+                    {config.method} | temp{" "}
+                    {formatTemperature(config.temperature)}
                   </h2>
                 </div>
                 <div className="flex flex-wrap gap-2 text-[10px] font-mono text-white/35">
@@ -660,15 +687,16 @@ export default function MatrixPage() {
                       >
                         <td className="px-4 py-2 text-white/70">
                           r{String(run.repeat).padStart(2, "0")}
-                          <span className="text-white/25"> · seed {run.seed}</span>
+                          <span className="text-white/25">
+                            {" "}
+                            | seed {run.seed}
+                          </span>
                         </td>
                         <td className="px-4 py-2 text-white/55">{run.gpu}</td>
                         <td className="px-4 py-2">
                           <span
                             className={
-                              run.ok
-                                ? "text-emerald-300"
-                                : "text-red-300"
+                              run.ok ? "text-emerald-300" : "text-red-300"
                             }
                           >
                             {run.ok ? "ok" : `rc=${run.return_code}`}

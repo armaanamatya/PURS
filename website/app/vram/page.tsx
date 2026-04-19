@@ -1,23 +1,10 @@
-import { existsSync, readFileSync } from "fs";
-import Link from "next/link";
-import { dirname, join } from "path";
+"use client";
 
-export const dynamic = "force-dynamic";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const RUN_DIR_NAME = "qwen25_matrix_gpu7_all7_snapkv";
-const RUN_ROOT_CANDIDATES = [
-  join("public", "matrix", RUN_DIR_NAME),
-  join("website", "public", "matrix", RUN_DIR_NAME),
-  join("10x", RUN_DIR_NAME),
-];
-
-function hasRunFiles(dir: string) {
-  return [
-    "plan.json",
-    "summary_by_config.json",
-    "run_metrics.jsonl",
-  ].every((filename) => existsSync(join(dir, filename)));
-}
+const DATA_BASE = `/matrix/${RUN_DIR_NAME}`;
 
 interface SummaryMetric {
   n: number;
@@ -73,6 +60,13 @@ interface PlanData {
   total_jobs: number;
 }
 
+interface VramData {
+  plan: PlanData;
+  configs: ConfigSummary[];
+  runs: RunMetric[];
+  successfulRuns: RunMetric[];
+}
+
 const EMPTY_METRIC: SummaryMetric = {
   n: 0,
   mean: 0,
@@ -82,44 +76,20 @@ const EMPTY_METRIC: SummaryMetric = {
   max: 0,
 };
 
-function findRunRoot() {
-  const starts = [
-    process.cwd(),
-    join(process.cwd(), ".."),
-    join(process.cwd(), "..", ".."),
-  ];
-  const seen = new Set<string>();
-
-  for (const start of starts) {
-    let current = start;
-    while (!seen.has(current)) {
-      seen.add(current);
-      for (const relativePath of RUN_ROOT_CANDIDATES) {
-        const candidate = join(current, relativePath);
-        if (hasRunFiles(candidate)) {
-          return candidate;
-        }
-      }
-
-      const parent = dirname(current);
-      if (parent === current) {
-        break;
-      }
-      current = parent;
-    }
+async function fetchText(filename: string) {
+  const response = await fetch(`${DATA_BASE}/${filename}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${filename}: ${response.status}`);
   }
-
-  return join(process.cwd(), "public", "matrix", RUN_DIR_NAME);
+  return response.text();
 }
 
-const RUN_ROOT = findRunRoot();
-
-function readJsonFile<T>(filename: string): T {
-  return JSON.parse(readFileSync(join(RUN_ROOT, filename), "utf8")) as T;
+async function fetchJson<T>(filename: string): Promise<T> {
+  return JSON.parse(await fetchText(filename)) as T;
 }
 
-function loadRunMetrics(): RunMetric[] {
-  return readFileSync(join(RUN_ROOT, "run_metrics.jsonl"), "utf8")
+function parseRunMetrics(raw: string): RunMetric[] {
+  return raw
     .split(/\r?\n/)
     .filter(Boolean)
     .map((line) => JSON.parse(line) as RunMetric)
@@ -131,21 +101,15 @@ function loadRunMetrics(): RunMetric[] {
     );
 }
 
-function loadVramData() {
-  const required = [
-    "plan.json",
-    "summary_by_config.json",
-    "run_metrics.jsonl",
-  ];
+async function loadVramData(): Promise<VramData> {
+  const [plan, summaryMap, runMetricsText] = await Promise.all([
+    fetchJson<PlanData>("plan.json"),
+    fetchJson<Record<string, Omit<ConfigSummary, "key">>>(
+      "summary_by_config.json",
+    ),
+    fetchText("run_metrics.jsonl"),
+  ]);
 
-  if (!required.every((filename) => existsSync(join(RUN_ROOT, filename)))) {
-    return null;
-  }
-
-  const plan = readJsonFile<PlanData>("plan.json");
-  const summaryMap = readJsonFile<Record<string, Omit<ConfigSummary, "key">>>(
-    "summary_by_config.json",
-  );
   const configs = Object.entries(summaryMap)
     .map(([key, value]) => ({ ...value, key }))
     .sort(
@@ -153,7 +117,7 @@ function loadVramData() {
         left.method.localeCompare(right.method) ||
         left.temperature - right.temperature,
     );
-  const runs = loadRunMetrics();
+  const runs = parseRunMetrics(runMetricsText);
   const successfulRuns = runs.filter((run) => run.ok);
 
   return {
@@ -263,7 +227,13 @@ function BarRow({
   );
 }
 
-function EmptyState() {
+function VramShell({
+  message,
+  detail,
+}: {
+  message: string;
+  detail?: string;
+}) {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       <header className="border-b border-white/8 px-6 py-4 sticky top-0 bg-[#0a0a0f]/95 backdrop-blur-sm z-30">
@@ -273,8 +243,13 @@ function EmptyState() {
               VRAM Usage
             </h1>
             <p className="text-xs text-white/35 font-mono mt-0.5">
-              Could not find the new run metrics under 10x/{RUN_DIR_NAME}.
+              {message}
             </p>
+            {detail ? (
+              <p className="text-[11px] text-red-300/70 font-mono mt-1">
+                {detail}
+              </p>
+            ) : null}
           </div>
           <div className="flex items-center gap-4 text-xs font-mono text-white/30">
             <Link href="/matrix" className="hover:text-white/60 transition-colors">
@@ -291,10 +266,41 @@ function EmptyState() {
 }
 
 export default function VramPage() {
-  const data = loadVramData();
+  const [data, setData] = useState<VramData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadVramData()
+      .then((loaded) => {
+        if (!cancelled) {
+          setData(loaded);
+          setError(null);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <VramShell
+        message={`Could not find the new run metrics at ${DATA_BASE}.`}
+        detail={error}
+      />
+    );
+  }
 
   if (!data) {
-    return <EmptyState />;
+    return <VramShell message="Loading VRAM summary files..." />;
   }
 
   const { plan, configs, runs, successfulRuns } = data;
@@ -305,14 +311,11 @@ export default function VramPage() {
   const avgExtraPeak = average(
     successfulRuns.map((run) => run.inference_extra_peak_alloc_gb),
   );
-  const highestProcessRun =
-    successfulRuns.reduce<RunMetric | null>(
-      (best, run) =>
-        !best || run.gpu_process_peak_gb > best.gpu_process_peak_gb
-          ? run
-          : best,
-      null,
-    );
+  const highestProcessRun = successfulRuns.reduce<RunMetric | null>(
+    (best, run) =>
+      !best || run.gpu_process_peak_gb > best.gpu_process_peak_gb ? run : best,
+    null,
+  );
   const maxMemory = Math.max(
     1,
     ...configs.flatMap((config) => [
@@ -386,7 +389,7 @@ export default function VramPage() {
           <MetricCard
             label="Configs"
             value={String(configs.length)}
-            detail={`source: 10x/${RUN_DIR_NAME}`}
+            detail={`source: /matrix/${RUN_DIR_NAME}`}
             tone="text-emerald-300"
           />
         </section>
@@ -494,7 +497,10 @@ export default function VramPage() {
                       Keep Ratio
                     </p>
                     <p className="text-white/65 mt-1">
-                      {formatPercent(metric(config, "frame_keep_ratio_mean").mean, 0)}
+                      {formatPercent(
+                        metric(config, "frame_keep_ratio_mean").mean,
+                        0,
+                      )}
                     </p>
                   </div>
                 </div>
