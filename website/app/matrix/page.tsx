@@ -1,6 +1,10 @@
 import { existsSync, readFileSync } from "fs";
 import Link from "next/link";
-import { join } from "path";
+import { dirname, join } from "path";
+
+export const dynamic = "force-dynamic";
+
+const RUN_DIR_NAME = "qwen25_matrix_gpu7_all7_snapkv";
 
 interface SummaryMetric {
   n: number;
@@ -81,12 +85,35 @@ interface PlanData {
   args: PlanArgs;
 }
 
-const MATRIX_ROOT = join(
-  process.cwd(),
-  "..",
-  "10x",
-  "qwen25_matrix_gpu7_all7_snapkv",
-);
+function findMatrixRoot() {
+  const starts = [
+    process.cwd(),
+    join(process.cwd(), ".."),
+    join(process.cwd(), "..", ".."),
+  ];
+  const seen = new Set<string>();
+
+  for (const start of starts) {
+    let current = start;
+    while (!seen.has(current)) {
+      seen.add(current);
+      const candidate = join(current, "10x", RUN_DIR_NAME);
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+
+      const parent = dirname(current);
+      if (parent === current) {
+        break;
+      }
+      current = parent;
+    }
+  }
+
+  return join(process.cwd(), "..", "10x", RUN_DIR_NAME);
+}
+
+const MATRIX_ROOT = findMatrixRoot();
 
 function readJsonFile<T>(filename: string): T {
   return JSON.parse(readFileSync(join(MATRIX_ROOT, filename), "utf8")) as T;
