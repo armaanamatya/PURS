@@ -23,6 +23,7 @@ import argparse
 import json
 import os
 import glob
+import random
 import shutil
 import sys
 import time
@@ -79,6 +80,7 @@ RUN_CONFIG: dict = {
     "fps": 2.0,
     "max_pixels": 360 * 420,
     "max_new_tokens": 4096,
+    "temperature": 0.0,
 }
 
 # ── Prompts (Qwen2.5-Omni web_demo + OmniZip lmms-eval task utils) ────────────
@@ -181,6 +183,15 @@ def resolve_model_dtype(dtype_name: str):
         keys = ", ".join(sorted(table.keys()))
         raise ValueError(f"Unknown dtype_name {dtype_name!r}; expected one of: {keys}")
     return table[dtype_name]
+
+
+def set_run_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 # ── Audio check (per-video, matching lmms-eval Qwen2_5_Omni._check_if_video_has_audio) ──
@@ -333,7 +344,7 @@ def _batch_for_omni_generate(batch: object) -> dict:
 # ── Inference ─────────────────────────────────────────────────────────────────
 
 def run_inference(model, processor, video_path: str, dataset: str, question: str,
-                  choices: list, use_audio: bool, measure_prefill: bool = False) -> tuple[str, str, dict]:
+                  choices: list, use_audio: bool, measure_prefill: bool = False) -> tuple[str, str, int, int, dict]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
     ds_name = _canonicalize_dataset_name(dataset)
@@ -365,7 +376,9 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
         raise ValueError("Decoded 0 video frames (video reader backend failed). Try lower --fps/--max_pixels.")
 
     # OmniZip requires nframes to be set on thinker before each forward pass
-    num_input_frames = videos[0].shape[0] if videos else 1
+    num_input_frames = int(videos[0].shape[0]) if videos else 1
+    orig_nframes = num_input_frames
+    used_nframes = num_input_frames
     model.thinker.nframes = num_input_frames
 
     inputs = processor(
@@ -375,16 +388,20 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
     inputs = _prepare_omni_inputs(model, inputs)
 
     max_new_tokens = RUN_CONFIG["max_new_tokens"]
+    temperature = RUN_CONFIG["temperature"]
     tokenizer = processor.tokenizer
     gen_in = _batch_for_omni_generate(inputs)
+    do_sample = temperature > 0
     gen_kw = dict(
         use_audio_in_video=effective_use_audio,
         return_audio=False,
         thinker_max_new_tokens=max_new_tokens,
-        thinker_do_sample=False,
+        thinker_do_sample=do_sample,
         eos_token_id=tokenizer.eos_token_id,
         pad_token_id=tokenizer.pad_token_id,
     )
+    if do_sample:
+        gen_kw["thinker_temperature"] = temperature
 
     timing = {}
     if measure_prefill:
@@ -408,7 +425,7 @@ def run_inference(model, processor, video_path: str, dataset: str, question: str
         clean_up_tokenization_spaces=False,
     )[0].strip()
     letter = parse_answer(decoded, choices)
-    return letter, decoded, timing
+    return letter, decoded, orig_nframes, used_nframes, timing
 
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
@@ -470,6 +487,10 @@ def main():
     parser.add_argument("--g",                type=int,   default=OMNIZIP_DEFAULT_G)
     parser.add_argument("--contextual_ratio", type=float, default=OMNIZIP_DEFAULT_CONTEXTUAL_RATIO)
     parser.add_argument("--max_new_tokens",   type=int,   default=4096, help="Generation cap")
+    parser.add_argument("--temperature",      type=float, default=0.0,
+                        help="Text generation temperature. 0 keeps greedy decoding; >0 enables sampling.")
+    parser.add_argument("--seed",             type=int,   default=None,
+                        help="Optional RNG seed for reproducible sampled-temperature runs.")
     parser.add_argument(
         "--dtype",
         default="bfloat16",
@@ -495,6 +516,7 @@ def main():
              "Adds a second generate() call per question — use for benchmarking only.",
     )
     args = parser.parse_args()
+    set_run_seed(args.seed)
 
     global MODEL_PATH
     if args.model:
@@ -531,6 +553,7 @@ def main():
         "fps": args.fps,
         "max_pixels": args.max_pixels,
         "max_new_tokens": args.max_new_tokens,
+        "temperature": args.temperature,
         "max_frames_videomme": args.max_frames_videomme,
         "max_frames_other": args.max_frames_other,
     }
@@ -551,7 +574,7 @@ def main():
     audio_mode = "video+audio+text" if not args.no_audio else "video+text (--no_audio)"
     print(
         f"Input mode: {audio_mode}; sample_fps={args.fps}; max_pixels={args.max_pixels}; "
-        f"max_new_tokens={args.max_new_tokens}"
+        f"max_new_tokens={args.max_new_tokens}; temperature={args.temperature}; seed={args.seed}"
     )
     print("Note: qwen-vl-utils/decord logs the source video's native fps, not the requested sample_fps.\n")
 
@@ -594,7 +617,7 @@ def main():
                 try:
                     before_alloc_gb, before_reserved_gb = _capture_current_vram_gb()
                     torch.cuda.reset_peak_memory_stats()
-                    pred, reasoning, timing = run_inference(
+                    pred, reasoning, orig_nf, used_nf, timing = run_inference(
                         model,
                         processor,
                         video_path,
@@ -612,7 +635,11 @@ def main():
                         "entry": entry_label, "task_type": task_type,
                         "status": "ok",
                         "quantization": args.quantization,
+                        "temperature": args.temperature,
+                        "seed": args.seed,
                         "duration_s": entry.get("duration_s"),
+                        "orig_frames": orig_nf,
+                        "used_frames": used_nf,
                         "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
                         "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
                         "before_alloc_gb": round(before_alloc_gb, 2),
@@ -636,7 +663,11 @@ def main():
                         "entry": entry_label, "task_type": task_type,
                         "status": "error",
                         "quantization": args.quantization,
+                        "temperature": args.temperature,
+                        "seed": args.seed,
                         "duration_s": entry.get("duration_s"),
+                        "orig_frames": 0,
+                        "used_frames": 0,
                         "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
                         "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
                         "before_alloc_gb": round(before_alloc_gb, 2),
@@ -653,6 +684,7 @@ def main():
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
+                    orig_nf = used_nf = 0
                     timing = {}
 
                 is_correct = pred.strip().upper() == answer
@@ -673,9 +705,14 @@ def main():
                     "correct":    is_correct,
                     "reasoning":  reasoning,
                     "method":     "omnizip",
+                    "orig_frames": orig_nf,
+                    "used_frames": used_nf,
+                    "temperature": args.temperature,
+                    "seed":       args.seed,
                     **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
+                out_f.flush()
                 results.append(result)
 
                 status = "✓" if is_correct else "✗"

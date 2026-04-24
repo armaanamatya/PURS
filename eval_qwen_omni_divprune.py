@@ -28,6 +28,7 @@ import json
 import math
 import os
 import glob
+import random
 import shutil
 import sys
 import time
@@ -66,6 +67,8 @@ ENV_MODEL_PATH_KEY = "QWEN_OMNI_MODEL_PATH"
 DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
 FALLBACK_MODEL_PATH = "/workspace/model"
 MODEL_PATH = os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
+MODEL_LOADED_ALLOC_GB: float | None = None
+MODEL_LOADED_RESERVED_GB: float | None = None
 
 SYSTEM_PROMPT_DEFAULT = (
     "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, "
@@ -145,6 +148,33 @@ def build_user_prompt_for_dataset(dataset, question, choices):
 
 def resolve_model_dtype(name):
     return {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}[name]
+
+
+def set_run_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def _capture_current_vram_gb() -> tuple[float, float]:
+    if not torch.cuda.is_available():
+        return 0.0, 0.0
+    return (
+        torch.cuda.memory_allocated() / 1024**3,
+        torch.cuda.memory_reserved() / 1024**3,
+    )
+
+
+def _record_model_loaded_vram() -> None:
+    global MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB
+    MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB = _capture_current_vram_gb()
+    print(
+        f"Model loaded. VRAM: {MODEL_LOADED_ALLOC_GB:.1f} GB allocated, "
+        f"{MODEL_LOADED_RESERVED_GB:.1f} GB reserved"
+    )
 
 
 def check_video_has_audio(path):
@@ -369,13 +399,13 @@ def load_model(dtype_name: str):
         MODEL_PATH,
         torch_dtype=dt,
         device_map="auto",
-        attn_implementation="sdpa",
+        attn_implementation="flash_attention_2",
     )
     processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
     if hasattr(model, "disable_talker"):
         model.disable_talker()
 
-    print(f"Model loaded. VRAM: {torch.cuda.memory_allocated()/1024**3:.1f} GB")
+    _record_model_loaded_vram()
     return model, processor
 
 
@@ -399,13 +429,16 @@ def _generation_output_token_ids(gen_out):
 
 def run_inference(model, processor, video_path, dataset, question, choices,
                   fps, max_pixels, max_new_tokens, use_audio, subset_ratio, prune_mode,
-                  measure_prefill=False):
+                  max_frames=None, temperature=0.0, measure_prefill=False):
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
+    video_element = {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels}
+    if max_frames is not None:
+        video_element["max_frames"] = max_frames
     messages = [
         {"role": "system", "content": [{"type": "text", "text": system_text}]},
         {"role": "user", "content": [
-            {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels},
+            video_element,
             {"type": "text", "text": prompt},
         ]},
     ]
@@ -478,12 +511,17 @@ def run_inference(model, processor, video_path, dataset, question, choices,
         "eos_token_id": tokenizer.eos_token_id,
         "pad_token_id": tokenizer.pad_token_id,
     }
+    do_sample = temperature > 0
     if hasattr(model, "thinker"):
         gen_kw["thinker_max_new_tokens"] = max_new_tokens
-        gen_kw["thinker_do_sample"] = False
+        gen_kw["thinker_do_sample"] = do_sample
+        if do_sample:
+            gen_kw["thinker_temperature"] = temperature
     else:
         gen_kw["max_new_tokens"] = max_new_tokens
-        gen_kw["do_sample"] = False
+        gen_kw["do_sample"] = do_sample
+        if do_sample:
+            gen_kw["temperature"] = temperature
 
     gen_in = {k: v for k, v in inputs.items() if k not in _OMNI_GENERATE_BATCH_DROP}
 
@@ -525,7 +563,15 @@ def main():
     parser.add_argument("--category", default=None)
     parser.add_argument("--fps", type=float, default=2.0)
     parser.add_argument("--max_pixels", type=int, default=360*420)
+    parser.add_argument("--max_frames_videomme", type=int, default=768,
+                        help="Max frames for VideoMME videos (paper default: 768)")
+    parser.add_argument("--max_frames_other", type=int, default=128,
+                        help="Max frames for non-VideoMME datasets (paper default: 128)")
     parser.add_argument("--max_new_tokens", type=int, default=4096)
+    parser.add_argument("--temperature", type=float, default=0.0,
+                        help="Text generation temperature. 0 keeps greedy decoding; >0 enables sampling.")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Optional RNG seed for reproducible sampled-temperature runs.")
     parser.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16", "float32"])
     parser.add_argument("--no_audio", action="store_true")
     parser.add_argument("--vram_log", default="/workspace/vram_log_divprune.jsonl")
@@ -541,6 +587,7 @@ def main():
     parser.add_argument("--measure_prefill", action="store_true",
                         help="Measure prefill time (TTFT) via generate(max_new_tokens=1) with CUDA events.")
     args = parser.parse_args()
+    set_run_seed(args.seed)
 
     global MODEL_PATH
     if args.model:
@@ -576,7 +623,10 @@ def main():
     skipped_no_qa = len(meta) - len(runnable)
     if skipped_no_qa:
         print(f"Skipping {skipped_no_qa} entries with no Q&A")
-    print(f"Running {len(runnable)} entries with DivPrune ({args.prune_mode}, ratio={args.subset_ratio})\n")
+    print(
+        f"Running {len(runnable)} entries with DivPrune ({args.prune_mode}, ratio={args.subset_ratio}); "
+        f"temperature={args.temperature}; seed={args.seed}\n"
+    )
 
     if not runnable:
         print("Nothing to run.")
@@ -607,19 +657,32 @@ def main():
                 dataset = entry.get("dataset", "")
 
                 try:
+                    before_alloc_gb, before_reserved_gb = _capture_current_vram_gb()
                     torch.cuda.reset_peak_memory_stats()
+                    ds_name = _canonicalize(dataset)
+                    max_frames = args.max_frames_videomme if ds_name in {"video-mme", "videomme"} else args.max_frames_other
                     pred, reasoning, orig_nf, pruned_nf, timing = run_inference(
                         model, processor, video_path, dataset, question, choices,
                         args.fps, args.max_pixels, args.max_new_tokens, use_audio,
                         args.subset_ratio, args.prune_mode,
+                        max_frames=max_frames,
+                        temperature=args.temperature,
                         measure_prefill=args.measure_prefill,
                     )
                     total_orig_frames += orig_nf
                     total_pruned_frames += pruned_nf
                     vram_entry = {
                         "entry": entry_label, "task_type": task_type,
+                        "status": "ok",
+                        "method": f"divprune-{args.prune_mode}",
+                        "temperature": args.temperature,
+                        "seed": args.seed,
                         "duration_s": entry.get("duration_s"),
                         "orig_frames": orig_nf, "pruned_frames": pruned_nf,
+                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
+                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
+                        "before_alloc_gb": round(before_alloc_gb, 2),
+                        "before_reserved_gb": round(before_reserved_gb, 2),
                         "peak_alloc_gb": round(torch.cuda.max_memory_allocated() / 1024**3, 2),
                         "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 1024**3, 2),
                         "after_alloc_gb": round(torch.cuda.memory_allocated() / 1024**3, 2),
@@ -631,6 +694,33 @@ def main():
                 except Exception as e:
                     import traceback
                     print(f"  ERROR {entry_label}: {type(e).__name__}: {e!r}")
+                    peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
+                    peak_reserved_gb = torch.cuda.max_memory_reserved() / 1024**3
+                    curr_alloc_gb, curr_reserved_gb = _capture_current_vram_gb()
+                    before_alloc_gb = locals().get("before_alloc_gb", 0.0)
+                    before_reserved_gb = locals().get("before_reserved_gb", 0.0)
+                    vram_entry = {
+                        "entry": entry_label, "task_type": task_type,
+                        "status": "error",
+                        "method": f"divprune-{args.prune_mode}",
+                        "temperature": args.temperature,
+                        "seed": args.seed,
+                        "duration_s": entry.get("duration_s"),
+                        "orig_frames": 0,
+                        "pruned_frames": 0,
+                        "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
+                        "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
+                        "before_alloc_gb": round(before_alloc_gb, 2),
+                        "before_reserved_gb": round(before_reserved_gb, 2),
+                        "peak_alloc_gb": round(peak_alloc_gb, 2),
+                        "peak_reserved_gb": round(peak_reserved_gb, 2),
+                        "after_alloc_gb": round(curr_alloc_gb, 2),
+                        "after_reserved_gb": round(curr_reserved_gb, 2),
+                        "error_type": type(e).__name__,
+                        "error_message": str(e),
+                    }
+                    vram_f.write(json.dumps(vram_entry) + "\n")
+                    vram_f.flush()
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{traceback.format_exc()}\n")
                     pred, reasoning = "ERROR", str(e)
@@ -654,9 +744,12 @@ def main():
                     "method": f"divprune-{args.prune_mode}",
                     "subset_ratio": args.subset_ratio,
                     "orig_frames": orig_nf, "pruned_frames": pruned_nf,
+                    "temperature": args.temperature,
+                    "seed": args.seed,
                     **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
+                out_f.flush()
                 results.append(result)
 
                 status = "✓" if is_correct else "✗"

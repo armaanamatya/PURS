@@ -16,6 +16,7 @@ import glob
 import importlib.util
 import json
 import os
+import random
 import shutil
 import sys
 import time
@@ -208,6 +209,15 @@ def resolve_model_dtype(dtype_name: str):
         keys = ", ".join(sorted(table.keys()))
         raise ValueError(f"Unknown dtype_name {dtype_name!r}; expected one of: {keys}")
     return table[dtype_name]
+
+
+def set_run_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 def _quantized_dtype(dtype_name: str, quantization: str) -> torch.dtype:
@@ -616,8 +626,9 @@ def run_inference(
     max_new_tokens: int,
     use_audio: bool,
     max_frames: int | None = None,
+    temperature: float = 0.0,
     measure_prefill: bool = False,
-) -> tuple[str, str, dict]:
+) -> tuple[str, str, int, int, dict]:
     prompt = build_user_prompt_for_dataset(dataset, question, choices)
 
     system_text = SYSTEM_PROMPT_DEFAULT + " " + SYSTEM_MCQ_SUFFIX
@@ -644,6 +655,11 @@ def run_inference(
             "This evaluator keeps audio mandatory unless you explicitly pass --no_audio."
         ) from err
 
+    if not videos or videos[0] is None or getattr(videos[0], "shape", None) is None or videos[0].shape[0] <= 0:
+        raise ValueError("Decoded 0 video frames (video reader backend failed). Try lower --fps/--max_pixels.")
+    orig_nframes = int(videos[0].shape[0])
+    used_nframes = orig_nframes
+
     inputs = processor(
         text=text, audio=audios, images=images, videos=videos,
         return_tensors="pt", padding=True, use_audio_in_video=effective_use_audio,
@@ -660,13 +676,17 @@ def run_inference(
         "eos_token_id": tokenizer.eos_token_id,
         "pad_token_id": tokenizer.pad_token_id,
     }
+    do_sample = temperature > 0
     if hasattr(model, "thinker"):
         gen_kw["thinker_max_new_tokens"] = max_new_tokens
-        gen_kw["thinker_do_sample"] = False
+        gen_kw["thinker_do_sample"] = do_sample
+        if do_sample:
+            gen_kw["thinker_temperature"] = temperature
     else:
         gen_kw["max_new_tokens"] = max_new_tokens
-        gen_kw["temperature"] = 0.0
-        gen_kw["do_sample"] = False
+        gen_kw["do_sample"] = do_sample
+        if do_sample:
+            gen_kw["temperature"] = temperature
 
     gen_in = _batch_for_omni_generate(inputs, model=model)
 
@@ -696,7 +716,7 @@ def run_inference(
         clean_up_tokenization_spaces=False,
     )[0].strip()
     letter = parse_answer(decoded, choices)
-    return letter, decoded, timing
+    return letter, decoded, orig_nframes, used_nframes, timing
 
 # ── Video lookup ──────────────────────────────────────────────────────────────
 
@@ -752,6 +772,10 @@ def main():
     parser.add_argument("--max_frames_other", type=int, default=128,
                         help="Max frames for non-VideoMME datasets (paper default: 128)")
     parser.add_argument("--max_new_tokens", type=int, default=4096, help="Generation cap (lmms-eval qwen2_5_omni default)")
+    parser.add_argument("--temperature", type=float, default=0.0,
+                        help="Text generation temperature. 0 keeps greedy decoding; >0 enables sampling.")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Optional RNG seed for reproducible sampled-temperature runs.")
     parser.add_argument(
         "--dtype",
         default="bfloat16",
@@ -788,6 +812,7 @@ def main():
              "Adds a second generate() call per question — use for benchmarking only.",
     )
     args = parser.parse_args()
+    set_run_seed(args.seed)
 
     global MODEL_PATH
     MODEL_PATH = _resolve_model_path(args.model, args.quantization)
@@ -837,7 +862,7 @@ def main():
     audio_mode = "video+audio+text" if not args.no_audio else "video+text (--no_audio)"
     print(
         f"Input mode: {audio_mode}; sample_fps={args.fps}; max_pixels={args.max_pixels}; "
-        f"max_new_tokens={args.max_new_tokens}"
+        f"max_new_tokens={args.max_new_tokens}; temperature={args.temperature}; seed={args.seed}"
     )
     print("Note: qwen-vl-utils/decord logs the source video's native fps, not the requested sample_fps.\n")
 
@@ -875,7 +900,7 @@ def main():
                     torch.cuda.reset_peak_memory_stats()
                     ds_name = _canonicalize_dataset_name(dataset)
                     max_frames = args.max_frames_videomme if ds_name in {"video-mme", "videomme"} else args.max_frames_other
-                    pred, reasoning, timing = run_inference(
+                    pred, reasoning, orig_nf, used_nf, timing = run_inference(
                         model,
                         processor,
                         video_path,
@@ -887,6 +912,7 @@ def main():
                         args.max_new_tokens,
                         use_audio,
                         max_frames=max_frames,
+                        temperature=args.temperature,
                         measure_prefill=args.measure_prefill,
                     )
                     peak_alloc_gb = torch.cuda.max_memory_allocated() / 1024**3
@@ -898,7 +924,11 @@ def main():
                         "task_type": task_type,
                         "status": "ok",
                         "quantization": args.quantization,
+                        "temperature": args.temperature,
+                        "seed": args.seed,
                         "duration_s": entry.get("duration_s"),
+                        "orig_frames": orig_nf,
+                        "used_frames": used_nf,
                         "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
                         "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
                         "before_alloc_gb": round(before_alloc_gb, 2),
@@ -923,7 +953,11 @@ def main():
                         "task_type": task_type,
                         "status": "error",
                         "quantization": args.quantization,
+                        "temperature": args.temperature,
+                        "seed": args.seed,
                         "duration_s": entry.get("duration_s"),
+                        "orig_frames": 0,
+                        "used_frames": 0,
                         "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
                         "model_loaded_reserved_gb": round(MODEL_LOADED_RESERVED_GB or 0.0, 2),
                         "before_alloc_gb": round(before_alloc_gb, 2),
@@ -940,6 +974,7 @@ def main():
                     with open(errors_log_path, "a") as ef:
                         ef.write(f"\n--- {entry_label} ---\n{tb}\n")
                     pred, reasoning = "ERROR", str(e)
+                    orig_nf = used_nf = 0
                     timing = {}
 
                 is_correct = pred.strip().upper() == answer
@@ -959,9 +994,14 @@ def main():
                     "prediction": pred,
                     "correct":    is_correct,
                     "reasoning":  reasoning,
+                    "orig_frames": orig_nf,
+                    "used_frames": used_nf,
+                    "temperature": args.temperature,
+                    "seed":       args.seed,
                     **timing,
                 }
                 out_f.write(json.dumps(result) + "\n")
+                out_f.flush()
                 results.append(result)
 
                 status = "✓" if is_correct else "✗"
