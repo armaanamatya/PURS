@@ -1,0 +1,83 @@
+Qwen2.5-Omni: Norm, Activation, and Attention Explained
+=========================================================
+
+NORMALIZATION
+=============
+
+Audio Encoder -> LayerNorm
+Standard LayerNorm normalizes across the full feature dimension including mean subtraction. The audio
+encoder is a direct port of Whisper-large-v3, which was trained with LayerNorm throughout -- they kept
+it for weight compatibility and fine-tuning stability. LayerNorm's bias term also helps since audio
+features have a non-zero mean (mel spectrograms are energy-based, not zero-centered).
+
+Vision Encoder -> RMSNorm
+RMSNorm drops the mean-centering step -- it only normalizes by the root mean square:
+  x / sqrt(mean(x^2) + epsilon)
+This is ~15% faster than LayerNorm and works well for vision tokens because image patch embeddings
+don't need centering. This is the modern LLM convention (Llama, Qwen2.5, Mistral all use RMSNorm),
+and the vision encoder was built to match the Thinker's conventions rather than Whisper's.
+
+Thinker -> RMSNorm
+Same reason as the vision encoder -- this is a 7B-class Qwen2.5 LLM backbone. RMSNorm is faster, has
+fewer parameters (no bias), and training stability is well-proven at this scale. Critically, matching
+RMSNorm across the vision encoder and Thinker reduces friction when fusing vision tokens into the LLM
+sequence.
+
+
+ACTIVATION FUNCTIONS
+====================
+
+Audio Encoder -> GELU
+Used in both the Conv1d preprocessing and the FFN. GELU (Gaussian Error Linear Unit) is x * Phi(x) --
+smooth, differentiable, and probabilistically gates inputs. Whisper uses GELU throughout, so it's
+retained here. GELU was the dominant choice in BERT-era encoders; it's slightly more expensive than
+ReLU but avoids dead neurons.
+
+Vision Encoder -> GELU (gated)
+The vision MLP computes GELU(gate_proj(x)) * up_proj(x) -- this is a gated FFN where GELU acts as the
+gate, not just an activation. The gating mechanism lets the network learn to suppress or amplify feature
+dimensions multiplicatively, which is more expressive than a plain GELU(linear(x)). This is sometimes
+called GeGLU and is common in ViT variants.
+
+Thinker -> SiLU / SwiGLU
+SiLU is x * sigmoid(x) -- smoother than GELU, cheaper to compute, and slightly better empirically at
+LLM scale. SwiGLU = SiLU(gate_proj(x)) * up_proj(x), the same gating trick as the vision encoder but
+with SiLU instead of GELU. SwiGLU was introduced in PaLM and has become standard in modern LLMs
+(Llama, Qwen2.5, Mistral). The key difference from the vision encoder: SiLU trains faster and
+generalizes better in autoregressive decoder settings whereas GELU is historically better tuned for
+bidirectional encoders.
+
+
+ATTENTION
+=========
+
+Audio Encoder -> Windowed MHA
+Standard multi-head attention where each token only attends to tokens within a fixed local window.
+Audio sequences can be very long after mel spectrogram extraction -- full O(n^2) attention would be
+prohibitive. Windowed attention keeps it O(n x window_size), linear in sequence length. This is
+sufficient because audio is highly local -- phonemes and words are determined by nearby frames, not
+distant ones. Cross-window context is handled implicitly by stacking 32 layers.
+
+Vision Encoder -> Full/Windowed MHA + RoPE
+A hybrid: most layers use windowed attention (same efficiency argument as audio -- high-res images
+produce thousands of patches), but specific layers defined by fullatt_block_indexes use full global
+attention. This is deliberate: global attention at strategic depths lets the model build scene-level
+understanding (e.g., relating an object in the top-left to one in the bottom-right) without paying
+full O(n^2) cost at every layer. RoPE is added to Q and K so the model understands where each patch
+is in the 3D spatial+temporal grid -- critical for video understanding.
+
+Thinker -> GQA + TMRoPE
+Two distinct design choices:
+
+  GQA (Grouped-Query Attention):
+  Instead of one KV head per Q head, multiple Q heads share a single KV head. Here, 28 Q heads share
+  only 4 KV heads -- that's a ~7x reduction in KV-cache memory. For a deployed multimodal model
+  handling long audio+video+text contexts, KV-cache is the primary memory bottleneck. GQA makes this
+  tractable without meaningful quality loss.
+
+  TMRoPE (Time-aligned Multimodal RoPE):
+  The position embedding is split into 3 sections of the head dimension -- temporal, spatial-H, and
+  spatial-W. Audio and text tokens vary only in the temporal dimension; vision tokens vary in all three.
+  This means that a video frame and its co-occurring audio segment get similar position encodings in the
+  temporal dimension, allowing attention to naturally align them without any explicit synchronization
+  mechanism. This is the architectural key that enables coherent audio-video reasoning in the Thinker.
