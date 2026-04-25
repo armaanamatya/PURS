@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "kind": "depth_curve",
+  "script": "viz_attention_depth_curve.py",
+  "video_path": "videos/daily-omni/event_sequence/video.mp4",
+  "out_dir": "/data/armaan/purs/vizzing/all/depth_curve/daily-omni/event_sequence/q002"
+}

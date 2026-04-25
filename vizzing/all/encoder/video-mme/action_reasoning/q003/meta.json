@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Action Reasoning",
+  "duration_s": 86.4,
+  "file": "videos\\video-mme\\action_reasoning\\video.mp4",
+  "question_index": 3,
+  "question": "According to the video, which of the following is the main reason why people commemorate Qu Yuan?",
+  "choices": [
+    "A. Because people love Zongzi.",
+    "B. Because he committed suicide by drowing himself in Miluo River.",
+    "C. Because he brought peace and prosperity to the state.",
+    "D. Because he was exile."
+  ],
+  "answer": "C"
+}

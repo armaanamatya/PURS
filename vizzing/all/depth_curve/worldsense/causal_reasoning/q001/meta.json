@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Text and Diagram Understanding",
+  "duration_s": 42.83,
+  "file": "videos\\worldsense\\causal_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "What is the number on the rear wing of the red vehicle at the start of the video?",
+  "choices": [
+    "A. 56.",
+    "B. 50.",
+    "C. 58.",
+    "D. 59."
+  ],
+  "answer": "B"
+}

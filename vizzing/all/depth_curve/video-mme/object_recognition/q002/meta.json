@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Object Recognition",
+  "duration_s": 88.75,
+  "file": "videos\\video-mme\\object_recognition\\video.mp4",
+  "question_index": 2,
+  "question": "What is the video telling when the burger placed in the upper right corner at the end of the video first appears?",
+  "choices": [
+    "A. Beef with spices came from Russia to Germany.",
+    "B. The steak began to be sandwiched between two pieces of bread.",
+    "C. Steak burgers spread throughout the United States.",
+    "D. The standardization of hamburgers."
+  ],
+  "answer": "C"
+}

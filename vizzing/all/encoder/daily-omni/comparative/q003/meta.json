@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Comparative",
+  "duration_s": 70.84,
+  "file": "videos\\daily-omni\\comparative\\video.mp4",
+  "question_index": 3,
+  "question": "Which visual sequences correspond to the audio mentions of 'go on the equipment' versus 'familiar with the machines'?",
+  "choices": [
+    "A. First shows an excavator lifting dirt, second shows a dump truck driving through mud",
+    "B. First shows binder review in office, second shows tractor parked on site",
+    "C. First shows safety vest demonstration, second shows mountain landscape",
+    "D. First shows a bulldozer moving earth, second shows a water tank in background"
+  ],
+  "answer": "A"
+}

@@ -1,0 +1,25 @@
+nohup: ignoring input
+[resume] baseline temp=0.1 run=01
+[resume] baseline temp=0.1 run=02
+[resume] baseline temp=0.1 run=03
+[resume] baseline temp=0.1 run=04
+[resume] baseline temp=0.1 run=05
+[resume] baseline temp=0.1 run=06
+[resume] baseline temp=0.1 run=07
+[resume] baseline temp=0.1 run=08
+[resume] baseline temp=0.1 run=09
+[resume] baseline temp=0.1 run=10
+[resume] baseline temp=0.9 run=01
+[resume] baseline temp=0.9 run=02
+[resume] baseline temp=0.9 run=03
+[resume] baseline temp=0.9 run=04
+[resume] baseline temp=0.9 run=05
+[resume] baseline temp=0.9 run=06
+[resume] baseline temp=0.9 run=07
+[resume] baseline temp=0.9 run=08
+[resume] baseline temp=0.9 run=09
+[resume] baseline temp=0.9 run=10
+
+Wrote benchmark outputs to /data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv
+Completed 20 runs; failed or empty runs: 0
+Summary: /data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv/SUMMARY.md

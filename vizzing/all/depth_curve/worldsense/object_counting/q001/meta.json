@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Object Counting",
+  "duration_s": 36.44,
+  "file": "videos\\worldsense\\object_counting\\video.mp4",
+  "question_index": 1,
+  "question": "How many countries are mentioned in the video?",
+  "choices": [
+    "A. Three.",
+    "B. Five.",
+    "C. Four.",
+    "D. One."
+  ],
+  "answer": "C"
+}

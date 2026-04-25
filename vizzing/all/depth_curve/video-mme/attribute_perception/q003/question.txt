@@ -1,0 +1,7 @@
+Select the best answer to the following multiple-choice question based on the video and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option.
+Which color of clothes is QuYuan wearing in the video?
+A. White.
+B. Blue.
+C. Brown.
+D. Yellow.
+The best answer is:

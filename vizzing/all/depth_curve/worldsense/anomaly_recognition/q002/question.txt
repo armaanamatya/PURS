@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What unusual incident occurred during the competition shown in the video?
+A. A contestant was disqualified for staying underwater for too long.
+B. The competition was stopped midway.
+C. A spectator jumped into the water and disrupted the competition.
+D. A contestant committed a false start.

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Relation Reasoning",
+  "duration_s": 83.95,
+  "file": "videos\\worldsense\\relation_reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "What is the relationship between the one-armed monster in the video and the television on the wall?",
+  "choices": [
+    "A. The one-armed monster can interfere with the TV signal.",
+    "B. The TV lights turn on, causing the one-armed monster to appear.",
+    "C. The TV monitors the activities of the one-armed monster.",
+    "D. The one-armed monster draws energy from the television."
+  ],
+  "answer": "B"
+}

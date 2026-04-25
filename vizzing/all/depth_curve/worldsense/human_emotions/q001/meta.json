@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Attribute Recognition",
+  "duration_s": 48.83,
+  "file": "videos\\worldsense\\human_emotions\\video.mp4",
+  "question_index": 1,
+  "question": "What color is the last train that passed by?",
+  "choices": [
+    "A. Green.",
+    "B. Blue.",
+    "C. Red.",
+    "D. Yellow."
+  ],
+  "answer": "A"
+}

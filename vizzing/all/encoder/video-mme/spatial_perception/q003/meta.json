@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Perception",
+  "duration_s": 85.84,
+  "file": "videos\\video-mme\\spatial_perception\\video.mp4",
+  "question_index": 3,
+  "question": "In what direction does the video author draw the various financial institutions?",
+  "choices": [
+    "A. From left to right.",
+    "B. From right to left.",
+    "C. From bottom to top.",
+    "D. From top to bottom."
+  ],
+  "answer": "D"
+}

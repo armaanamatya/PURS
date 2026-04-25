@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Video Emotions",
+  "duration_s": 42.54,
+  "file": "videos\\worldsense\\attribute_recognition\\video.mp4",
+  "question_index": 1,
+  "question": "What is the overall atmosphere of the entire video?",
+  "choices": [
+    "A. Plain.",
+    "B. Lively.",
+    "C. Relaxed.",
+    "D. Tense."
+  ],
+  "answer": "D"
+}

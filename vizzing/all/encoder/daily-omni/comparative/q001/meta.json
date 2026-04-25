@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Comparative",
+  "duration_s": 70.84,
+  "file": "videos\\daily-omni\\comparative\\video.mp4",
+  "question_index": 1,
+  "question": "What is the primary distinction between Dr. Rajani's video analysis and Clare's presentation regarding the Revox product?",
+  "choices": [
+    "A. One explains its mechanism as a Botox alternative, the other details cost and availability",
+    "B. One demonstrates application steps, the other chemical composition",
+    "C. One uses clinical before/after visuals, the third-party product endorsements",
+    "D. One features medical professional testimonials, the other consumer demographics"
+  ],
+  "answer": "A"
+}

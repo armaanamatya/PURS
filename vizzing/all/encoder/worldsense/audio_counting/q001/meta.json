@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Audio Counting",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_counting\\video.mp4",
+  "question_index": 1,
+  "question": "How many times does the woman's voice appear in the video?",
+  "choices": [
+    "A. One.",
+    "B. Two.",
+    "C. Four.",
+    "D. Three."
+  ],
+  "answer": "B"
+}

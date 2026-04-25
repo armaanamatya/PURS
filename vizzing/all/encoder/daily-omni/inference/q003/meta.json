@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Inference",
+  "duration_s": 39.98,
+  "file": "videos\\daily-omni\\inference\\video.mp4",
+  "question_index": 3,
+  "question": "What combination of auditory and visual evidence best characterizes Kerry's professional setting?",
+  "choices": [
+    "A. A podcast studio with soundproofing panels",
+    "B. An academic lecture hall with student desks",
+    "C. An active daycare center during playtime",
+    "D. A vocational training environment with educational toys"
+  ],
+  "answer": "D"
+}

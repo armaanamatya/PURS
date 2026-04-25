@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Hallucination",
+  "duration_s": 36.34,
+  "file": "videos\\worldsense\\hallucination\\video.mp4",
+  "question_index": 2,
+  "question": "How many times did the woman swing on the swing in the video?",
+  "choices": [
+    "A. Three.",
+    "B. I don't know",
+    "C. Two.",
+    "D. One."
+  ],
+  "answer": "B"
+}

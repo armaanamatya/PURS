@@ -1,0 +1,45 @@
+/data/armaan/venvs/omnizip_clean/bin/python /data/armaan/purs/viz_attention_encoders.py --video_path videos/daily-omni/context_understanding/video.mp4 --question Listen and watch the video carefully. Select the best answer to the following multiple-choice question. Respond with only the letter (A, B, C, or D) of the correct option.
+What specific visual elements were present when Sara mentioned 'email Anderson'?
+A. Indoor office with binder and whiteboard
+B. Dirt field with construction equipment and trees
+C. Excavator actively lifting dirt
+D. Yellow bulldozer parked in foreground
+The best answer is: --model_path /data/armaan/models/Qwen2.5-Omni-7B --out_dir /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002 --fps 0.5 --max_pixels 151200 --max_frames 48
+
+Unrecognized keys in `rope_scaling` for 'rope_type'='default': {'mrope_section'}
+Qwen2_5OmniToken2WavModel does not support eager attention implementation, fall back to sdpa
+Loading Qwen2.5-Omni-7B with eager attention …
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:02<00:08,  2.23s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:03<00:05,  1.82s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:04<00:03,  1.53s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:06<00:01,  1.50s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:07<00:00,  1.28s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:07<00:00,  1.46s/it]
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+qwen-vl-utils using decord to read video.
+The given max_pixels[151200] exceeds limit[105369].
+Unused or unrecognized kwargs: images, return_tensors.
+Registered 32 audio encoder attention hooks
+Registered 32 vision encoder attention hooks
+Video frames sampled: 44
+Running forward pass (hooks active on encoders) …
+Captured audio encoder attention:  32 layers
+Captured vision encoder attention: 32 layers
+
+Audio encoder sequence length: 4492
+Saved → /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/1_audio_encoder_entropy.png
+Saved → /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/2_audio_encoder_heatmaps.png
+
+Vision encoder sequence length: 12672
+Saved → /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/3_vision_encoder_entropy.png
+Saved → /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/4_vision_encoder_heatmaps.png
+Saved → /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/5_encoder_entropy_comparison.png
+
+All encoder visualizations saved to: /data/armaan/purs/vizzing/all/encoder/daily-omni/context_understanding/q002/
+  1_audio_encoder_entropy.png
+  2_audio_encoder_heatmaps.png
+  3_vision_encoder_entropy.png
+  4_vision_encoder_heatmaps.png
+  5_encoder_entropy_comparison.png
+  meta.json
+  question.txt
+  run.log

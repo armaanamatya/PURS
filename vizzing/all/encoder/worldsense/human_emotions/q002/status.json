@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "kind": "encoder",
+  "script": "viz_attention_encoders.py",
+  "video_path": "videos/worldsense/human_emotions/video.mp4",
+  "out_dir": "/data/armaan/purs/vizzing/all/encoder/worldsense/human_emotions/q002"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Object State Change",
+  "duration_s": 79.88,
+  "file": "videos\\worldsense\\object_state_change\\video.mp4",
+  "question_index": 3,
+  "question": "What change occurs when the power probe is placed on the car's fuel pump in the video?",
+  "choices": [
+    "A. There is no change.",
+    "B. The light changes from off to green.",
+    "C. The light changes from green to red.",
+    "D. The light changes from off to red."
+  ],
+  "answer": "B"
+}

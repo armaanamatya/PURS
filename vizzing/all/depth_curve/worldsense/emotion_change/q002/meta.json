@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Scene Recognition",
+  "duration_s": 76.01,
+  "file": "videos\\worldsense\\emotion_change\\video.mp4",
+  "question_index": 2,
+  "question": "Where does the scene of the baby alpaca playing with toys in the video take place?",
+  "choices": [
+    "A. In a clothing store.",
+    "B. In a milk tea shop.",
+    "C. In a supermarket.",
+    "D. In a breakfast shop."
+  ],
+  "answer": "C"
+}

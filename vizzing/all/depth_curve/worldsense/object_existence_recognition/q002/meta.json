@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Action Counting",
+  "duration_s": 87.28,
+  "file": "videos\\worldsense\\object_existence_recognition\\video.mp4",
+  "question_index": 2,
+  "question": "How many times does the woman fold the fabric in the video to create a trapezoid?",
+  "choices": [
+    "A. Two.",
+    "B. Three.",
+    "C. One.",
+    "D. Four."
+  ],
+  "answer": "B"
+}

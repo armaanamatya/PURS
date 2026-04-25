@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Event Sorting",
+  "duration_s": 79.04,
+  "file": "videos\\worldsense\\event_sorting\\video.mp4",
+  "question_index": 2,
+  "question": "What is the process followed by the security officer after discovering a firearm?",
+  "choices": [
+    "A. Open and search the bag, alert authorities, and then call the supervisor.",
+    "B. Alert authorities, call the supervisor, and then open and search the bag.",
+    "C. Call the supervisor, alert authorities, and then open and search the bag.",
+    "D. Open and search the bag, call the supervisor, and then alert authorities."
+  ],
+  "answer": "C"
+}

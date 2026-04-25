@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "kind": "encoder",
+  "script": "viz_attention_encoders.py",
+  "video_path": "videos/worldsense/relation_reasoning/video.mp4",
+  "out_dir": "/data/armaan/purs/vizzing/all/encoder/worldsense/relation_reasoning/q003"
+}

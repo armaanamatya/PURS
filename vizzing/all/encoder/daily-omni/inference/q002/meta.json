@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Inference",
+  "duration_s": 39.98,
+  "file": "videos\\daily-omni\\inference\\video.mp4",
+  "question_index": 2,
+  "question": "What is the purpose of the hand pointing to the doorbell in the demonstration?",
+  "choices": [
+    "A. To demonstrate wireless connectivity",
+    "B. To show the doorbell meets voltage specifications",
+    "C. To indicate completion of physical mounting",
+    "D. To explain post-installation functionality"
+  ],
+  "answer": "D"
+}

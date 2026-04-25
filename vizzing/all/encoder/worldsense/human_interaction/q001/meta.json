@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Human Interaction",
+  "duration_s": 37.56,
+  "file": "videos\\worldsense\\human_interaction\\video.mp4",
+  "question_index": 1,
+  "question": "What does the man do to the woman in black on the shelf later in the video?",
+  "choices": [
+    "A. The man in a fur-lined coat attempts to push the woman in black down.",
+    "B. The man with white hair attempts to dismantle the shelf to make the woman fall.",
+    "C. The man wearing a watch attempts to take the woman in black down.",
+    "D. The man with an orange wrist guard attempts to attack the woman in black."
+  ],
+  "answer": "C"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Action Reasoning",
+  "duration_s": 86.4,
+  "file": "videos\\video-mme\\action_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "Which of the following reasons motivated the archaeologists to excavate the tomb?",
+  "choices": [
+    "A. Because it's from Ming Dynasty and of specific archaeological significance.",
+    "B. Because a new railway line will be built nearby.",
+    "C. Because there were treasures inside the tomb.",
+    "D. Highway realignment."
+  ],
+  "answer": "D"
+}

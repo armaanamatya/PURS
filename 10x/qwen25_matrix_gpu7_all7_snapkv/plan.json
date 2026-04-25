@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-04-15T13:23:11",
+  "output_root": "/data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv",
+  "gpus": [
+    "7"
+  ],
+  "methods": [
+    "mixkv"
+  ],
+  "temperatures": [
+    0.1,
+    0.9
+  ],
+  "runs": 10,
+  "total_jobs": 20,
+  "args": {
+    "metadata": "videos/metadata.json",
+    "videos": "videos",
+    "output_root": "/data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv",
+    "methods": "mixkv",
+    "temperatures": "0.1,0.9",
+    "runs": 10,
+    "seed_base": 20260415,
+    "python": "/data/armaan/venvs/omnizip_clean/bin/python",
+    "gpus": "7",
+    "min_free_gb": 30.0,
+    "parallel": 1,
+    "gpu_sample_interval": 1.0,
+    "resume": true,
+    "dry_run": false,
+    "fps": 2.0,
+    "max_pixels": 100352,
+    "max_frames_videomme": 768,
+    "max_frames_other": 128,
+    "max_new_tokens": 256,
+    "dtype": "bfloat16",
+    "category": null,
+    "no_audio": false,
+    "measure_prefill": true,
+    "extra_eval_args": [],
+    "qwen_model": "/data/armaan/models/Qwen2.5-Omni-7B",
+    "gptq_model": null,
+    "awq_model": null,
+    "rho_audio": 0.3,
+    "rho_video": 0.6,
+    "omnizip_g": 3,
+    "contextual_ratio": 0.05,
+    "divprune_subset_ratio": 0.5,
+    "divprune_prune_mode": "frame",
+    "mixkv_budget": 256,
+    "mixkv_window_size": 32,
+    "mixkv_select_method": "snapkv",
+    "mixkv_head_score_path": null,
+    "rediprune_subset_ratio": 0.5,
+    "rediprune_prune_mode": "frame",
+    "rediprune_alpha": 0.5,
+    "rediprune_tau": 0.0
+  }
+}

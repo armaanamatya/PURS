@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Audio Recognition",
+  "duration_s": 83.95,
+  "file": "videos\\worldsense\\relation_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "Are there any gunshots in the video?",
+  "choices": [
+    "A. No.",
+    "B. Yes.",
+    "C. None.",
+    "D. I am not sure."
+  ],
+  "answer": "B"
+}

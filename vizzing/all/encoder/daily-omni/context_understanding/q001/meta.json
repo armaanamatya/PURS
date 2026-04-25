@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Context understanding",
+  "duration_s": 89.84,
+  "file": "videos\\daily-omni\\context_understanding\\video.mp4",
+  "question_index": 1,
+  "question": "During which visual context did the team discuss irreversible actions?",
+  "choices": [
+    "A. Near consoles featuring circular emblems",
+    "B. In a densely packed control room section",
+    "C. During initial system checks with static noise",
+    "D. While observing Earth orbit procedures"
+  ],
+  "answer": "A"
+}

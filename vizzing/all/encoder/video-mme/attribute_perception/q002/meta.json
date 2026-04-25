@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Attribute Perception",
+  "duration_s": 76.72,
+  "file": "videos\\video-mme\\attribute_perception\\video.mp4",
+  "question_index": 2,
+  "question": "In the video, what color pen did the author use when he wrote \"guitar\" for the second time?",
+  "choices": [
+    "A. Brown.",
+    "B. Blue.",
+    "C. Black.",
+    "D. Pink."
+  ],
+  "answer": "D"
+}

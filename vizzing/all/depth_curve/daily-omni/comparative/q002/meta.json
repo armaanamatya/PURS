@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Comparative",
+  "duration_s": 70.84,
+  "file": "videos\\daily-omni\\comparative\\video.mp4",
+  "question_index": 2,
+  "question": "How does the background differ when Kerry discusses 'level two/three qualifications' versus 'after-school clubs'?",
+  "choices": [
+    "A. Shelf toys change to educational books",
+    "B. No visible difference",
+    "C. Background becomes blurred",
+    "D. Presence of a blue identification banner"
+  ],
+  "answer": "C"
+}

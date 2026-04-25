@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Perception",
+  "duration_s": 85.84,
+  "file": "videos\\video-mme\\spatial_perception\\video.mp4",
+  "question_index": 1,
+  "question": "Which of the following is visible in the background of the video when the miniature bottle is shown empty?",
+  "choices": [
+    "A. Water.",
+    "B. Cork.",
+    "C. Shells.",
+    "D. Star."
+  ],
+  "answer": "C"
+}

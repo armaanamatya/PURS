@@ -1,0 +1,7 @@
+Select the best answer to the following multiple-choice question based on the video and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option.
+What is the genre of this video?
+A. It is a news report that introduces the history behind Christmas decorations.
+B. It is a documentary on the evolution of Christmas holiday recipes.
+C. It is a travel vlog exploring Christmas markets around the world.
+D. It is a tutorial on DIY Christmas ornament crafting.
+The best answer is:

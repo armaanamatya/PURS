@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Attribute Perception",
+  "duration_s": 76.72,
+  "file": "videos\\video-mme\\attribute_perception\\video.mp4",
+  "question_index": 3,
+  "question": "Which color of clothes is QuYuan wearing in the video?",
+  "choices": [
+    "A. White.",
+    "B. Blue.",
+    "C. Brown.",
+    "D. Yellow."
+  ],
+  "answer": "A"
+}

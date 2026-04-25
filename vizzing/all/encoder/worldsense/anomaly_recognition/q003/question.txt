@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+Who is the final champion of this match?
+A. Pontus.
+B. Hill Taylor.
+C. Da Silva.
+D. Tommy Sacco.

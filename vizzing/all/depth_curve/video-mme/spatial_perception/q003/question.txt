@@ -1,0 +1,7 @@
+Select the best answer to the following multiple-choice question based on the video and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option.
+In what direction does the video author draw the various financial institutions?
+A. From left to right.
+B. From right to left.
+C. From bottom to top.
+D. From top to bottom.
+The best answer is:

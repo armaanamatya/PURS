@@ -1,0 +1,46 @@
+/data/armaan/venvs/omnizip_clean/bin/python /data/armaan/purs/viz_attention_encoders.py --video_path videos/worldsense/action_counting/video.mp4 --question Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+Are there any gunshots in the video?
+A. No.
+B. Yes.
+C. None.
+D. I am not sure.
+ --model_path /data/armaan/models/Qwen2.5-Omni-7B --out_dir /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001 --fps 0.5 --max_pixels 151200 --max_frames 48
+
+Unrecognized keys in `rope_scaling` for 'rope_type'='default': {'mrope_section'}
+Qwen2_5OmniToken2WavModel does not support eager attention implementation, fall back to sdpa
+Loading Qwen2.5-Omni-7B with eager attention …
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:01<00:05,  1.46s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:02<00:03,  1.10s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:03<00:01,  1.01it/s]Loading checkpoint shards:  80%|████████  | 4/5 [00:04<00:00,  1.07it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:04<00:00,  1.24it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:04<00:00,  1.09it/s]
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+qwen-vl-utils using decord to read video.
+The given max_pixels[151200] exceeds limit[105369].
+Unused or unrecognized kwargs: images, return_tensors.
+Registered 32 audio encoder attention hooks
+Registered 32 vision encoder attention hooks
+Video frames sampled: 20
+Running forward pass (hooks active on encoders) …
+Captured audio encoder attention:  32 layers
+Captured vision encoder attention: 32 layers
+
+Audio encoder sequence length: 2050
+Saved → /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/1_audio_encoder_entropy.png
+Saved → /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/2_audio_encoder_heatmaps.png
+
+Vision encoder sequence length: 5760
+Saved → /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/3_vision_encoder_entropy.png
+Saved → /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/4_vision_encoder_heatmaps.png
+Saved → /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/5_encoder_entropy_comparison.png
+
+All encoder visualizations saved to: /data/armaan/purs/vizzing/all/encoder/worldsense/action_counting/q001/
+  1_audio_encoder_entropy.png
+  2_audio_encoder_heatmaps.png
+  3_vision_encoder_entropy.png
+  4_vision_encoder_heatmaps.png
+  5_encoder_entropy_comparison.png
+  meta.json
+  question.txt
+  run.log

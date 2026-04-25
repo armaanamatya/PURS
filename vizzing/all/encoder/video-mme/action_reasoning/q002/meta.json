@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Action Reasoning",
+  "duration_s": 86.4,
+  "file": "videos\\video-mme\\action_reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "What's the trigger that set off the war mentioned in the video?",
+  "choices": [
+    "A. Militarisim.",
+    "B. The assasination of Archduke Franze Fredinand.",
+    "C. King Edward III of England's claim to the French throne.",
+    "D. Germany's blitzkrieg against Poland."
+  ],
+  "answer": "B"
+}

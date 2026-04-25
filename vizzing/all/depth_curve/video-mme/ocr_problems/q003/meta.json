@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "OCR Problems",
+  "duration_s": 30.91,
+  "file": "videos\\video-mme\\ocr_problems\\video.mp4",
+  "question_index": 3,
+  "question": "According to the video, how long should one wait before cracking the same knuckle again?",
+  "choices": [
+    "A. About 25 minutes.",
+    "B. About 20 minutes.",
+    "C. About 15 minutes.",
+    "D. About 23 minutes."
+  ],
+  "answer": "B"
+}

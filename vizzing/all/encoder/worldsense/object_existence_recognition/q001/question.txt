@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What is the correct order for cutting the angled fabric strip as demonstrated in the video?
+A. Unfold the folded fabric and trim the uneven edges, fold the rectangular fabric at a 45-degree angle, continue folding the fabric, cut a 2-inch-wide fabric strip, and demonstrate how to trim the angled ends and sew the strips at right angles.
+B. Cut a 2-inch-wide fabric strip, unfold the folded fabric and trim the uneven edges, continue folding the fabric, fold the rectangular fabric at a 45-degree angle, and demonstrate how to trim the angled ends and sew the strips at right angles.
+C. Fold the rectangular fabric at a 45-degree angle, continue folding the fabric, unfold and trim the uneven edges, cut a 2-inch-wide fabric strip, and demonstrate how to trim the angled ends and sew the strips at right angles.
+D. Unfold the fabric and trim the uneven edges, continue folding the fabric, cut a 2-inch-wide fabric strip, fold the rectangular fabric at a 45-degree angle, and demonstrate how to trim the angled ends and sew the strips at right angles.

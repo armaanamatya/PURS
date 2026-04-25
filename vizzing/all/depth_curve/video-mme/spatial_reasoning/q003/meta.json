@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Reasoning",
+  "duration_s": 80.41,
+  "file": "videos\\video-mme\\spatial_reasoning\\video.mp4",
+  "question_index": 3,
+  "question": "What is the most likely cause of the disaster in the video?",
+  "choices": [
+    "A. Warfare.",
+    "B. Meteorite attack.",
+    "C. Lunar impact.",
+    "D. Alien attack."
+  ],
+  "answer": "C"
+}

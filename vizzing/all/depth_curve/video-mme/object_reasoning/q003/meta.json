@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Object Reasoning",
+  "duration_s": 70.17,
+  "file": "videos\\video-mme\\object_reasoning\\video.mp4",
+  "question_index": 3,
+  "question": "Based on the information provided by the video, which of the following statements is not correct?",
+  "choices": [
+    "A. The painting got more expensive because it shredded.",
+    "B. The buyer put a shredder inside the painting many years ago.",
+    "C. People in the auction house were stunned when the painting shredded.",
+    "D. Banksky considered the shredding of painting is part of art."
+  ],
+  "answer": "B"
+}

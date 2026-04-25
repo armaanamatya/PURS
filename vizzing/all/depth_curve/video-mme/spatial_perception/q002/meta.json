@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Perception",
+  "duration_s": 85.84,
+  "file": "videos\\video-mme\\spatial_perception\\video.mp4",
+  "question_index": 2,
+  "question": "Based on the information provided by the video, where is the best spot for tourists to take aerial photos of the sculpture mentioned in the video?",
+  "choices": [
+    "A. At her feet.",
+    "B. At her crown.",
+    "C. Taken from the sea in the distance.",
+    "D. At her neck."
+  ],
+  "answer": "B"
+}

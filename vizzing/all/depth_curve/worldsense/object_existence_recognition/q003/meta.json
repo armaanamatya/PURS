@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Spatial Relation",
+  "duration_s": 87.28,
+  "file": "videos\\worldsense\\object_existence_recognition\\video.mp4",
+  "question_index": 3,
+  "question": "What is the position of the purple fabric relative to the woman in the video?",
+  "choices": [
+    "A. Behind.",
+    "B. In front.",
+    "C. On the left.",
+    "D. On the right."
+  ],
+  "answer": "D"
+}

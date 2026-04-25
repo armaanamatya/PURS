@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Counting Problem",
+  "duration_s": 74.37,
+  "file": "videos\\video-mme\\counting_problem\\video.mp4",
+  "question_index": 1,
+  "question": "When demonstrating the Germany modern Christmas tree is initially decorated with apples, candles and berries, which kind of the decoration has the largest number?",
+  "choices": [
+    "A. Apples.",
+    "B. Candles.",
+    "C. Berries.",
+    "D. The three kinds are of the same number."
+  ],
+  "answer": "C"
+}

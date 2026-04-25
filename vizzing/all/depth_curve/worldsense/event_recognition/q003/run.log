@@ -1,0 +1,45 @@
+/data/armaan/venvs/omnizip_clean/bin/python /data/armaan/purs/viz_attention_depth_curve.py --video_path videos/worldsense/event_recognition/video.mp4 --question Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What did the police officer do after confirming there was a gun in the bag in the video?
+A. Escort the woman away.
+B. Speak with the woman to provide education.
+C. Confiscate the gun.
+D. Detain the woman.
+ --model_path /data/armaan/models/Qwen2.5-Omni-7B --out_dir /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003 --fps 0.5 --max_pixels 151200 --max_frames 48
+
+Unrecognized keys in `rope_scaling` for 'rope_type'='default': {'mrope_section'}
+Qwen2_5OmniToken2WavModel does not support eager attention implementation, fall back to sdpa
+Loading Qwen2.5-Omni-7B with eager attention …
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|██        | 1/5 [00:01<00:06,  1.62s/it]Loading checkpoint shards:  40%|████      | 2/5 [00:02<00:03,  1.27s/it]Loading checkpoint shards:  60%|██████    | 3/5 [00:03<00:02,  1.14s/it]Loading checkpoint shards:  80%|████████  | 4/5 [00:04<00:01,  1.09s/it]Loading checkpoint shards: 100%|██████████| 5/5 [00:05<00:00,  1.13it/s]Loading checkpoint shards: 100%|██████████| 5/5 [00:05<00:00,  1.03s/it]
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+qwen-vl-utils using decord to read video.
+The given max_pixels[151200] exceeds limit[105369].
+Unused or unrecognized kwargs: images, return_tensors.
+Video frames sampled: 24
+Sequence length : 3197
+  Audio tokens  : 1292
+  Video tokens  : 1728
+  Text tokens   : 177
+Running forward pass (streaming compact stats across all 28 layers) ...
+Captured compact attention stats for 28 layers
+Using streamed cross-modal attention statistics ...
+Saved → /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/1_crossmodal_attention_curves.png
+Saved → /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/2_self_vs_cross_attention.png
+Using streamed attention Gini coefficients ...
+Saved → /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/3_attention_gini_depth.png
+Saved → /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/4_crossmodal_heatmap.png
+Saved → /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/5_last_token_attention_depth.png
+
+All depth-curve visualizations saved to: /data/armaan/purs/vizzing/all/depth_curve/worldsense/event_recognition/q003/
+  1_crossmodal_attention_curves.png
+  2_self_vs_cross_attention.png
+  3_attention_gini_depth.png
+  4_crossmodal_heatmap.png
+  5_last_token_attention_depth.png
+  meta.json
+  question.txt
+  run.log

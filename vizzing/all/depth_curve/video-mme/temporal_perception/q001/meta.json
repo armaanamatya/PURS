@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Perception",
+  "duration_s": 52.94,
+  "file": "videos\\video-mme\\temporal_perception\\video.mp4",
+  "question_index": 1,
+  "question": "According to the video, which of the following is considered the earliest stage of human evolution?",
+  "choices": [
+    "A. Ramapithecus.",
+    "B. Dryopithecus.",
+    "C. Ardipithecus Ramidus.",
+    "D. Homo Sapiens."
+  ],
+  "answer": "B"
+}

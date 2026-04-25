@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "AV Event Alignment",
+  "duration_s": 60.0,
+  "file": "videos\\daily-omni\\av_event_alignment\\video.mp4",
+  "question_index": 1,
+  "question": "At the moment the static shot of Obsidian Fury first appeared, which specific audio event was synchronized with it?",
+  "choices": [
+    "A. Speaker's self-introduction and figure presentation",
+    "B. Reference to avoiding plot spoilers",
+    "C. Logo transition sound effect",
+    "D. Analysis of combat sequences"
+  ],
+  "answer": "A"
+}

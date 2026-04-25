@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Attribute Reasoning",
+  "duration_s": 42.83,
+  "file": "videos\\worldsense\\causal_reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "Which car is driven by the girl with yellow hair and black eyes?",
+  "choices": [
+    "A. A vehicle with a blue body and a white cockpit.",
+    "B. A vehicle with a black body and a white cockpit.",
+    "C. A vehicle with a yellow body.",
+    "D. A vehicle with a red body."
+  ],
+  "answer": "B"
+}

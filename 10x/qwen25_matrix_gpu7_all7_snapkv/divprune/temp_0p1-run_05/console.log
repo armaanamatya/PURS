@@ -1,0 +1,140 @@
+
+============================================================
+RUN (DivPrune): 2026-04-15 11:15:53
+============================================================
+Loaded 44 entries
+Running 44 entries with DivPrune (frame, ratio=0.5); temperature=0.1; seed=20260420
+
+Loading model from /data/armaan/models/Qwen2.5-Omni-7B (dtype=bfloat16) ...
+Model loaded. VRAM: 16.6 GB allocated, 20.9 GB reserved
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=A ans=D frames=110->55
+  [✓] video-mme/Action Reasoning [Action Reasoning] pred=B ans=B frames=110->55
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=B ans=C frames=110->55
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A frames=110->55
+  [✗] video-mme/Action Recognition [Action Recognition] pred=C ans=D frames=110->55
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A frames=110->55
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=C frames=110->55
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=D frames=110->55
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=C ans=A frames=110->55
+  [✗] video-mme/Counting Problem [Counting Problem] pred=B ans=C frames=110->55
+  [✗] video-mme/Counting Problem [Counting Problem] pred=C ans=D frames=110->55
+  [✓] video-mme/Counting Problem [Counting Problem] pred=B ans=B frames=110->55
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=D ans=A frames=110->55
+  [✓] video-mme/Information Synopsis [Information Synopsis] pred=A ans=A frames=110->55
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=B ans=C frames=110->55
+  [✓] video-mme/OCR Problems [OCR Problems] pred=A ans=A frames=110->55
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=C frames=110->55
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=B frames=110->55
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=C ans=D frames=110->55
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=B ans=D frames=110->55
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=A ans=B frames=110->55
+  [✗] video-mme/Object Recognition [Object Recognition] pred=A ans=C frames=110->55
+  [✗] video-mme/Object Recognition [Object Recognition] pred=D ans=C frames=110->55
+  [✗] video-mme/Object Recognition [Object Recognition] pred=C ans=B frames=110->55
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=B ans=C frames=110->55
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=C ans=B frames=110->55
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=A ans=D frames=110->55
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=A ans=D frames=110->55
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=C ans=B frames=110->55
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=A ans=C frames=110->55
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=C ans=B frames=110->55
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=D ans=A frames=110->55
+  [✓] video-mme/Temporal Perception [Temporal Perception] pred=B ans=B frames=110->55
+  [✓] video-mme/Temporal Reasoning [Temporal Reasoning] pred=A ans=A frames=110->55
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=B ans=D frames=110->55
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=B ans=C frames=110->55
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=C ans=A frames=110->55
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=C ans=D frames=110->55
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=B ans=D frames=110->55
+  [✓] daily-omni/Comparative [Comparative] pred=A ans=A frames=110->55
+  [✗] daily-omni/Comparative [Comparative] pred=B ans=C frames=110->55
+  [✓] daily-omni/Comparative [Comparative] pred=A ans=A frames=110->55
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=A frames=110->55
+  [✗] daily-omni/Context understanding [Context understanding] pred=A ans=B frames=110->55
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=D frames=110->55
+  [✓] daily-omni/Event Sequence [Event Sequence] pred=B ans=B frames=110->55
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=C ans=B frames=110->55
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=A ans=B frames=110->55
+  [✗] daily-omni/Inference [Inference] pred=C ans=D frames=110->55
+  [✗] daily-omni/Inference [Inference] pred=C ans=D frames=110->55
+  [✗] daily-omni/Inference [Inference] pred=A ans=D frames=110->55
+  [✗] daily-omni/Reasoning [Reasoning] pred=C ans=D frames=110->55
+  [✗] daily-omni/Reasoning [Reasoning] pred=B ans=A frames=110->55
+  [✗] daily-omni/Reasoning [Reasoning] pred=B ans=C frames=110->55
+  [✗] worldsense/Action Counting [Audio Recognition] pred=A ans=B frames=110->55
+  [✓] worldsense/Action Counting [Relation Reasoning] pred=B ans=B frames=110->55
+  [✗] worldsense/Action Counting [Action Counting] pred=D ans=C frames=110->55
+  [✗] worldsense/Anomaly Recognition [Text and Diagram Understanding] pred=B ans=D frames=110->55
+  [✗] worldsense/Anomaly Recognition [Anomaly Recognition] pred=D ans=A frames=110->55
+  [✗] worldsense/Anomaly Recognition [Event Recognition] pred=D ans=A frames=110->55
+  [✓] worldsense/Attribute Reasoning [Attribute Reasoning] pred=B ans=B frames=110->55
+  [✗] worldsense/Attribute Recognition [Video Emotions] pred=B ans=D frames=110->55
+  [✗] worldsense/Attribute Recognition [Event Sorting] pred=B ans=C frames=110->55
+  [✗] worldsense/Attribute Recognition [Event Recognition] pred=C ans=A frames=110->55
+  [✗] worldsense/Attribute Recognition [Attribute Recognition] pred=B ans=C frames=110->55
+  [✓] worldsense/Audio Change [Audio Change] pred=B ans=B frames=110->55
+  [✗] worldsense/Audio Change [Temporal Localization] pred=C ans=D frames=110->55
+  [✗] worldsense/Audio Counting [Audio Counting] pred=A ans=B frames=110->55
+  [✗] worldsense/Audio Recognition [Audio Recognition] pred=B ans=D frames=110->55
+  [✗] worldsense/Audio Recognition [Human-object Interaction] pred=A ans=C frames=110->55
+  [✗] worldsense/Audio Source Localization [Audio Source Localization] pred=C ans=B frames=110->55
+  [✗] worldsense/Audio Source Localization [Video Emotions] pred=B ans=D frames=110->55
+  [✗] worldsense/Causal Reasoning [Text and Diagram Understanding] pred=C ans=B frames=110->55
+  [✓] worldsense/Causal Reasoning [Attribute Reasoning] pred=B ans=B frames=110->55
+  [✓] worldsense/Causal Reasoning [Causal Reasoning] pred=B ans=B frames=110->55
+  [✗] worldsense/Emotion Change [Emotion Change] pred=A ans=C frames=110->55
+  [✗] worldsense/Emotion Change [Scene Recognition] pred=B ans=C frames=110->55
+  [✗] worldsense/Event Recognition [Video Emotions] pred=B ans=D frames=110->55
+  [✗] worldsense/Event Recognition [Event Sorting] pred=B ans=C frames=110->55
+  [✗] worldsense/Event Recognition [Event Recognition] pred=C ans=A frames=110->55
+  [✗] worldsense/Event Recognition [Attribute Recognition] pred=B ans=C frames=110->55
+  [✗] worldsense/Event Sorting [Video Emotions] pred=B ans=D frames=110->55
+  [✗] worldsense/Event Sorting [Event Sorting] pred=B ans=C frames=110->55
+  [✗] worldsense/Event Sorting [Event Recognition] pred=C ans=A frames=110->55
+  [✗] worldsense/Event Sorting [Attribute Recognition] pred=B ans=C frames=110->55
+  [✗] worldsense/Hallucination [Attribute Recognition] pred=C ans=D frames=110->55
+  [✓] worldsense/Hallucination [Hallucination] pred=B ans=B frames=110->55
+  [✗] worldsense/Hallucination [Event Sorting] pred=D ans=A frames=110->55
+  [✗] worldsense/Human Emotions [Attribute Recognition] pred=B ans=A frames=110->55
+  [✗] worldsense/Human Emotions [Human Emotions] pred=A ans=B frames=110->55
+  [✓] worldsense/Human Interaction [Human Interaction] pred=C ans=C frames=110->55
+  [✗] worldsense/Human-object Interaction [Audio Recognition] pred=B ans=D frames=110->55
+  [✗] worldsense/Human-object Interaction [Human-object Interaction] pred=A ans=C frames=110->55
+  [✗] worldsense/Object Counting [Object Counting] pred=D ans=C frames=110->55
+  [✓] worldsense/Object Existence Recognition [Event Sorting] pred=C ans=C frames=110->55
+  [✗] worldsense/Object Existence Recognition [Action Counting] pred=A ans=B frames=110->55
+  [✗] worldsense/Object Existence Recognition [Spatial Relation] pred=A ans=D frames=110->55
+  [✗] worldsense/Object Existence Recognition [Object Existence Recognition] pred=C ans=B frames=110->55
+  [✓] worldsense/Object State Change [Scene Recognition] pred=C ans=C frames=110->55
+  [✓] worldsense/Object State Change [Event Sorting] pred=B ans=B frames=110->55
+  [✗] worldsense/Object State Change [Object State Change] pred=D ans=B frames=110->55
+  [✗] worldsense/Relation Reasoning [Audio Recognition] pred=A ans=B frames=110->55
+  [✓] worldsense/Relation Reasoning [Relation Reasoning] pred=B ans=B frames=110->55
+  [✗] worldsense/Relation Reasoning [Action Counting] pred=D ans=C frames=110->55
+  [✗] worldsense/Scene Recognition [Emotion Change] pred=A ans=C frames=110->55
+  [✗] worldsense/Scene Recognition [Scene Recognition] pred=B ans=C frames=110->55
+  [✗] worldsense/Spatial Relation [Spatial Relation] pred=D ans=B frames=110->55
+  [✓] worldsense/Temporal Localization [Audio Change] pred=B ans=B frames=110->55
+  [✗] worldsense/Temporal Localization [Temporal Localization] pred=C ans=D frames=110->55
+  [✗] worldsense/Temporal Prediction [Temporal Prediction] pred=B ans=C frames=110->55
+  [✓] worldsense/Temporal Prediction [Event Sorting] pred=B ans=B frames=110->55
+  [✗] worldsense/Text and Diagram Understanding [Text and Diagram Understanding] pred=C ans=B frames=110->55
+  [✓] worldsense/Text and Diagram Understanding [Attribute Reasoning] pred=B ans=B frames=110->55
+  [✓] worldsense/Text and Diagram Understanding [Causal Reasoning] pred=B ans=B frames=110->55
+  [✗] worldsense/Video Emotions [Video Emotions] pred=B ans=D frames=110->55
+  [✗] worldsense/Video Emotions [Event Sorting] pred=B ans=C frames=110->55
+  [✗] worldsense/Video Emotions [Event Recognition] pred=C ans=A frames=110->55
+  [✗] worldsense/Video Emotions [Attribute Recognition] pred=B ans=C frames=110->55
+
+==================================================
+Model: qwen2.5-omni + DivPrune (frame)
+Subset ratio: 0.5 | Effective frame ratio: 50.00%
+Total frames: 12980 -> 6490
+Accuracy: 24/118 = 20.34%
+Skipped (no video): 0
+Results: /data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv/divprune/temp_0p1-run_05/results.jsonl
+
+Per-dataset:
+  daily-omni           3/18 = 16.67%
+  video-mme            6/36 = 16.67%
+  worldsense           15/64 = 23.44%

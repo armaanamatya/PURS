@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Scene Recognition",
+  "duration_s": 79.88,
+  "file": "videos\\worldsense\\object_state_change\\video.mp4",
+  "question_index": 1,
+  "question": "Where does the scene at the beginning of the video take place?",
+  "choices": [
+    "A. Electric vehicle garage.",
+    "B. Motorcycle garage.",
+    "C. Car garage.",
+    "D. Airplane hangar."
+  ],
+  "answer": "C"
+}

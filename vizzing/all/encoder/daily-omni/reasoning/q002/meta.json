@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Reasoning",
+  "duration_s": 55.98,
+  "file": "videos\\daily-omni\\reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "What specific action at the supermarket provoked the woman's confrontation?",
+  "choices": [
+    "A. The man publicly embraced another woman",
+    "B. The man forgot to pay for their groceries",
+    "C. The man argued loudly with a cashier",
+    "D. The man criticized her shopping choices"
+  ],
+  "answer": "A"
+}

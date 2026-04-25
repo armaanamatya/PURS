@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "AV Event Alignment",
+  "duration_s": 60.0,
+  "file": "videos\\daily-omni\\av_event_alignment\\video.mp4",
+  "question_index": 3,
+  "question": "Which audio statement occurred during the panoramic view of Earth with an orbiting satellite?",
+  "choices": [
+    "A. 'All right Vegas, we're ready for procedure initiation'",
+    "B. 'Loop Bravo venting operations remain pending'",
+    "C. 'Loop Bravo integrity remains unchanged with persistent leaks'",
+    "D. 'Maintaining gradual system shutdown protocol'"
+  ],
+  "answer": "D"
+}

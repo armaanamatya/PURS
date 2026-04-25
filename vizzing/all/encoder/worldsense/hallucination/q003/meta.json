@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Event Sorting",
+  "duration_s": 36.34,
+  "file": "videos\\worldsense\\hallucination\\video.mp4",
+  "question_index": 3,
+  "question": "What are the steps the little boy follows in the video?",
+  "choices": [
+    "A. Ring swinging, stair climbing, swinging, and sliding.",
+    "B. Ring swinging, stair climbing, sliding, and swinging.",
+    "C. Stair climbing, swinging, ring swinging, and sliding.",
+    "D. Stair climbing, ring swinging, swinging, and sliding."
+  ],
+  "answer": "A"
+}

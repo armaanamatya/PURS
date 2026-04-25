@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Reasoning",
+  "duration_s": 56.94,
+  "file": "videos\\video-mme\\temporal_reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "What kind of communication is listed before Semaphore?",
+  "choices": [
+    "A. Telephone.",
+    "B. Homing pigeon.",
+    "C. Telegraph.",
+    "D. Pony express."
+  ],
+  "answer": "D"
+}

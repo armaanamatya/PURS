@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Event Recognition",
+  "duration_s": 42.54,
+  "file": "videos\\worldsense\\attribute_recognition\\video.mp4",
+  "question_index": 3,
+  "question": "What did the police officer do after confirming there was a gun in the bag in the video?",
+  "choices": [
+    "A. Escort the woman away.",
+    "B. Speak with the woman to provide education.",
+    "C. Confiscate the gun.",
+    "D. Detain the woman."
+  ],
+  "answer": "A"
+}
