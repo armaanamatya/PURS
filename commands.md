@@ -214,6 +214,20 @@ CUDA_VISIBLE_DEVICES=3 python eval_qwen_omni.py \
 
 ---
 
+## Prefill Time Measurement (`--measure_prefill`)
+
+All eval scripts support `--measure_prefill`, which measures prefill (TTFT) latency using CUDA event timing — the same methodology as the OmniZip paper (Table 2/3, Figure 4c). When enabled:
+
+- An extra `generate(max_new_tokens=1)` call runs before full generation to isolate prefill time
+- Both `prefill_ms` and `e2e_ms` fields are written to `results.jsonl` and `vram_log.jsonl`
+- Without the flag, these fields are simply absent (no impact on existing analysis)
+
+This doubles the number of `generate()` calls per question — use for benchmarking runs only.
+
+Add `--measure_prefill` to any run command below to enable it.
+
+---
+
 ## Run 3 — FlashAttention-2, paper-default resolution + frame caps (`run3/`)
 
 Now using `flash_attention_2` (flash-attn 2.7.4.post1 built from source) with the OmniZip paper's default settings:
@@ -240,31 +254,303 @@ export MAX_NEW_TOKENS=256
 ### 3.1 Baseline
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/baseline/results.jsonl --log run3/baseline/console.log --vram_log run3/baseline/vram_log.jsonl --errors_log run3/baseline/errors.log --stderr_log run3/baseline/stderr.log --model_variant qwen2.5-omni --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+CUDA_VISIBLE_DEVICES=0 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/baseline/results.jsonl --log run3/baseline/console.log --vram_log run3/baseline/vram_log.jsonl --errors_log run3/baseline/errors.log --stderr_log run3/baseline/stderr.log --model_variant qwen2.5-omni --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --measure_prefill &
 ```
 
 ### 3.2 OmniZip
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py --metadata "$META" --videos "$VIDS" --output run3/omnizip/results.jsonl --log run3/omnizip/console.log --vram_log run3/omnizip/vram_log.jsonl --errors_log run3/omnizip/errors.log --stderr_log run3/omnizip/stderr.log --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 &
+CUDA_VISIBLE_DEVICES=1 python eval_qwen_omni_zip.py --metadata "$META" --videos "$VIDS" --output run3/omnizip/results.jsonl --log run3/omnizip/console.log --vram_log run3/omnizip/vram_log.jsonl --errors_log run3/omnizip/errors.log --stderr_log run3/omnizip/stderr.log --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --rho_audio 0.3 --rho_video 0.6 --g 3 --contextual_ratio 0.05 --measure_prefill &
 ```
 
 ### 3.3 GPTQ
 
 ```bash
-CUDA_VISIBLE_DEVICES=2 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/gptq/results.jsonl --log run3/gptq/console.log --vram_log run3/gptq/vram_log.jsonl --errors_log run3/gptq/errors.log --stderr_log run3/gptq/stderr.log --model_variant qwen2.5-omni --quantization gptq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+CUDA_VISIBLE_DEVICES=2 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/gptq/results.jsonl --log run3/gptq/console.log --vram_log run3/gptq/vram_log.jsonl --errors_log run3/gptq/errors.log --stderr_log run3/gptq/stderr.log --model_variant qwen2.5-omni --quantization gptq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --measure_prefill &
 ```
 
 ### 3.4 AWQ
 
 ```bash
-CUDA_VISIBLE_DEVICES=3 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/awq/results.jsonl --log run3/awq/console.log --vram_log run3/awq/vram_log.jsonl --errors_log run3/awq/errors.log --stderr_log run3/awq/stderr.log --model_variant qwen2.5-omni --quantization awq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" &
+CUDA_VISIBLE_DEVICES=3 python eval_qwen_omni.py --metadata "$META" --videos "$VIDS" --output run3/awq/results.jsonl --log run3/awq/console.log --vram_log run3/awq/vram_log.jsonl --errors_log run3/awq/errors.log --stderr_log run3/awq/stderr.log --model_variant qwen2.5-omni --quantization awq --fps "$FPS" --max_pixels "$MAX_PIXELS" --max_new_tokens "$MAX_NEW_TOKENS" --measure_prefill &
 ```
 
 **Notes**:
 - Frame caps (`--max_frames_videomme 768 --max_frames_other 128`) are the defaults — no need to pass them explicitly.
 - GPTQ/AWQ still use `sdpa` (quantization libraries may not support FA2). Baseline and OmniZip use `flash_attention_2`.
 - All commands are single-line to avoid line-continuation issues when pasting into terminal.
+
+---
+
+## Attention Visualization Scripts (`vizzing/` and attention heatmaps)
+
+These scripts cover both the one-video debugging case and the batch runner for the full metadata set.
+
+Common input:
+
+- Video: `/data/armaan/purs/videos/worldsense/attribute_reasoning/video.mp4`
+- Question: `What is the profession of the man with a beard wearing a suit in the video?`
+- Model on Lambda: `/data/armaan/models/Qwen2.5-Omni-7B`
+- Run from: `/data/armaan/purs`
+
+Set up the shell once:
+
+```bash
+source /data/armaan/venvs/omnizip_clean/bin/activate
+cd /data/armaan/purs
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+```
+
+### Copy visualization scripts from Windows to Lambda
+
+Run this from **Windows PowerShell**:
+
+```powershell
+scp "C:\Users\Armaan\Desktop\PURS\viz_attention_encoders.py" "C:\Users\Armaan\Desktop\PURS\viz_attention_depth_curve.py" armaan@10.244.120.178:/data/armaan/purs/
+scp "C:\Users\Armaan\Desktop\PURS\scripts\run_all_attention_viz.py" armaan@10.244.120.178:/data/armaan/purs/scripts/
+scp "C:\Users\Armaan\Desktop\PURS\viz_attention_qwen.py" "C:\Users\Armaan\Desktop\PURS\viz_attention_omnizip.py" "C:\Users\Armaan\Desktop\PURS\viz_attention_heatmap.py" "C:\Users\Armaan\Desktop\PURS\viz_attention_heatmap_qwen.py" "C:\Users\Armaan\Desktop\PURS\viz_attention_heatmap_omnizip.py" armaan@10.244.120.178:/data/armaan/purs/
+```
+
+### Batch all videos/questions: encoder + depth curves
+
+Runs `viz_attention_encoders.py` and `viz_attention_depth_curve.py` over every question in `videos/metadata.json`. The current metadata has 44 video entries and 118 questions, so this creates 236 jobs. It skips completed output folders unless you add `--overwrite`.
+
+Note: encoder attention is video-level, so encoder PNGs repeat across questions for the same video. Depth-curve PNGs are question-dependent.
+
+With the current `nvidia-smi`, GPUs `0,1` are free; do not use busy GPUs `2-7`.
+
+Dry-run first:
+
+```bash
+cd /data/armaan/purs
+python scripts/run_all_attention_viz.py \
+  --metadata videos/metadata.json \
+  --videos videos \
+  --out_root vizzing/all \
+  --model_path /data/armaan/models/Qwen2.5-Omni-7B \
+  --fps 0.5 \
+  --max_pixels 151200 \
+  --max_frames 48 \
+  --gpus 0,1 \
+  --scripts both \
+  --dry_run
+```
+
+Full run:
+
+```bash
+cd /data/armaan/purs
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python scripts/run_all_attention_viz.py \
+  --metadata videos/metadata.json \
+  --videos videos \
+  --out_root vizzing/all \
+  --model_path /data/armaan/models/Qwen2.5-Omni-7B \
+  --fps 0.5 \
+  --max_pixels 151200 \
+  --max_frames 48 \
+  --gpus 0,1 \
+  --scripts both
+```
+
+These caps keep the eager vision-encoder attention matrix from exploding on long VideoMME clips. If a video still OOMs, retry with `--fps 0.25 --max_frames 24`.
+
+Output structure:
+
+```text
+vizzing/all/
+  encoder/
+    <dataset>/<video_task>/q001/
+      1_audio_encoder_entropy.png
+      2_audio_encoder_heatmaps.png
+      3_vision_encoder_entropy.png
+      4_vision_encoder_heatmaps.png
+      5_encoder_entropy_comparison.png
+      question.txt
+      meta.json
+      run.log
+      status.json
+  depth_curve/
+    <dataset>/<video_task>/q001/
+      1_crossmodal_attention_curves.png
+      2_self_vs_cross_attention.png
+      3_attention_gini_depth.png
+      4_crossmodal_heatmap.png
+      5_last_token_attention_depth.png
+      question.txt
+      meta.json
+      run.log
+      status.json
+```
+
+For a tiny smoke test, add:
+
+```bash
+--limit_questions 2
+```
+
+### Encoder attention visualizations
+
+Runs hooks inside the 32-layer audio encoder and 32-block vision encoder. This script already uses the Lambda model path.
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_encoders.py
+```
+
+Outputs:
+
+```text
+vizzing/encoder_attention/
+  1_audio_encoder_entropy.png
+  2_audio_encoder_heatmaps.png
+  3_vision_encoder_entropy.png
+  4_vision_encoder_heatmaps.png
+  5_encoder_entropy_comparison.png
+```
+
+### Thinker cross-modal depth curves
+
+Runs across all 28 Thinker decoder layers and streams compact attention statistics to avoid OOM. This script already uses the Lambda model path.
+
+```bash
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True CUDA_VISIBLE_DEVICES=7 python viz_attention_depth_curve.py
+```
+
+Outputs:
+
+```text
+vizzing/depth_curve/
+  1_crossmodal_attention_curves.png
+  2_self_vs_cross_attention.png
+  3_attention_gini_depth.png
+  4_crossmodal_heatmap.png
+  5_last_token_attention_depth.png
+```
+
+### Baseline Qwen Thinker summary plots
+
+This script samples Thinker layers `[0, 13, 27]` and writes modality-fraction/audio-token/video-frame plots. It currently hardcodes `MODEL_PATH = "/workspace/model"`, so create a symlink once or patch the constant before running.
+
+Use one of these model-path fixes once:
+
+```bash
+# Option A: create /workspace/model if you have sudo
+sudo mkdir -p /workspace
+sudo ln -s /data/armaan/models/Qwen2.5-Omni-7B /workspace/model
+```
+
+```bash
+# Option B: no-sudo alternative; patch the hardcoded model path in legacy scripts
+python - <<'PY'
+from pathlib import Path
+for name in ["viz_attention_qwen.py", "viz_attention_omnizip.py", "viz_attention_heatmap.py"]:
+    path = Path(name)
+    path.write_text(path.read_text().replace('MODEL_PATH = "/workspace/model"', 'MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"'))
+PY
+```
+
+Then run:
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_qwen.py
+```
+
+Outputs:
+
+```text
+attention_viz_qwen/
+  1_modality_fractions.png
+  2_audio_token_attention.png
+  3_video_frame_attention.png
+  4_modality_across_layers.png
+```
+
+### OmniZip Thinker summary plots
+
+Same plot family as `viz_attention_qwen.py`, plus token-retention counts from the captured OmniZip `global_mask`. It currently hardcodes `MODEL_PATH = "/workspace/model"`.
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_omnizip.py
+```
+
+Outputs:
+
+```text
+attention_viz_omnizip/
+  1_modality_fractions.png
+  2_audio_token_attention.png
+  3_video_frame_attention.png
+  4_modality_across_layers.png
+  5_token_retention.png
+```
+
+### Baseline full attention heatmap
+
+This older heatmap script samples Thinker layers `[3, 19]` and writes a paper-style full attention heatmap. It currently hardcodes `MODEL_PATH = "/workspace/model"`.
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_heatmap.py
+```
+
+Output:
+
+```text
+attention_viz_heatmap/
+  fig2_attention_heatmap.png
+```
+
+### CLI baseline heatmap v2
+
+This is the more flexible baseline heatmap script. It accepts model, video, layer, and output arguments. Layer numbers are 1-indexed in `--layers`; `4,20` corresponds to 0-indexed decoder layers `[3, 19]`.
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_heatmap_qwen.py \
+  --model_path /data/armaan/models/Qwen2.5-Omni-7B \
+  --video_path videos/worldsense/attribute_reasoning/video.mp4 \
+  --layers 4,20 \
+  --out_dir attention_viz_qwen_heatmap
+```
+
+Output:
+
+```text
+attention_viz_qwen_heatmap/
+  attention_heatmap_qwen_layers.png
+```
+
+### CLI OmniZip heatmap v2
+
+This is the OmniZip version of the CLI heatmap script. It captures the compressed token mapping and remaps the heatmap to the compressed sequence.
+
+```bash
+CUDA_VISIBLE_DEVICES=7 python viz_attention_heatmap_omnizip.py \
+  --model_path /data/armaan/models/Qwen2.5-Omni-7B \
+  --video_path videos/worldsense/attribute_reasoning/video.mp4 \
+  --layers 4,20 \
+  --out_dir attention_viz_omnizip_heatmap \
+  --rho_audio 0.4 --rho_video 0.7 --g 3 --contextual_ratio 0.05
+```
+
+Output:
+
+```text
+attention_viz_omnizip_heatmap/
+  attention_heatmap_omnizip_layers.png
+```
+
+### Copy visualization outputs back to Windows
+
+Run this from **Windows PowerShell** after the Lambda run finishes:
+
+```powershell
+scp -r armaan@10.244.120.178:/data/armaan/purs/vizzing "C:\Users\Armaan\Desktop\PURS\"
+scp -r armaan@10.244.120.178:/data/armaan/purs/attention_viz_qwen "C:\Users\Armaan\Desktop\PURS\"
+scp -r armaan@10.244.120.178:/data/armaan/purs/attention_viz_omnizip "C:\Users\Armaan\Desktop\PURS\"
+scp -r armaan@10.244.120.178:/data/armaan/purs/attention_viz_heatmap "C:\Users\Armaan\Desktop\PURS\"
+scp -r armaan@10.244.120.178:/data/armaan/purs/attention_viz_qwen_heatmap "C:\Users\Armaan\Desktop\PURS\"
+scp -r armaan@10.244.120.178:/data/armaan/purs/attention_viz_omnizip_heatmap "C:\Users\Armaan\Desktop\PURS\"
+```
+
+If you only ran the new encoder/depth scripts, the first `scp -r .../vizzing` command is enough.
 
 ---
 
