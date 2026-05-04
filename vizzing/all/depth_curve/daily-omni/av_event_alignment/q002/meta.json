@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "AV Event Alignment",
+  "duration_s": 60.0,
+  "file": "videos\\daily-omni\\av_event_alignment\\video.mp4",
+  "question_index": 2,
+  "question": "What visual detail was present when the audio mentioned discovering a blue tag in the forest?",
+  "choices": [
+    "A. The man touching fungus while estimating its age",
+    "B. The man sitting on a log examining fungus",
+    "C. The man wearing a feathered hat and holding a pendant",
+    "D. The man wearing a navy jacket and speaking to the camera"
+  ],
+  "answer": "D"
+}

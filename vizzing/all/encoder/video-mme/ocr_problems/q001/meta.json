@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "OCR Problems",
+  "duration_s": 30.91,
+  "file": "videos\\video-mme\\ocr_problems\\video.mp4",
+  "question_index": 1,
+  "question": "What is the specific sentence in the smart phone that makes the man embarrassed?",
+  "choices": [
+    "A. BTW...you got something in your teeth!",
+    "B. Dude! You gotta come toBigStuf Camps!",
+    "C. Smoke Sig 2.0.",
+    "D. Last but not least."
+  ],
+  "answer": "A"
+}

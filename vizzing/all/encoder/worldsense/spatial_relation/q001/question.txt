@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What is the position of the metal roller door relative to the woman wearing white in the video?
+A. To the left of the woman wearing white.
+B. To the right of the woman wearing white.
+C. In front of the woman wearing white.
+D. Behind the woman wearing white.

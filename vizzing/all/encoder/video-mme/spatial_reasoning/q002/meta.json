@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Reasoning",
+  "duration_s": 80.41,
+  "file": "videos\\video-mme\\spatial_reasoning\\video.mp4",
+  "question_index": 2,
+  "question": "Which type of disaster is portrayed in the video?",
+  "choices": [
+    "A. Man-made disaster.",
+    "B. Astronomical disaster.",
+    "C. Meteorological disaster.",
+    "D. Geological disaster."
+  ],
+  "answer": "B"
+}

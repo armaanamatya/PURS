@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Reasoning",
+  "duration_s": 56.94,
+  "file": "videos\\video-mme\\temporal_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "What happened when Irish imiggrants brought the tradition of St. Patrick's Day to America?",
+  "choices": [
+    "A. They began to center around drinking and celebrating the festival.",
+    "B. St. Patrick moved to America.",
+    "C. They celebrated St. Patrick's birth instead.",
+    "D. They attended the church and gather for feasts."
+  ],
+  "answer": "A"
+}

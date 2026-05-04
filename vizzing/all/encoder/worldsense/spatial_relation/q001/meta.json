@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Spatial Relation",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\spatial_relation\\video.mp4",
+  "question_index": 1,
+  "question": "What is the position of the metal roller door relative to the woman wearing white in the video?",
+  "choices": [
+    "A. To the left of the woman wearing white.",
+    "B. To the right of the woman wearing white.",
+    "C. In front of the woman wearing white.",
+    "D. Behind the woman wearing white."
+  ],
+  "answer": "B"
+}

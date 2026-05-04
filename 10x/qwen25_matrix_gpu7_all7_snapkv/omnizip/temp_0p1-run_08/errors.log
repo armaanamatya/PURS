@@ -1,0 +1,37 @@
+
+--- daily-omni/AV Event Alignment ---
+Traceback (most recent call last):
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 620, in main
+    pred, reasoning, orig_nf, used_nf, timing = run_inference(
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in run_inference
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 58, in cuda_time_ms
+    out = fn()
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in <lambda>
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 4654, in generate
+    thinker_result = self.thinker.generate(input_ids=input_ids, **thinker_kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 2597, in generate
+    result = self._sample(
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 3557, in _sample
+    outputs = self(**model_inputs, return_dict=True)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 2592, in forward
+    logits = self.lm_head(hidden_states)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/accelerate/hooks.py", line 192, in new_forward
+    output = module._old_forward(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.40 GiB. GPU 0 has a total capacity of 47.37 GiB of which 880.31 MiB is free. Process 3009648 has 30.62 GiB memory in use. Including non-PyTorch memory, this process has 15.88 GiB memory in use. Of the allocated memory 14.96 GiB is allocated by PyTorch, and 418.75 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+

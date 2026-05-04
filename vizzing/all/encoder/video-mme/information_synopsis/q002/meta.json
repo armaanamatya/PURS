@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Information Synopsis",
+  "duration_s": 83.94,
+  "file": "videos\\video-mme\\information_synopsis\\video.mp4",
+  "question_index": 2,
+  "question": "What does the second half of the video show?",
+  "choices": [
+    "A. An advertisement for a music software.",
+    "B. A tutorial on how to practice guitar on electronic devices.",
+    "C. The history of guitar software on electronic devices.",
+    "D. An advertisement for a tablet computer."
+  ],
+  "answer": "A"
+}

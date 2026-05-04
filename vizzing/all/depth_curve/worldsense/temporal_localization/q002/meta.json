@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Temporal Localization",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\temporal_localization\\video.mp4",
+  "question_index": 2,
+  "question": "At what point in the video do the audience members cheer?",
+  "choices": [
+    "A. In the middle of the video.",
+    "B. Throughout the video.",
+    "C. At the end of the video.",
+    "D. At the beginning of the video."
+  ],
+  "answer": "D"
+}

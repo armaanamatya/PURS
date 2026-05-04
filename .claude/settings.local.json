@@ -12,7 +12,16 @@
       "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
       "mcp__plugin_context-mode_context-mode__ctx_search",
       "mcp__plugin_context7_context7__resolve-library-id",
-      "mcp__plugin_context-mode_context-mode__ctx_execute_file"
+      "mcp__plugin_context-mode_context-mode__ctx_execute_file",
+      "Bash(python:*)",
+      "mcp__plugin_context-mode_context-mode__ctx_stats",
+      "Bash(cp gptq/gptq/* gptq/)",
+      "Bash(rm -rf gptq/gptq)",
+      "Bash(cp awq/awq/* awq/)",
+      "Bash(rm -rf awq/awq awq/gptq)",
+      "Bash(pdftotext \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\redipruneimage_final.pdf\" -)",
+      "Bash(docker rmi *)",
+      "Bash(docker build *)"
     ]
   }
 }

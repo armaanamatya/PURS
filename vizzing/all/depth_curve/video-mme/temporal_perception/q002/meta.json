@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Perception",
+  "duration_s": 52.94,
+  "file": "videos\\video-mme\\temporal_perception\\video.mp4",
+  "question_index": 2,
+  "question": "What detail does the caption provide about the term \"synovial\" at the beginning of the video?",
+  "choices": [
+    "A. It is derived from the Latin word for 'egg'.",
+    "B. It is a term used to describe a type of joint movement.",
+    "C. It refers to a type of bone tissue.",
+    "D. It indicates a condition related to the joints."
+  ],
+  "answer": "A"
+}

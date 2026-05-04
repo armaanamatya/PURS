@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What does the man do to the woman in black on the shelf later in the video?
+A. The man in a fur-lined coat attempts to push the woman in black down.
+B. The man with white hair attempts to dismantle the shelf to make the woman fall.
+C. The man wearing a watch attempts to take the woman in black down.
+D. The man with an orange wrist guard attempts to attack the woman in black.

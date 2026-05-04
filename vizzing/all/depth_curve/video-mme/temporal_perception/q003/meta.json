@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Perception",
+  "duration_s": 52.94,
+  "file": "videos\\video-mme\\temporal_perception\\video.mp4",
+  "question_index": 3,
+  "question": "Which object is depicted as a small flying black dot at the start of the video?",
+  "choices": [
+    "A. Dust mites in the lungs.",
+    "B. Virus.",
+    "C. Protein Receptors.",
+    "D. Black bacteria."
+  ],
+  "answer": "B"
+}

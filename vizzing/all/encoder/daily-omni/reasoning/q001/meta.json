@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Reasoning",
+  "duration_s": 55.98,
+  "file": "videos\\daily-omni\\reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "What immediate task required Sara to review documents in the office before equipment operation?",
+  "choices": [
+    "A. To analyze soil composition charts",
+    "B. To finalize her course payment details",
+    "C. To prepare safety checklists for machinery",
+    "D. To complete classroom requirements stated in the audio"
+  ],
+  "answer": "D"
+}

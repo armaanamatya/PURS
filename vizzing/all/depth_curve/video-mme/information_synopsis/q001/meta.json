@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Information Synopsis",
+  "duration_s": 83.94,
+  "file": "videos\\video-mme\\information_synopsis\\video.mp4",
+  "question_index": 1,
+  "question": "What is the genre of this video?",
+  "choices": [
+    "A. It is a news report that introduces the history behind Christmas decorations.",
+    "B. It is a documentary on the evolution of Christmas holiday recipes.",
+    "C. It is a travel vlog exploring Christmas markets around the world.",
+    "D. It is a tutorial on DIY Christmas ornament crafting."
+  ],
+  "answer": "A"
+}

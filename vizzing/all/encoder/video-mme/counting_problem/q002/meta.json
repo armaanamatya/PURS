@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Counting Problem",
+  "duration_s": 74.37,
+  "file": "videos\\video-mme\\counting_problem\\video.mp4",
+  "question_index": 2,
+  "question": "How many red socks are above the fireplace at the end of this video?",
+  "choices": [
+    "A. 1.",
+    "B. 4.",
+    "C. 2.",
+    "D. 3."
+  ],
+  "answer": "D"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Event Sequence",
+  "duration_s": 31.02,
+  "file": "videos\\daily-omni\\event_sequence\\video.mp4",
+  "question_index": 3,
+  "question": "Which audio events correspond to the indoor shooting range activities shown in the video?",
+  "choices": [
+    "A. Countdown sequence during target practice",
+    "B. Electronic music overlapping with gunshots",
+    "C. Hip-hop music with whoosh sounds",
+    "D. Wind sounds followed by human speech"
+  ],
+  "answer": "B"
+}

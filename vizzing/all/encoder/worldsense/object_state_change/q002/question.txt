@@ -1,0 +1,7 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+What is the correct sequence for testing the fuel pump as presented in the video?
+A. (b) Connect the power probe to the ground wire, (a) Identify the power wire and ground wire, (c) The power probe lights up green, (d) Check the water flow in the pipe.
+B. (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (c) The power probe lights up green, (d) Check the water flow in the pipe.
+C. (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (d) Check the water flow in the pipe, (c) The power probe lights up green.
+D. (c) The power probe lights up green, (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (d) Check the water flow in the pipe.

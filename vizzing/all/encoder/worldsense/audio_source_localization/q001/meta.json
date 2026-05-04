@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Audio Source Localization",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_source_localization\\video.mp4",
+  "question_index": 1,
+  "question": "How many instruments are in the video?",
+  "choices": [
+    "A. Three.",
+    "B. Two.",
+    "C. One.",
+    "D. Four."
+  ],
+  "answer": "B"
+}

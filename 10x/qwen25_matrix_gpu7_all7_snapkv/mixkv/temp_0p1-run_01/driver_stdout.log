@@ -1,0 +1,851 @@
+Unrecognized keys in `rope_scaling` for 'rope_type'='default': {'mrope_section'}
+You are attempting to use Flash Attention 2.0 without specifying a torch dtype. This might lead to unexpected behaviour
+Qwen2_5OmniToken2WavModel must inference with fp32, but flash_attention_2 only supports fp16 and bf16, attention implementation of Qwen2_5OmniToken2WavModel will fallback to sdpa.
+Loaded 44 entries
+Running 44 entries with MixKV (snapkv, budget=256); temperature=0.1; seed=20260416
+
+Loading model from /data/armaan/models/Qwen2.5-Omni-7B (dtype=bfloat16) ...
+Loading checkpoint shards:   0%|          | 0/5 [00:00<?, ?it/s]Loading checkpoint shards:  20%|##        | 1/5 [00:01<00:06,  1.65s/it]Loading checkpoint shards:  40%|####      | 2/5 [00:02<00:03,  1.18s/it]Loading checkpoint shards:  60%|######    | 3/5 [00:03<00:01,  1.03it/s]Loading checkpoint shards:  80%|########  | 4/5 [00:03<00:00,  1.15it/s]Loading checkpoint shards: 100%|##########| 5/5 [00:04<00:00,  1.40it/s]Loading checkpoint shards: 100%|##########| 5/5 [00:04<00:00,  1.14it/s]
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+qwen-vl-utils using decord to read video.
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+Applying MixKV to 28 layers: budget=256, window=32, method=snapkv
+MixKV applied. Effective KV capacity per head: 256 tokens (224 selected + 32 window)
+Model loaded. VRAM: 16.6 GB allocated, 20.9 GB reserved
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=A ans=D
+  [✓] video-mme/Action Reasoning [Action Reasoning] pred=B ans=B
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=B ans=C
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Action Recognition [Action Recognition] pred=C ans=D
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=C
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=D
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=C ans=A
+  [✗] video-mme/Counting Problem [Counting Problem] pred=B ans=C
+  [✗] video-mme/Counting Problem [Counting Problem] pred=C ans=D
+  [✓] video-mme/Counting Problem [Counting Problem] pred=B ans=B
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=D ans=A
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=C ans=A
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=B ans=C
+  [✓] video-mme/OCR Problems [OCR Problems] pred=A ans=A
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=C
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=B
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=C ans=D
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=B ans=D
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=A ans=B
+  [✗] video-mme/Object Recognition [Object Recognition] pred=A ans=C
+  [✗] video-mme/Object Recognition [Object Recognition] pred=D ans=C
+  [✗] video-mme/Object Recognition [Object Recognition] pred=C ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=B ans=C
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=C ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=A ans=D
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=A ans=D
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=C ans=B
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=A ans=C
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=C ans=B
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=D ans=A
+  [✓] video-mme/Temporal Perception [Temporal Perception] pred=B ans=B
+  [✓] video-mme/Temporal Reasoning [Temporal Reasoning] pred=A ans=A
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=B ans=D
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=B ans=C
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=C ans=A
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=C ans=D
+  [✗] daily-omni/AV Event Alignment [AV Event Alignment] pred=B ans=D
+  [✓] daily-omni/Comparative [Comparative] pred=A ans=A
+  [✗] daily-omni/Comparative [Comparative] pred=B ans=C
+  [✗] daily-omni/Comparative [Comparative] pred=B ans=A
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=A
+  [✗] daily-omni/Context understanding [Context understanding] pred=A ans=B
+  [✗] daily-omni/Context understanding [Context understanding] pred=B ans=D
+  [✓] daily-omni/Event Sequence [Event Sequence] pred=B ans=B
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=C ans=B
+  [✗] daily-omni/Event Sequence [Event Sequence] pred=A ans=B
+  [✗] daily-omni/Inference [Inference] pred=C ans=D
+  [✗] daily-omni/Inference [Inference] pred=C ans=D
+  [✗] daily-omni/Inference [Inference] pred=A ans=D
+  [✗] daily-omni/Reasoning [Reasoning] pred=C ans=D
+  [✗] daily-omni/Reasoning [Reasoning] pred=B ans=A
+  [✗] daily-omni/Reasoning [Reasoning] pred=B ans=C
+  [✗] worldsense/Action Counting [Audio Recognition] pred=A ans=B
+  [✓] worldsense/Action Counting [Relation Reasoning] pred=B ans=B
+  [✗] worldsense/Action Counting [Action Counting] pred=D ans=C
+  [✗] worldsense/Anomaly Recognition [Text and Diagram Understanding] pred=B ans=D
+  [✓] worldsense/Anomaly Recognition [Anomaly Recognition] pred=A ans=A
+  [✗] worldsense/Anomaly Recognition [Event Recognition] pred=D ans=A
+  [✓] worldsense/Attribute Reasoning [Attribute Reasoning] pred=B ans=B
+  [✗] worldsense/Attribute Recognition [Video Emotions] pred=B ans=D
+  [✗] worldsense/Attribute Recognition [Event Sorting] pred=B ans=C
+  [✗] worldsense/Attribute Recognition [Event Recognition] pred=C ans=A
+  [✗] worldsense/Attribute Recognition [Attribute Recognition] pred=B ans=C
+  [✓] worldsense/Audio Change [Audio Change] pred=B ans=B
+  [✗] worldsense/Audio Change [Temporal Localization] pred=C ans=D
+  [✗] worldsense/Audio Counting [Audio Counting] pred=A ans=B
+  [✗] worldsense/Audio Recognition [Audio Recognition] pred=B ans=D
+  [✗] worldsense/Audio Recognition [Human-object Interaction] pred=A ans=C
+  [✗] worldsense/Audio Source Localization [Audio Source Localization] pred=C ans=B
+  [✗] worldsense/Audio Source Localization [Video Emotions] pred=A ans=D
+  [✗] worldsense/Causal Reasoning [Text and Diagram Understanding] pred=C ans=B
+  [✓] worldsense/Causal Reasoning [Attribute Reasoning] pred=B ans=B
+  [✓] worldsense/Causal Reasoning [Causal Reasoning] pred=B ans=B
+  [✗] worldsense/Emotion Change [Emotion Change] pred=A ans=C
+  [✗] worldsense/Emotion Change [Scene Recognition] pred=B ans=C
+  [✗] worldsense/Event Recognition [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Recognition [Event Sorting] pred=B ans=C
+  [✗] worldsense/Event Recognition [Event Recognition] pred=C ans=A
+  [✗] worldsense/Event Recognition [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Event Sorting [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Sorting [Event Sorting] pred=B ans=C
+  [✗] worldsense/Event Sorting [Event Recognition] pred=C ans=A
+  [✗] worldsense/Event Sorting [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Hallucination [Attribute Recognition] pred=C ans=D
+  [✓] worldsense/Hallucination [Hallucination] pred=B ans=B
+  [✗] worldsense/Hallucination [Event Sorting] pred=D ans=A
+  [✗] worldsense/Human Emotions [Attribute Recognition] pred=B ans=A
+  [✗] worldsense/Human Emotions [Human Emotions] pred=A ans=B
+  [✓] worldsense/Human Interaction [Human Interaction] pred=C ans=C
+  [✗] worldsense/Human-object Interaction [Audio Recognition] pred=B ans=D
+  [✗] worldsense/Human-object Interaction [Human-object Interaction] pred=A ans=C
+  [✗] worldsense/Object Counting [Object Counting] pred=D ans=C
+  [✓] worldsense/Object Existence Recognition [Event Sorting] pred=C ans=C
+  [✗] worldsense/Object Existence Recognition [Action Counting] pred=C ans=B
+  [✗] worldsense/Object Existence Recognition [Spatial Relation] pred=A ans=D
+  [✗] worldsense/Object Existence Recognition [Object Existence Recognition] pred=C ans=B
+  [✓] worldsense/Object State Change [Scene Recognition] pred=C ans=C
+  [✓] worldsense/Object State Change [Event Sorting] pred=B ans=B
+  [✗] worldsense/Object State Change [Object State Change] pred=D ans=B
+  [✗] worldsense/Relation Reasoning [Audio Recognition] pred=A ans=B
+  [✓] worldsense/Relation Reasoning [Relation Reasoning] pred=B ans=B
+  [✗] worldsense/Relation Reasoning [Action Counting] pred=D ans=C
+  [✗] worldsense/Scene Recognition [Emotion Change] pred=A ans=C
+  [✗] worldsense/Scene Recognition [Scene Recognition] pred=B ans=C
+  [✗] worldsense/Spatial Relation [Spatial Relation] pred=D ans=B
+  [✓] worldsense/Temporal Localization [Audio Change] pred=B ans=B
+  [✗] worldsense/Temporal Localization [Temporal Localization] pred=C ans=D
+  [✗] worldsense/Temporal Prediction [Temporal Prediction] pred=B ans=C
+  [✓] worldsense/Temporal Prediction [Event Sorting] pred=B ans=B
+  [✗] worldsense/Text and Diagram Understanding [Text and Diagram Understanding] pred=C ans=B
+  [✓] worldsense/Text and Diagram Understanding [Attribute Reasoning] pred=B ans=B
+  [✓] worldsense/Text and Diagram Understanding [Causal Reasoning] pred=B ans=B
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+WARNING:root:System prompt modified, audio output may not work as expected. Audio output mode only works when using default system prompt 'You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech.'
+/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/librosa/core/audio.py:172: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+Unused or unrecognized kwargs: images, return_tensors.
+  [✗] worldsense/Video Emotions [Video Emotions] pred=B ans=D
+  [✗] worldsense/Video Emotions [Event Sorting] pred=B ans=C
+  [✗] worldsense/Video Emotions [Event Recognition] pred=C ans=A
+  [✗] worldsense/Video Emotions [Attribute Recognition] pred=B ans=C
+
+==================================================
+Model: qwen2.5-omni + MixKV (snapkv)
+Budget: 256 | Window: 32
+Accuracy: 23/118 = 19.49%
+Skipped (no video): 0
+Results: /data/armaan/purs/runs/qwen25_matrix_gpu7_all7_snapkv/mixkv/temp_0p1-run_01/results.jsonl
+
+Per-dataset:
+  daily-omni           2/18 = 11.11%
+  video-mme            5/36 = 13.89%
+  worldsense           16/64 = 25.00%

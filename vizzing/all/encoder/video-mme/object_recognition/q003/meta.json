@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Object Recognition",
+  "duration_s": 88.75,
+  "file": "videos\\video-mme\\object_recognition\\video.mp4",
+  "question_index": 3,
+  "question": "According to the video, in which state did human's ancestors first begin to walk on two legs?",
+  "choices": [
+    "A. Dryopithecus.",
+    "B. Ramapithecus.",
+    "C. Ardipithecus Ramidus.",
+    "D. Homo Habilis."
+  ],
+  "answer": "B"
+}

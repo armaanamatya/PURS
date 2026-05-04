@@ -1,0 +1,89 @@
+
+============================================================
+RUN (OmniZip): 2026-04-24 13:07:27
+============================================================
+Loaded 44 entries
+Filtered to 26 entries for 'worldsense'
+Running 26 entries with cached-audio OmniZip
+Cache source: vizzing/layer_depth_experiment_v2/worldsense/layer_depth_stats.jsonl  layer=6  cache_reduce=mean  cached_videos=21
+Input mode: video+audio+text; sample_fps=2.0; max_pixels=105369; max_new_tokens=4096; temperature=0.0; seed=None
+
+Loading model from /data/armaan/models/Qwen2.5-Omni-7B with cached-audio OmniZip ...
+  rho_audio=0.3  rho_video=0.6  g=3  contextual_ratio=0.05  torch_dtype=bfloat16  device=cuda:0
+Model loaded. VRAM: 16.6 GB allocated, 20.9 GB reserved
+  [✓] worldsense/Action Counting [Audio Recognition] pred=B ans=B
+  [✓] worldsense/Action Counting [Relation Reasoning] pred=B ans=B
+  [✗] worldsense/Action Counting [Action Counting] pred=D ans=C
+  [✗] worldsense/Anomaly Recognition [Text and Diagram Understanding] pred=B ans=D
+  [✓] worldsense/Anomaly Recognition [Anomaly Recognition] pred=A ans=A
+  [✗] worldsense/Anomaly Recognition [Event Recognition] pred=B ans=A
+  SKIP worldsense/Attribute Reasoning: no cached saliency for videos\worldsense\attribute_reasoning\video.mp4
+  [✓] worldsense/Attribute Recognition [Video Emotions] pred=D ans=D
+  [✗] worldsense/Attribute Recognition [Event Sorting] pred=B ans=C
+  [✓] worldsense/Attribute Recognition [Event Recognition] pred=A ans=A
+  [✓] worldsense/Attribute Recognition [Attribute Recognition] pred=C ans=C
+  [✗] worldsense/Audio Change [Audio Change] pred=C ans=B
+  [✗] worldsense/Audio Change [Temporal Localization] pred=C ans=D
+  SKIP worldsense/Audio Counting: no cached saliency for videos\worldsense\audio_counting\video.mp4
+  [✓] worldsense/Audio Recognition [Audio Recognition] pred=D ans=D
+  [✗] worldsense/Audio Recognition [Human-object Interaction] pred=B ans=C
+  [✓] worldsense/Audio Source Localization [Audio Source Localization] pred=B ans=B
+  [✓] worldsense/Audio Source Localization [Video Emotions] pred=D ans=D
+  [✗] worldsense/Causal Reasoning [Text and Diagram Understanding] pred=C ans=B
+  [✓] worldsense/Causal Reasoning [Attribute Reasoning] pred=B ans=B
+  [✗] worldsense/Causal Reasoning [Causal Reasoning] pred=A ans=B
+  [✓] worldsense/Emotion Change [Emotion Change] pred=C ans=C
+  [✗] worldsense/Emotion Change [Scene Recognition] pred=A ans=C
+  [✗] worldsense/Event Recognition [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Recognition [Event Sorting] pred=B ans=C
+  [✗] worldsense/Event Recognition [Event Recognition] pred=C ans=A
+  [✗] worldsense/Event Recognition [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Event Sorting [Video Emotions] pred=B ans=D
+  [✗] worldsense/Event Sorting [Event Sorting] pred=B ans=C
+  [✗] worldsense/Event Sorting [Event Recognition] pred=C ans=A
+  [✗] worldsense/Event Sorting [Attribute Recognition] pred=B ans=C
+  [✗] worldsense/Hallucination [Attribute Recognition] pred=C ans=D
+  [✗] worldsense/Hallucination [Hallucination] pred=D ans=B
+  [✗] worldsense/Hallucination [Event Sorting] pred=D ans=A
+  [✗] worldsense/Human Emotions [Attribute Recognition] pred=B ans=A
+  [✗] worldsense/Human Emotions [Human Emotions] pred=A ans=B
+  SKIP worldsense/Human Interaction: no cached saliency for videos\worldsense\human_interaction\video.mp4
+  [✗] worldsense/Human-object Interaction [Audio Recognition] pred=B ans=D
+  [✗] worldsense/Human-object Interaction [Human-object Interaction] pred=A ans=C
+  SKIP worldsense/Object Counting: no cached saliency for videos\worldsense\object_counting\video.mp4
+  [✓] worldsense/Object Existence Recognition [Event Sorting] pred=C ans=C
+  [✗] worldsense/Object Existence Recognition [Action Counting] pred=A ans=B
+  [✗] worldsense/Object Existence Recognition [Spatial Relation] pred=A ans=D
+  [✗] worldsense/Object Existence Recognition [Object Existence Recognition] pred=C ans=B
+  [✓] worldsense/Object State Change [Scene Recognition] pred=C ans=C
+  [✓] worldsense/Object State Change [Event Sorting] pred=B ans=B
+  [✓] worldsense/Object State Change [Object State Change] pred=B ans=B
+  [✗] worldsense/Relation Reasoning [Audio Recognition] pred=A ans=B
+  [✓] worldsense/Relation Reasoning [Relation Reasoning] pred=B ans=B
+  [✗] worldsense/Relation Reasoning [Action Counting] pred=D ans=C
+  [✗] worldsense/Scene Recognition [Emotion Change] pred=A ans=C
+  [✗] worldsense/Scene Recognition [Scene Recognition] pred=A ans=C
+  SKIP worldsense/Spatial Relation: no cached saliency for videos\worldsense\spatial_relation\video.mp4
+  [✗] worldsense/Temporal Localization [Audio Change] pred=C ans=B
+  [✗] worldsense/Temporal Localization [Temporal Localization] pred=C ans=D
+  [✓] worldsense/Temporal Prediction [Temporal Prediction] pred=C ans=C
+  [✗] worldsense/Temporal Prediction [Event Sorting] pred=D ans=B
+  [✗] worldsense/Text and Diagram Understanding [Text and Diagram Understanding] pred=C ans=B
+  [✓] worldsense/Text and Diagram Understanding [Attribute Reasoning] pred=B ans=B
+  [✓] worldsense/Text and Diagram Understanding [Causal Reasoning] pred=B ans=B
+  [✗] worldsense/Video Emotions [Video Emotions] pred=C ans=D
+  [✗] worldsense/Video Emotions [Event Sorting] pred=B ans=C
+  [✗] worldsense/Video Emotions [Event Recognition] pred=C ans=A
+  [✗] worldsense/Video Emotions [Attribute Recognition] pred=B ans=C
+
+==================================================
+Model variant: qwen2.5-omni + omnizip_cached_audio
+Quantization:  none
+Cache layer:   6 (mean)
+Accuracy:      19/59 = 32.20%
+Skipped (no video): 0
+Skipped (no cache): 5
+Results: vizzing/results_zip_cached_l6_worldsense.jsonl
+
+Per-dataset:
+  worldsense           19/59 = 32.20%

@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Temporal Reasoning",
+  "duration_s": 56.94,
+  "file": "videos\\video-mme\\temporal_reasoning\\video.mp4",
+  "question_index": 3,
+  "question": "What did the student do after eating the banana in the video?",
+  "choices": [
+    "A. He ate a banana in exhibition again in 2019.",
+    "B. He throwed the skin of banana.",
+    "C. He reattached the skin of banana using the same tape.",
+    "D. The action of eating a banana was considered art."
+  ],
+  "answer": "C"
+}

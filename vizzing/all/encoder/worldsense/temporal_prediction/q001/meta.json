@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Temporal Prediction",
+  "duration_s": 39.0,
+  "file": "videos\\worldsense\\temporal_prediction\\video.mp4",
+  "question_index": 1,
+  "question": "Will McMahon return to WWE?",
+  "choices": [
+    "A. I am not sure.",
+    "B. Yes.",
+    "C. No.",
+    "D. None of the above."
+  ],
+  "answer": "C"
+}

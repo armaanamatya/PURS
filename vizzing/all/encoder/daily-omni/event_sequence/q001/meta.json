@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Event Sequence",
+  "duration_s": 31.02,
+  "file": "videos\\daily-omni\\event_sequence\\video.mp4",
+  "question_index": 1,
+  "question": "What visual elements were displayed immediately after Dr. Rajani's 'BOTOX WITHOUT THE BOTOX' video concluded?",
+  "choices": [
+    "A. Still product bottle \u2192 Price text overlay",
+    "B. Facial treatment demonstration \u2192 Presenter holding product while explaining",
+    "C. Presenter's torso shot \u2192 Secondary screen activation",
+    "D. Bookshelf backdrop \u2192 Close-up of string lights"
+  ],
+  "answer": "B"
+}

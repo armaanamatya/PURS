@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Object Reasoning",
+  "duration_s": 70.17,
+  "file": "videos\\video-mme\\object_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "In which country is the food featured in the video recognized worldwide?",
+  "choices": [
+    "A. Mongolia.",
+    "B. Russia.",
+    "C. Germany.",
+    "D. United States."
+  ],
+  "answer": "D"
+}

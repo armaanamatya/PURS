@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Attribute Reasoning",
+  "duration_s": 24.02,
+  "file": "videos\\worldsense\\attribute_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "What is the profession of the man with a beard wearing a suit in the video?",
+  "choices": [
+    "A. A news anchor.",
+    "B. A company spokesperson.",
+    "C. A railway builder.",
+    "D. A train ticket seller."
+  ],
+  "answer": "B"
+}

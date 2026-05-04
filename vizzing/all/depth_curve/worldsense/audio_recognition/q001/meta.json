@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Audio Recognition",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_recognition\\video.mp4",
+  "question_index": 1,
+  "question": "What is the instrument on the right in the video?",
+  "choices": [
+    "A. Guitar.",
+    "B. Cello.",
+    "C. Banjo.",
+    "D. Guzheng."
+  ],
+  "answer": "D"
+}

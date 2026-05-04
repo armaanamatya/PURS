@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Action Recognition",
+  "duration_s": 76.05,
+  "file": "videos\\video-mme\\action_recognition\\video.mp4",
+  "question_index": 1,
+  "question": "What is special about the celebration in New York according to the video?",
+  "choices": [
+    "A. Hosting large parades.",
+    "B. Dressing in green and dyeing the river to green.",
+    "C. Drinking a lot.",
+    "D. Planting shamrocks."
+  ],
+  "answer": "A"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Human Emotions",
+  "duration_s": 48.83,
+  "file": "videos\\worldsense\\human_emotions\\video.mp4",
+  "question_index": 2,
+  "question": "What is the tone of the speaker in the video?",
+  "choices": [
+    "A. Serious and proud.",
+    "B. Joyful and proud.",
+    "C. Calm and proud.",
+    "D. Cheerful and humorous."
+  ],
+  "answer": "B"
+}

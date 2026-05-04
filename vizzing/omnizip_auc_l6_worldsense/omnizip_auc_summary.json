@@ -1,0 +1,26 @@
+{
+  "layer": 6,
+  "rho_audio": 0.3,
+  "rho_video": 0.6,
+  "g": 3,
+  "contextual_ratio": 0.05,
+  "n_question_records": 59,
+  "overall_auc_keep": {
+    "n": 59,
+    "mean": 0.6528168361536054,
+    "std": 0.1105185300301721
+  },
+  "overall_auc_drop": {
+    "n": 59,
+    "mean": 0.3471831638463946,
+    "std": 0.1105185300301721
+  },
+  "by_dataset_auc_keep": {
+    "worldsense": {
+      "n": 59,
+      "mean": 0.6528168361536054,
+      "std": 0.1105185300301721
+    }
+  },
+  "skipped": []
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Emotion Change",
+  "duration_s": 76.01,
+  "file": "videos\\worldsense\\emotion_change\\video.mp4",
+  "question_index": 1,
+  "question": "How did the llama's emotions change after entering the supermarket?",
+  "choices": [
+    "A. From calm to frustrated.",
+    "B. From calm to excited.",
+    "C. From calm to angry.",
+    "D. From calm to disappointed."
+  ],
+  "answer": "C"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Attribute Recognition",
+  "duration_s": 36.34,
+  "file": "videos\\worldsense\\hallucination\\video.mp4",
+  "question_index": 1,
+  "question": "What type of shoes is the woman wearing in the video?",
+  "choices": [
+    "A. Yellow canvas shoes.",
+    "B. Yellow casual shoes.",
+    "C. Yellow sneakers.",
+    "D. Yellow slippers."
+  ],
+  "answer": "D"
+}

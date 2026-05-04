@@ -1,0 +1,51 @@
+
+============================================================
+RUN (OmniZip): 2026-04-15 10:26:19
+============================================================
+Loaded 44 entries
+Running 44 entries with OmniZip
+Each line in --output is written after one question finishes; the first can take many minutes (video decode + optional MP4 audio via librosa/audioread + generation). Use --no_audio to skip separate audio loading.
+
+Input mode: video+audio+text; sample_fps=2.0; max_pixels=100352; max_new_tokens=256; temperature=0.1; seed=20260419
+Note: qwen-vl-utils/decord logs the source video's native fps, not the requested sample_fps.
+
+Loading model from /data/armaan/models/Qwen2.5-Omni-7B with OmniZip ...
+  rho_audio=0.3  rho_video=0.6  g=3  contextual_ratio=0.05
+  torch_dtype=bfloat16
+Model loaded. VRAM: 16.6 GB allocated, 20.9 GB reserved
+  [✓] video-mme/Action Reasoning [Action Reasoning] pred=D ans=D
+  [✓] video-mme/Action Reasoning [Action Reasoning] pred=B ans=B
+  [✗] video-mme/Action Reasoning [Action Reasoning] pred=B ans=C
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Action Recognition [Action Recognition] pred=A ans=D
+  [✗] video-mme/Action Recognition [Action Recognition] pred=B ans=A
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=C
+  [✗] video-mme/Attribute Perception [Attribute Perception] pred=B ans=D
+  [✓] video-mme/Attribute Perception [Attribute Perception] pred=A ans=A
+  [✗] video-mme/Counting Problem [Counting Problem] pred=B ans=C
+  [✗] video-mme/Counting Problem [Counting Problem] pred=C ans=D
+  [✓] video-mme/Counting Problem [Counting Problem] pred=B ans=B
+  [✓] video-mme/Information Synopsis [Information Synopsis] pred=A ans=A
+  [✓] video-mme/Information Synopsis [Information Synopsis] pred=A ans=A
+  [✗] video-mme/Information Synopsis [Information Synopsis] pred=B ans=C
+  [✓] video-mme/OCR Problems [OCR Problems] pred=A ans=A
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=C
+  [✗] video-mme/OCR Problems [OCR Problems] pred=D ans=B
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=C ans=D
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=B ans=D
+  [✗] video-mme/Object Reasoning [Object Reasoning] pred=A ans=B
+  [✗] video-mme/Object Recognition [Object Recognition] pred=A ans=C
+  [✗] video-mme/Object Recognition [Object Recognition] pred=B ans=C
+  [✗] video-mme/Object Recognition [Object Recognition] pred=C ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=B ans=C
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=C ans=B
+  [✗] video-mme/Spatial Perception [Spatial Perception] pred=A ans=D
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=A ans=D
+  [✓] video-mme/Spatial Reasoning [Spatial Reasoning] pred=B ans=B
+  [✗] video-mme/Spatial Reasoning [Spatial Reasoning] pred=B ans=C
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=C ans=B
+  [✗] video-mme/Temporal Perception [Temporal Perception] pred=B ans=A
+  [✓] video-mme/Temporal Perception [Temporal Perception] pred=B ans=B
+  [✓] video-mme/Temporal Reasoning [Temporal Reasoning] pred=A ans=A
+  [✗] video-mme/Temporal Reasoning [Temporal Reasoning] pred=B ans=D
+  [✓] video-mme/Temporal Reasoning [Temporal Reasoning] pred=C ans=C

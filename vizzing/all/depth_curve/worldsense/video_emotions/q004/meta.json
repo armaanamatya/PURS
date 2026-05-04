@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Attribute Recognition",
+  "duration_s": 68.56,
+  "file": "videos\\worldsense\\video_emotions\\video.mp4",
+  "question_index": 4,
+  "question": "What is the color of the box used for holding passengers' items during security checks in the video?",
+  "choices": [
+    "A. Transparent.",
+    "B. Gray.",
+    "C. White.",
+    "D. Black."
+  ],
+  "answer": "C"
+}

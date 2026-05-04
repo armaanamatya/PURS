@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Context understanding",
+  "duration_s": 89.84,
+  "file": "videos\\daily-omni\\context_understanding\\video.mp4",
+  "question_index": 3,
+  "question": "What indicates the fiery propulsion is an intentional game feature rather than a contextual anomaly?",
+  "choices": [
+    "A. Dynamic cape physics during aerial maneuvers",
+    "B. Tutorial pop-ups about traversal mechanics",
+    "C. Visible controller vibration feedback",
+    "D. Recurring chromatic synchronization with abilities"
+  ],
+  "answer": "D"
+}

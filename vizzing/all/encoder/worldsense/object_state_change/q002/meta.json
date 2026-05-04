@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Event Sorting",
+  "duration_s": 79.88,
+  "file": "videos\\worldsense\\object_state_change\\video.mp4",
+  "question_index": 2,
+  "question": "What is the correct sequence for testing the fuel pump as presented in the video?",
+  "choices": [
+    "A. (b) Connect the power probe to the ground wire, (a) Identify the power wire and ground wire, (c) The power probe lights up green, (d) Check the water flow in the pipe.",
+    "B. (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (c) The power probe lights up green, (d) Check the water flow in the pipe.",
+    "C. (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (d) Check the water flow in the pipe, (c) The power probe lights up green.",
+    "D. (c) The power probe lights up green, (a) Identify the power wire and ground wire, (b) Connect the power probe to the ground wire, (d) Check the water flow in the pipe."
+  ],
+  "answer": "B"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Human-object Interaction",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_recognition\\video.mp4",
+  "question_index": 2,
+  "question": "What did the woman in red do to the guzheng during the performance in the video?",
+  "choices": [
+    "A. Taps the guzheng with fingers.",
+    "B. Strikes the strings with mallets.",
+    "C. Strikes the guzheng with her hand.",
+    "D. Scratches the strings with fingernails."
+  ],
+  "answer": "C"
+}

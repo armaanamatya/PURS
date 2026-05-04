@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "OCR Problems",
+  "duration_s": 30.91,
+  "file": "videos\\video-mme\\ocr_problems\\video.mp4",
+  "question_index": 2,
+  "question": "Whom is the poem in the video written by?",
+  "choices": [
+    "A. Michael.",
+    "B. Alone.",
+    "C. Edgar.",
+    "D. Shakespeare."
+  ],
+  "answer": "C"
+}

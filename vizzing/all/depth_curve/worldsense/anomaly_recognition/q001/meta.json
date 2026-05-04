@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Text and Diagram Understanding",
+  "duration_s": 38.14,
+  "file": "videos\\worldsense\\anomaly_recognition\\video.mp4",
+  "question_index": 1,
+  "question": "Which column on the screen at the end of the video shows the contestants' rankings?",
+  "choices": [
+    "A. The fifth column.",
+    "B. The first column.",
+    "C. The third column.",
+    "D. The fourth column."
+  ],
+  "answer": "D"
+}

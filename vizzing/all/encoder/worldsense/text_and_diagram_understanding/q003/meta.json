@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Causal Reasoning",
+  "duration_s": 89.68,
+  "file": "videos\\worldsense\\text_and_diagram_understanding\\video.mp4",
+  "question_index": 3,
+  "question": "Why did the female driver wearing black glasses get out of the car?",
+  "choices": [
+    "A. Her vehicle broke down.",
+    "B. She had completed the race.",
+    "C. She was disqualified for violating the rules.",
+    "D. She experienced a health issue."
+  ],
+  "answer": "B"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Event Sorting",
+  "duration_s": 39.0,
+  "file": "videos\\worldsense\\temporal_prediction\\video.mp4",
+  "question_index": 2,
+  "question": "According to the video content, what is the correct sequence? (a) Vince McMahon was erased from WWE history, (b) Chris Benoit's malicious actions, (c) Vince McMahon was charged, (d) WWE promoted matches featuring other wrestlers.",
+  "choices": [
+    "A. (c)(a)(d)(b)",
+    "B. (c)(a)(b)(d)",
+    "C. (b)(c)(a)(d)",
+    "D. (d)(b)(c)(a)"
+  ],
+  "answer": "B"
+}

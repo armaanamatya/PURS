@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Context understanding",
+  "duration_s": 89.84,
+  "file": "videos\\daily-omni\\context_understanding\\video.mp4",
+  "question_index": 2,
+  "question": "What specific visual elements were present when Sara mentioned 'email Anderson'?",
+  "choices": [
+    "A. Indoor office with binder and whiteboard",
+    "B. Dirt field with construction equipment and trees",
+    "C. Excavator actively lifting dirt",
+    "D. Yellow bulldozer parked in foreground"
+  ],
+  "answer": "B"
+}

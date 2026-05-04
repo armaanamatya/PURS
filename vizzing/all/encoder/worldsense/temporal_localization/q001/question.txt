@@ -1,0 +1,6 @@
+Carefully watch this video and pay attention to every detail. Based on your observations, select the best option that accurately addresses the question.
+These are the frames of a video and the corresponding audio. Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+At the end of the video, how did the volume of the man speaking in the black suit change, if at all?
+A. It is unclear to me.
+B. The volume increased from soft to loud.
+C. The volume decreased from loud to soft.

@@ -1,0 +1,15 @@
+{
+  "dataset": "daily-omni",
+  "task_type": "Event Sequence",
+  "duration_s": 31.02,
+  "file": "videos\\daily-omni\\event_sequence\\video.mp4",
+  "question_index": 2,
+  "question": "Which visual-audio pair occurs at the very beginning of the video?",
+  "choices": [
+    "A. Construction site overview -- training program name reference",
+    "B. Detailed sign graphic -- geographical location mention",
+    "C. Instructor in PPE -- personal equipment experience anecdote",
+    "D. Excavator movement -- hands-on training phase description"
+  ],
+  "answer": "B"
+}

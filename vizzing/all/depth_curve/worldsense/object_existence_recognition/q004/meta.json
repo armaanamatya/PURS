@@ -1,0 +1,14 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Object Existence Recognition",
+  "duration_s": 87.28,
+  "file": "videos\\worldsense\\object_existence_recognition\\video.mp4",
+  "question_index": 4,
+  "question": "Is there any pink fabric in the video?",
+  "choices": [
+    "A. I don't know.",
+    "B. Yes.",
+    "C. No."
+  ],
+  "answer": "B"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Attribute Perception",
+  "duration_s": 76.72,
+  "file": "videos\\video-mme\\attribute_perception\\video.mp4",
+  "question_index": 1,
+  "question": "Which of the following options is incorrect regarding the events in Sarajevo depicted in the video?",
+  "choices": [
+    "A. It was organized by the Black Hand in Serbia.",
+    "B. Ferdinand was sitting on the left side of the car.",
+    "C. Ferdinand was wearing a white hat.",
+    "D. The killer was wearing black suit."
+  ],
+  "answer": "C"
+}

@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Action Counting",
+  "duration_s": 41.0,
+  "file": "videos\\worldsense\\action_counting\\video.mp4",
+  "question_index": 3,
+  "question": "How many times does the one-armed monster appear in the video?",
+  "choices": [
+    "A. Two.",
+    "B. Four.",
+    "C. Three.",
+    "D. One."
+  ],
+  "answer": "C"
+}

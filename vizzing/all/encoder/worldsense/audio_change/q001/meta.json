@@ -1,0 +1,14 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Audio Change",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_change\\video.mp4",
+  "question_index": 1,
+  "question": "At the end of the video, how did the volume of the man speaking in the black suit change, if at all?",
+  "choices": [
+    "A. It is unclear to me.",
+    "B. The volume increased from soft to loud.",
+    "C. The volume decreased from loud to soft."
+  ],
+  "answer": "B"
+}

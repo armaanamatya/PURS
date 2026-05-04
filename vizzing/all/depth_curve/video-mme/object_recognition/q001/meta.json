@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Object Recognition",
+  "duration_s": 88.75,
+  "file": "videos\\video-mme\\object_recognition\\video.mp4",
+  "question_index": 1,
+  "question": "Which of the following features/items is not discussed in the video in relation to the tomb?",
+  "choices": [
+    "A. Inkstone.",
+    "B. Niche.",
+    "C. Jade.",
+    "D. Sacrificial table."
+  ],
+  "answer": "C"
+}

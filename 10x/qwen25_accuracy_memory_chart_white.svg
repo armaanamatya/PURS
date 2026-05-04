@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050">
+<rect width="1800" height="1050" fill="#ffffff"/>
+<text x="900" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#141414">Accuracy and Memory by Method and Temperature</text>
+<rect x="650" y="130" width="28" height="14" fill="#f4a259"/><text x="688" y="142" font-family="Arial, sans-serif" font-size="15" fill="#141414">Accuracy Mean (%)</text>
+<rect x="900" y="130" width="28" height="14" fill="#b87983"/><text x="938" y="142" font-family="Arial, sans-serif" font-size="15" fill="#141414">Memory Mean (GB)</text>
+<line x1="170" y1="840.00" x2="1630" y2="840.00" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="845" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">0</text>
+<text x="1643" y="845" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">0</text>
+<line x1="170" y1="758.13" x2="1630" y2="758.13" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="763.125" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">5</text>
+<text x="1643" y="763.125" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">5</text>
+<line x1="170" y1="676.25" x2="1630" y2="676.25" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="681.25" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">10</text>
+<text x="1643" y="681.25" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">10</text>
+<line x1="170" y1="594.38" x2="1630" y2="594.38" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="599.375" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">15</text>
+<text x="1643" y="599.375" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">15</text>
+<line x1="170" y1="512.50" x2="1630" y2="512.50" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="517.5" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">20</text>
+<text x="1643" y="517.5" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">20</text>
+<line x1="170" y1="430.63" x2="1630" y2="430.63" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="435.625" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">25</text>
+<text x="1643" y="435.625" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">25</text>
+<line x1="170" y1="348.75" x2="1630" y2="348.75" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="353.75" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">30</text>
+<text x="1643" y="353.75" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">30</text>
+<line x1="170" y1="266.88" x2="1630" y2="266.88" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="271.875" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">35</text>
+<text x="1643" y="271.875" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">35</text>
+<line x1="170" y1="185.00" x2="1630" y2="185.00" stroke="#dcdcdc" stroke-width="1"/>
+<text x="157" y="190" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#141414">40</text>
+<text x="1643" y="190" text-anchor="start" font-family="Arial, sans-serif" font-size="13" fill="#141414">40</text>
+<line x1="170" y1="185" x2="170" y2="840" stroke="#555" stroke-width="2"/>
+<line x1="1630" y1="185" x2="1630" y2="840" stroke="#555" stroke-width="2"/>
+<line x1="170" y1="840" x2="1630" y2="840" stroke="#555" stroke-width="2"/>
+<text x="72" y="512.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#141414" transform="rotate(-90 72 512.5)">Accuracy (%)</text>
+<text x="1728" y="512.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#141414" transform="rotate(90 1728 512.5)">Memory (GB)</text>
+<rect x="198.58" y="330.71" width="39.42" height="509.29" fill="#f4a259"/>
+<rect x="248.00" y="281.40" width="39.42" height="558.60" fill="#b87983"/>
+<line x1="218.29" y1="352.46" x2="218.29" y2="308.96" stroke="#232323" stroke-width="1.5"/><line x1="211.29" y1="352.46" x2="225.29" y2="352.46" stroke="#232323" stroke-width="1.5"/><line x1="211.29" y1="308.96" x2="225.29" y2="308.96" stroke="#232323" stroke-width="1.5"/>
+<line x1="267.71" y1="281.40" x2="267.71" y2="281.40" stroke="#232323" stroke-width="1.5"/><line x1="260.71" y1="281.40" x2="274.71" y2="281.40" stroke="#232323" stroke-width="1.5"/><line x1="260.71" y1="281.40" x2="274.71" y2="281.40" stroke="#232323" stroke-width="1.5"/>
+<text x="218.29" y="315.71" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">31.1</text>
+<text x="267.71" y="266.40" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">34.1</text>
+<text x="243.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="243.00">Baseline</tspan><tspan x="243.00" dy="22">T=0.1</tspan></text>
+<rect x="344.58" y="294.63" width="39.42" height="545.37" fill="#f4a259"/>
+<rect x="394.00" y="281.40" width="39.42" height="558.60" fill="#b87983"/>
+<line x1="364.28999999999996" y1="343.60" x2="364.28999999999996" y2="245.65" stroke="#232323" stroke-width="1.5"/><line x1="357.28999999999996" y1="343.60" x2="371.28999999999996" y2="343.60" stroke="#232323" stroke-width="1.5"/><line x1="357.28999999999996" y1="245.65" x2="371.28999999999996" y2="245.65" stroke="#232323" stroke-width="1.5"/>
+<line x1="413.71" y1="281.40" x2="413.71" y2="281.40" stroke="#232323" stroke-width="1.5"/><line x1="406.71" y1="281.40" x2="420.71" y2="281.40" stroke="#232323" stroke-width="1.5"/><line x1="406.71" y1="281.40" x2="420.71" y2="281.40" stroke="#232323" stroke-width="1.5"/>
+<text x="364.29" y="279.63" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">33.3</text>
+<text x="413.71" y="266.40" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">34.1</text>
+<text x="389.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="389.00">Baseline</tspan><tspan x="389.00" dy="22">T=0.9</tspan></text>
+<rect x="490.58" y="329.32" width="39.42" height="510.68" fill="#f4a259"/>
+<rect x="540.00" y="496.06" width="39.42" height="343.94" fill="#b87983"/>
+<line x1="510.28999999999996" y1="350.82" x2="510.28999999999996" y2="307.82" stroke="#232323" stroke-width="1.5"/><line x1="503.28999999999996" y1="350.82" x2="517.29" y2="350.82" stroke="#232323" stroke-width="1.5"/><line x1="503.28999999999996" y1="307.82" x2="517.29" y2="307.82" stroke="#232323" stroke-width="1.5"/>
+<line x1="559.71" y1="513.76" x2="559.71" y2="478.37" stroke="#232323" stroke-width="1.5"/><line x1="552.71" y1="513.76" x2="566.71" y2="513.76" stroke="#232323" stroke-width="1.5"/><line x1="552.71" y1="478.37" x2="566.71" y2="478.37" stroke="#232323" stroke-width="1.5"/>
+<text x="510.29" y="314.32" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">31.2</text>
+<text x="559.71" y="481.06" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.0</text>
+<text x="535.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="535.00">OmniZip</tspan><tspan x="535.00" dy="22">T=0.1</tspan></text>
+<rect x="636.58" y="302.96" width="39.42" height="537.04" fill="#f4a259"/>
+<rect x="686.00" y="490.24" width="39.42" height="349.76" fill="#b87983"/>
+<line x1="656.2900000000001" y1="358.87" x2="656.2900000000001" y2="247.04" stroke="#232323" stroke-width="1.5"/><line x1="649.2900000000001" y1="358.87" x2="663.2900000000001" y2="358.87" stroke="#232323" stroke-width="1.5"/><line x1="649.2900000000001" y1="247.04" x2="663.2900000000001" y2="247.04" stroke="#232323" stroke-width="1.5"/>
+<line x1="705.71" y1="490.62" x2="705.71" y2="489.86" stroke="#232323" stroke-width="1.5"/><line x1="698.71" y1="490.62" x2="712.71" y2="490.62" stroke="#232323" stroke-width="1.5"/><line x1="698.71" y1="489.86" x2="712.71" y2="489.86" stroke="#232323" stroke-width="1.5"/>
+<text x="656.29" y="287.96" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">32.8</text>
+<text x="705.71" y="475.24" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.4</text>
+<text x="681.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="681.00">OmniZip</tspan><tspan x="681.00" dy="22">T=0.9</tspan></text>
+<rect x="782.58" y="506.95" width="39.42" height="333.05" fill="#f4a259"/>
+<rect x="832.00" y="489.66" width="39.42" height="350.34" fill="#b87983"/>
+<line x1="802.2900000000001" y1="526.57" x2="802.2900000000001" y2="487.32" stroke="#232323" stroke-width="1.5"/><line x1="795.2900000000001" y1="526.57" x2="809.2900000000001" y2="526.57" stroke="#232323" stroke-width="1.5"/><line x1="795.2900000000001" y1="487.32" x2="809.2900000000001" y2="487.32" stroke="#232323" stroke-width="1.5"/>
+<line x1="851.71" y1="489.66" x2="851.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="844.71" y1="489.66" x2="858.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="844.71" y1="489.66" x2="858.71" y2="489.66" stroke="#232323" stroke-width="1.5"/>
+<text x="802.29" y="491.95" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">20.3</text>
+<text x="851.71" y="474.66" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.4</text>
+<text x="827.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="827.00">DivPrune</tspan><tspan x="827.00" dy="22">T=0.1</tspan></text>
+<rect x="928.58" y="438.95" width="39.42" height="401.05" fill="#f4a259"/>
+<rect x="978.00" y="489.66" width="39.42" height="350.34" fill="#b87983"/>
+<line x1="948.2900000000001" y1="494.63" x2="948.2900000000001" y2="383.27" stroke="#232323" stroke-width="1.5"/><line x1="941.2900000000001" y1="494.63" x2="955.2900000000001" y2="494.63" stroke="#232323" stroke-width="1.5"/><line x1="941.2900000000001" y1="383.27" x2="955.2900000000001" y2="383.27" stroke="#232323" stroke-width="1.5"/>
+<line x1="997.71" y1="489.66" x2="997.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="990.71" y1="489.66" x2="1004.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="990.71" y1="489.66" x2="1004.71" y2="489.66" stroke="#232323" stroke-width="1.5"/>
+<text x="948.29" y="423.95" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">24.5</text>
+<text x="997.71" y="474.66" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.4</text>
+<text x="973.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="973.00">DivPrune</tspan><tspan x="973.00" dy="22">T=0.9</tspan></text>
+<rect x="1074.58" y="483.36" width="39.42" height="356.64" fill="#f4a259"/>
+<rect x="1124.00" y="489.66" width="39.42" height="350.34" fill="#b87983"/>
+<line x1="1094.29" y1="498.06" x2="1094.29" y2="468.66" stroke="#232323" stroke-width="1.5"/><line x1="1087.29" y1="498.06" x2="1101.29" y2="498.06" stroke="#232323" stroke-width="1.5"/><line x1="1087.29" y1="468.66" x2="1101.29" y2="468.66" stroke="#232323" stroke-width="1.5"/>
+<line x1="1143.71" y1="489.66" x2="1143.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="1136.71" y1="489.66" x2="1150.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="1136.71" y1="489.66" x2="1150.71" y2="489.66" stroke="#232323" stroke-width="1.5"/>
+<text x="1094.29" y="468.36" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">21.8</text>
+<text x="1143.71" y="474.66" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.4</text>
+<text x="1119.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="1119.00">ReDiPrune</tspan><tspan x="1119.00" dy="22">T=0.1</tspan></text>
+<rect x="1220.58" y="407.03" width="39.42" height="432.97" fill="#f4a259"/>
+<rect x="1270.00" y="489.66" width="39.42" height="350.34" fill="#b87983"/>
+<line x1="1240.29" y1="435.40" x2="1240.29" y2="378.67" stroke="#232323" stroke-width="1.5"/><line x1="1233.29" y1="435.40" x2="1247.29" y2="435.40" stroke="#232323" stroke-width="1.5"/><line x1="1233.29" y1="378.67" x2="1247.29" y2="378.67" stroke="#232323" stroke-width="1.5"/>
+<line x1="1289.71" y1="489.66" x2="1289.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="1282.71" y1="489.66" x2="1296.71" y2="489.66" stroke="#232323" stroke-width="1.5"/><line x1="1282.71" y1="489.66" x2="1296.71" y2="489.66" stroke="#232323" stroke-width="1.5"/>
+<text x="1240.29" y="392.03" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">26.4</text>
+<text x="1289.71" y="474.66" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">21.4</text>
+<text x="1265.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="1265.00">ReDiPrune</tspan><tspan x="1265.00" dy="22">T=0.9</tspan></text>
+<rect x="1366.58" y="512.50" width="39.42" height="327.50" fill="#f4a259"/>
+<rect x="1416.00" y="445.24" width="39.42" height="394.76" fill="#b87983"/>
+<line x1="1386.29" y1="530.05" x2="1386.29" y2="494.95" stroke="#232323" stroke-width="1.5"/><line x1="1379.29" y1="530.05" x2="1393.29" y2="530.05" stroke="#232323" stroke-width="1.5"/><line x1="1379.29" y1="494.95" x2="1393.29" y2="494.95" stroke="#232323" stroke-width="1.5"/>
+<line x1="1435.71" y1="445.24" x2="1435.71" y2="445.24" stroke="#232323" stroke-width="1.5"/><line x1="1428.71" y1="445.24" x2="1442.71" y2="445.24" stroke="#232323" stroke-width="1.5"/><line x1="1428.71" y1="445.24" x2="1442.71" y2="445.24" stroke="#232323" stroke-width="1.5"/>
+<text x="1386.29" y="497.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">20.0</text>
+<text x="1435.71" y="430.24" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">24.1</text>
+<text x="1411.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="1411.00">MixKV</tspan><tspan x="1411.00" dy="22">T=0.1</tspan></text>
+<rect x="1512.58" y="479.19" width="39.42" height="360.81" fill="#f4a259"/>
+<rect x="1562.00" y="445.24" width="39.42" height="394.76" fill="#b87983"/>
+<line x1="1532.29" y1="534.70" x2="1532.29" y2="423.69" stroke="#232323" stroke-width="1.5"/><line x1="1525.29" y1="534.70" x2="1539.29" y2="534.70" stroke="#232323" stroke-width="1.5"/><line x1="1525.29" y1="423.69" x2="1539.29" y2="423.69" stroke="#232323" stroke-width="1.5"/>
+<line x1="1581.71" y1="445.24" x2="1581.71" y2="445.24" stroke="#232323" stroke-width="1.5"/><line x1="1574.71" y1="445.24" x2="1588.71" y2="445.24" stroke="#232323" stroke-width="1.5"/><line x1="1574.71" y1="445.24" x2="1588.71" y2="445.24" stroke="#232323" stroke-width="1.5"/>
+<text x="1532.29" y="464.19" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#f4a259">22.0</text>
+<text x="1581.71" y="430.24" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b87983">24.1</text>
+<text x="1557.00" y="884" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#141414"><tspan x="1557.00">MixKV</tspan><tspan x="1557.00" dy="22">T=0.9</tspan></text>
+</svg>

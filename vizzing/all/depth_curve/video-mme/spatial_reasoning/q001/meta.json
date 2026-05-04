@@ -1,0 +1,15 @@
+{
+  "dataset": "video-mme",
+  "task_type": "Spatial Reasoning",
+  "duration_s": 80.41,
+  "file": "videos\\video-mme\\spatial_reasoning\\video.mp4",
+  "question_index": 1,
+  "question": "Why does the roof object fly?",
+  "choices": [
+    "A. There was an explosion.",
+    "B. Thrown into the air by a child.",
+    "C. Tied to a balloon.",
+    "D. Lunar approach."
+  ],
+  "answer": "D"
+}

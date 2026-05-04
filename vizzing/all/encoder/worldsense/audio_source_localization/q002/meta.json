@@ -1,0 +1,15 @@
+{
+  "dataset": "worldsense",
+  "task_type": "Video Emotions",
+  "duration_s": 60.0,
+  "file": "videos\\worldsense\\audio_source_localization\\video.mp4",
+  "question_index": 2,
+  "question": "What is the most likely emotional tone conveyed by the music in the video?",
+  "choices": [
+    "A. The emotion in the video is joy and excitement.",
+    "B. The emotion in the video is melancholy and pain.",
+    "C. The emotion in the video is joy and relaxation.",
+    "D. The emotion in the video is calm and melancholy."
+  ],
+  "answer": "D"
+}

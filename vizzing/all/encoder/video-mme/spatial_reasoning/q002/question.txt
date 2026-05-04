@@ -1,0 +1,7 @@
+Select the best answer to the following multiple-choice question based on the video and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option.
+Which type of disaster is portrayed in the video?
+A. Man-made disaster.
+B. Astronomical disaster.
+C. Meteorological disaster.
+D. Geological disaster.
+The best answer is:
