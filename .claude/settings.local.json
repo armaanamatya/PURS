@@ -27,7 +27,11 @@
       "PowerShell(notebooklm source *)",
       "PowerShell($nb = \"1d2870bd-64b9-4710-91ef-9353fc840137\"; $nbk = \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\venv\\\\Scripts\\\\notebooklm.exe\"; & $nbk source wait a16c3264-ca33-4d2f-9ca2-a2b999204119 -n $nb --timeout 300; & $nbk source wait 3a4d9aac-ae80-4893-9b52-46639db9e849 -n $nb --timeout 300; & $nbk source wait c791990d-5541-4e80-99fe-350490ead3e2 -n $nb --timeout 300)",
       "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; $nb = \"1d2870bd-64b9-4710-91ef-9353fc840137\"; & \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\venv\\\\Scripts\\\\notebooklm.exe\" source list --notebook $nb --json | ConvertFrom-Json | ForEach-Object { $_.sources } | Select-Object id, title, status)",
-      "PowerShell(notebooklm ask *)"
+      "PowerShell(notebooklm ask *)",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; & \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\venv\\\\Scripts\\\\python.exe\" -m videozip.tests.test_video_saliency 2>&1)",
+      "PowerShell($candidates = @\\(\"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\envs\\\\omni\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\envs\\\\qwen\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\envs\\\\purs\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\anaconda3\\\\envs\\\\omni\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\anaconda3\\\\python.exe\", \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\.venv\\\\Scripts\\\\python.exe\", \"python\"\\); foreach \\($p in $candidates\\) { try { $v = & $p -c \"import torch; print\\('OK', torch.__version__\\)\" 2>&1; if \\($LASTEXITCODE -eq 0\\) { Write-Output \"FOUND: $p -> $v\" } } catch { } }; Get-ChildItem C:\\\\Users\\\\Armaan\\\\miniconda3\\\\envs -Directory -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem C:\\\\Users\\\\Armaan\\\\anaconda3\\\\envs -Directory -ErrorAction SilentlyContinue | Select-Object Name)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Test-Path \"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\envs\"; Get-ChildItem \"C:\\\\Users\\\\Armaan\\\\miniconda3\" -Force -ErrorAction SilentlyContinue | Where-Object { $_.PSIsContainer } | Select-Object -ExpandProperty Name; & \"C:\\\\Users\\\\Armaan\\\\miniconda3\\\\python.exe\" -c \"import torch; print\\('torch', torch.__version__\\)\" 2>&1)"
     ]
   }
 }
