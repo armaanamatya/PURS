@@ -65,6 +65,20 @@ OUT_DIR = args.out_dir
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
+# Drop a run_meta.json so the folder is self-describing.
+import json as _json, datetime as _dt
+_meta = {
+    "video_path": VIDEO_PATH,
+    "question":   QUESTION,
+    "model_path": MODEL_PATH,
+    "fps":        args.fps,
+    "max_pixels": args.max_pixels,
+    "max_frames": args.max_frames,
+    "timestamp":  _dt.datetime.now().isoformat(timespec="seconds"),
+}
+with open(os.path.join(OUT_DIR, "run_meta.json"), "w") as _f:
+    _json.dump(_meta, _f, indent=2)
+
 # ── Load model ───────────────────────────────────────────────────────────────
 print("Loading Qwen2.5-Omni-7B with eager attention …")
 model = Qwen2_5OmniForConditionalGeneration.from_pretrained(

@@ -21,7 +21,13 @@
       "Bash(rm -rf awq/awq awq/gptq)",
       "Bash(pdftotext \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\redipruneimage_final.pdf\" -)",
       "Bash(docker rmi *)",
-      "Bash(docker build *)"
+      "Bash(docker build *)",
+      "Bash(notebooklm status *)",
+      "PowerShell(notebooklm status *)",
+      "PowerShell(notebooklm source *)",
+      "PowerShell($nb = \"1d2870bd-64b9-4710-91ef-9353fc840137\"; $nbk = \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\venv\\\\Scripts\\\\notebooklm.exe\"; & $nbk source wait a16c3264-ca33-4d2f-9ca2-a2b999204119 -n $nb --timeout 300; & $nbk source wait 3a4d9aac-ae80-4893-9b52-46639db9e849 -n $nb --timeout 300; & $nbk source wait c791990d-5541-4e80-99fe-350490ead3e2 -n $nb --timeout 300)",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; $nb = \"1d2870bd-64b9-4710-91ef-9353fc840137\"; & \"C:\\\\Users\\\\Armaan\\\\Desktop\\\\PURS\\\\venv\\\\Scripts\\\\notebooklm.exe\" source list --notebook $nb --json | ConvertFrom-Json | ForEach-Object { $_.sources } | Select-Object id, title, status)",
+      "PowerShell(notebooklm ask *)"
     ]
   }
 }
