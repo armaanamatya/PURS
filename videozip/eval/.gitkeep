@@ -1,0 +1,3 @@
+# Placeholder. Next file to add: eval_videozip.py
+# Mirror of OmniZip-OG/omnizip/eval_qwen_omni_zip_cached.py — same monkey-patch pattern,
+# dispatching to videozip.src.videozip.omnizip_videozip when guide_mode == "video".
