@@ -1,0 +1,94 @@
+{
+  "rows": [
+    {
+      "category": "Baseline\nT=0.1",
+      "method": "Baseline",
+      "temperature": 0.1,
+      "accuracyMean": 31.10169491525424,
+      "accuracySd": 1.327984098705441,
+      "memoryMean": 34.11328125,
+      "memorySd": 0
+    },
+    {
+      "category": "Baseline\nT=0.9",
+      "method": "Baseline",
+      "temperature": 0.9,
+      "accuracyMean": 33.305084745762706,
+      "accuracySd": 2.9908838265686843,
+      "memoryMean": 34.11328125,
+      "memorySd": 0
+    },
+    {
+      "category": "OmniZip\nT=0.1",
+      "method": "OmniZip",
+      "temperature": 0.1,
+      "accuracyMean": 31.1864406779661,
+      "accuracySd": 1.3128757105787847,
+      "memoryMean": 21.0037109375,
+      "memorySd": 1.0808383675063167
+    },
+    {
+      "category": "OmniZip\nT=0.9",
+      "method": "OmniZip",
+      "temperature": 0.9,
+      "accuracyMean": 32.79661016949153,
+      "accuracySd": 3.4144585578286595,
+      "memoryMean": 21.3595703125,
+      "memorySd": 0.023117938638945786
+    },
+    {
+      "category": "DivPrune\nT=0.1",
+      "method": "DivPrune",
+      "temperature": 0.1,
+      "accuracyMean": 20.338983050847457,
+      "accuracySd": 1.1984860698077069,
+      "memoryMean": 21.39453125,
+      "memorySd": 0
+    },
+    {
+      "category": "DivPrune\nT=0.9",
+      "method": "DivPrune",
+      "temperature": 0.9,
+      "accuracyMean": 24.491525423728813,
+      "accuracySd": 3.400407228430318,
+      "memoryMean": 21.39453125,
+      "memorySd": 0
+    },
+    {
+      "category": "ReDiPrune\nT=0.1",
+      "method": "ReDiPrune",
+      "temperature": 0.1,
+      "accuracyMean": 21.77966101694915,
+      "accuracySd": 0.8977541571791361,
+      "memoryMean": 21.39453125,
+      "memorySd": 0
+    },
+    {
+      "category": "ReDiPrune\nT=0.9",
+      "method": "ReDiPrune",
+      "temperature": 0.9,
+      "accuracyMean": 26.440677966101692,
+      "accuracySd": 1.7321705894639423,
+      "memoryMean": 21.39453125,
+      "memorySd": 0
+    },
+    {
+      "category": "MixKV\nT=0.1",
+      "method": "MixKV",
+      "temperature": 0.1,
+      "accuracyMean": 19.999999999999996,
+      "accuracySd": 1.0719585288706368,
+      "memoryMean": 24.107421875,
+      "memorySd": 0
+    },
+    {
+      "category": "MixKV\nT=0.9",
+      "method": "MixKV",
+      "temperature": 0.9,
+      "accuracyMean": 22.033898305084744,
+      "accuracySd": 3.3898305084745766,
+      "memoryMean": 24.107421875,
+      "memorySd": 0
+    }
+  ]
+}
