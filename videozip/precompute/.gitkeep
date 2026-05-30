@@ -1,0 +1,3 @@
+# Placeholder. Next file to add: precompute_l6_video_saliency.py
+# Mirror of OmniZip-OG/omnizip/precompute_l6_saliency.py but slicing video tokens
+# instead of audio tokens. Output: ../cache/layer_depth_video_full.jsonl

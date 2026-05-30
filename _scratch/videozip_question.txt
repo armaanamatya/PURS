@@ -1,0 +1,16 @@
+Compare these THREE specific approaches side-by-side: OmniSIFT (from omnisift.pdf), OmniZip (from omnizip.pdf), and VideoZip (from videozip_plan.md). Do NOT substitute other methods like FastV, DyCoke, or VisionZip. All three must appear in every comparison.
+
+Produce:
+
+1. A markdown table with columns: Axis, OmniSIFT, OmniZip, VideoZip - covering exactly these 5 axes:
+   (a) Guidance direction (which modality drives compression of the other)
+   (b) Training requirements (training-free vs learned, parameter count if any)
+   (c) Cross-modal anchoring (uni-directional or bi-directional, which embeddings guide which selection)
+   (d) Where pruning is inserted in the architecture (before LLM, encoder-output, or inside LLM layers)
+   (e) Reported efficiency gains (prefill speedup, memory reduction, retention vs accuracy)
+
+2. A short Unique-to-VideoZip section listing what VideoZip claims that neither OmniSIFT nor OmniZip provides, especially: bidirectional cross-modal anchoring (audio also guides video anchor selection via dpcknn), L6-cached video saliency for free 1.6x prefill, and adaptive guide-mode selection via attention entropy.
+
+3. A Where-each-wins section: which task profiles favor each method.
+
+Cite every claim with source references. If a claim cannot be supported from the three sources, omit it.

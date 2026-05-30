@@ -1,0 +1,7 @@
+# OmniRefine core: pure NumPy (training-free, tensor-level).
+numpy>=1.23
+
+# Optional: needed for omnirefine.torch_runtime and a real Qwen2.5-Omni hook.
+# The model-free core in omnirefine/ does not import torch at module import time.
+# torch>=2.1
+# transformers>=4.49

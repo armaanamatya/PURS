@@ -1,0 +1,6 @@
+# Placeholder. Per docs/videozip_plan.md §7:
+#   ablation_a_direction.py     audio-guide vs video-guide vs sim-only
+#   ablation_b_anchor_beta.py   audio_anchor_beta in {0.0, 0.1, 0.3, 0.5, 1.0}
+#   ablation_c_pergroup.py      global vs per-group audio compression
+#   ablation_d_adaptive.py      attention-entropy guide selection
+#   ablation_e_l6cache.py       live attn vs L6-cached vs L6-no-cache

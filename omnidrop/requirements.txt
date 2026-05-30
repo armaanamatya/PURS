@@ -1,0 +1,10 @@
+numpy>=1.23
+# tests:
+pytest>=7.0
+# notebook (optional):
+# jupyter
+#
+# NOTE: This minimal reproduction is pure NumPy so every component is runnable
+# and unit-testable without the full Qwen2.5-Omni stack. A real integration
+# would apply the identical index/mask logic to torch tensors inside the
+# Qwen2.5-Omni decoder forward pass (transformers + flash-attn).

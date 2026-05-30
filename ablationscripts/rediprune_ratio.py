@@ -1,0 +1,517 @@
+"""
+rediprune_ratio.py
+==================
+Ablation: sweep keep_ratio ∈ {0.25, 0.33, 0.5, 0.67, 0.75} in ReDiPrune.
+
+MATH:
+  K = max(1, round(N * keep_ratio))   frames selected from N total frames.
+
+  keep_ratio = 0.25 → K = N/4  (75% frame reduction, aggressive compression)
+  keep_ratio = 0.33 → K = N/3  (67% reduction)
+  keep_ratio = 0.50 → K = N/2  (50% reduction, paper default)
+  keep_ratio = 0.67 → K ≈ 2N/3 (33% reduction, mild)
+  keep_ratio = 0.75 → K = 3N/4 (25% reduction, very mild)
+
+This sweep generates the compression-accuracy Pareto curve for ReDiPrune,
+showing how aggressively frames can be pruned before accuracy degrades.
+
+Fixed: alpha=0.5, tau=0.1, prune_mode=frame
+
+Usage:
+  # Run all ratio values sequentially:
+  python rediprune_ratio.py --metadata metadata.json --videos /data/videos
+
+  # Run a single ratio value (for parallel GPU execution):
+  python rediprune_ratio.py --metadata metadata.json --videos /data/videos --value 0.5
+"""
+
+import argparse
+import json
+import glob
+import os
+import sys
+import torch
+import torch.nn.functional as F
+from datetime import datetime
+from pathlib import Path
+
+# ── Path setup ───────────────────────────────────────────────────────────────
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+OMNIZIP_DIR = os.path.join(_REPO_ROOT, "..", "OmniZip-main")
+QWEN_OMNI_UTILS_SRC = os.path.join(OMNIZIP_DIR, "qwen-omni-utils", "src")
+if QWEN_OMNI_UTILS_SRC not in sys.path:
+    sys.path.insert(0, QWEN_OMNI_UTILS_SRC)
+sys.path.insert(0, os.path.join(_REPO_ROOT, ".."))
+
+from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
+from qwen_omni_utils import process_mm_info
+from mcq_answer_parse import parse_answer
+
+# ── Constants ────────────────────────────────────────────────────────────────
+DEFAULT_MODEL_PATH = "/data/armaan/models/Qwen2.5-Omni-7B"
+FALLBACK_MODEL_PATH = "/workspace/model"
+MODEL_PATH = os.environ.get("QWEN_OMNI_MODEL_PATH") or DEFAULT_MODEL_PATH
+
+DEFAULT_FPS = 2.0
+DEFAULT_MAX_PIXELS = 100352
+DEFAULT_MAX_FRAMES_VIDEOMME = 768
+DEFAULT_MAX_FRAMES_OTHER = 128
+DEFAULT_MAX_NEW_TOKENS = 256
+DEFAULT_TEMPERATURE = 0.1
+
+FIXED_ALPHA = 0.5
+FIXED_TAU = 0.1
+FIXED_PRUNE_MODE = "frame"
+RATIO_VALUES = [0.25, 0.33, 0.5, 0.67, 0.75]
+
+SYSTEM_PROMPT = (
+    "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, "
+    "capable of perceiving auditory and visual inputs, as well as generating text and speech."
+)
+SYSTEM_MCQ_SUFFIX = (
+    "For multiple-choice questions, reply with only one letter: A, B, C, or D. "
+    "Do not explain, do not ask follow-up questions, and do not add text after the letter."
+)
+
+MODEL_LOADED_ALLOC_GB = None
+MODEL_LOADED_RESERVED_GB = None
+
+# ── ReDiPrune core ───────────────────────────────────────────────────────────
+
+@torch.no_grad()
+def rediprune_select(visual_tokens, text_query, keep_ratio, alpha, tau):
+    """ReDiPrune greedy farthest-point + text-relevance token selection.
+
+    score_i = min_{j in S} (1 - cos_sim(v_i, v_j)) + alpha * cos_sim(v_i, q_text)
+    """
+    P, Cv = visual_tokens.shape
+    K = max(1, int(round(P * keep_ratio)))
+    if K >= P:
+        return torch.arange(P, device=visual_tokens.device)
+
+    dev = visual_tokens.device
+    vf = visual_tokens.float()
+    tq = text_query.float().to(dev)
+    Vn = F.normalize(vf, p=2, dim=1)
+
+    tq = tq.unsqueeze(0) if tq.dim() == 1 else tq
+    Dq = tq.shape[1]
+    if Dq != Cv:
+        if Dq > Cv:
+            tq = F.adaptive_avg_pool1d(tq.unsqueeze(1), Cv).squeeze(1) if Dq % Cv != 0 else tq.view(1, Cv, -1).mean(2)
+        else:
+            rep = (Cv + Dq - 1) // Dq
+            tq = tq.repeat(1, rep)[:, :Cv]
+    Tn = F.normalize(tq, p=2, dim=1)
+
+    rel = (Vn @ Tn.t()).squeeze(1)  # (P,)
+
+    if tau > 0:
+        if K < P // 2:
+            _, cand = torch.topk(rel, k=min(P, max(K * 3, K + 1)))
+        else:
+            mask = (rel >= tau)
+            cand = torch.where(mask)[0] if mask.sum() >= K else torch.topk(rel, K)[1]
+    else:
+        cand = torch.arange(P, device=dev)
+
+    div_mat = 1.0 - (Vn[cand] @ Vn[cand].t())
+    rel_c = rel[cand]
+    Nc = cand.shape[0]
+    sel = torch.empty(K, dtype=torch.long, device=dev)
+    sel[0] = torch.argmax(rel_c)
+
+    for i in range(1, K):
+        min_dist = div_mat[sel[:i]].min(dim=0).values
+        score = min_dist + alpha * rel_c
+        mask = torch.ones(Nc, dtype=torch.bool, device=dev)
+        mask[sel[:i]] = False
+        score[~mask] = -float('inf')
+        sel[i] = torch.argmax(score)
+
+    out_idx, _ = torch.sort(cand[sel])
+    return out_idx
+
+
+def get_text_query(model, processor, question_text):
+    """Encode question text to (D,) query vector via mean-pooled embed_tokens."""
+    tokenizer = processor.tokenizer
+    tids = tokenizer(question_text, return_tensors="pt", truncation=True, max_length=128)["input_ids"]
+    dev = next(model.parameters()).device
+    tids = tids.to(dev)
+    embed = model.thinker.model.embed_tokens if hasattr(model, "thinker") else model.model.embed_tokens
+    with torch.no_grad():
+        emb = embed(tids)
+    return emb.mean(dim=1).squeeze(0)
+
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+
+def cuda_time_ms(fn):
+    torch.cuda.synchronize()
+    s = torch.cuda.Event(enable_timing=True)
+    e = torch.cuda.Event(enable_timing=True)
+    s.record()
+    out = fn()
+    e.record()
+    torch.cuda.synchronize()
+    return s.elapsed_time(e), out
+
+
+def resolve_video_path(file_field, videos_dir):
+    if os.path.exists(file_field):
+        return file_field
+    normalized = file_field.replace("\\", "/")
+    filename = normalized.split("/")[-1]
+    stem = filename.rsplit(".", 1)[0]
+    cand = os.path.join(videos_dir, filename)
+    if os.path.exists(cand):
+        return cand
+    for ext in ("mp4", "mkv", "webm", "avi"):
+        m = glob.glob(os.path.join(videos_dir, "**", f"{stem}.{ext}"), recursive=True)
+        if m:
+            return m[0]
+    return None
+
+
+def _canonicalize(ds):
+    return (ds or "").strip().lower().replace("_", "-").replace(" ", "-")
+
+
+def _capture_vram():
+    if not torch.cuda.is_available():
+        return 0.0, 0.0
+    return torch.cuda.memory_allocated() / 1024**3, torch.cuda.memory_reserved() / 1024**3
+
+
+def check_video_has_audio(path):
+    try:
+        import av
+        c = av.open(path)
+        has = len(c.streams.audio) > 0
+        c.close()
+        return has
+    except Exception:
+        return False
+
+
+# ── Prompt builders ──────────────────────────────────────────────────────────
+
+def _fmt_choices(choices):
+    if not choices:
+        return ""
+    if choices[0].startswith("A"):
+        return "\n".join(choices)
+    return "\n".join(f"{chr(65+i)}. {c}" for i, c in enumerate(choices))
+
+
+def build_prompt(dataset, question, choices):
+    n = _canonicalize(dataset)
+    q_block = question + "\n" + _fmt_choices(choices)
+    if n in {"video-mme", "videomme"}:
+        return (
+            "Select the best answer to the following multiple-choice question based on the video "
+            "and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option.\n"
+            + q_block + "\nThe best answer is:"
+        )
+    if n == "worldsense":
+        return (
+            "Carefully watch this video and pay attention to every detail. "
+            "Based on your observations, select the best option that accurately addresses the question.\n"
+            "\nThese are the frames of a video and the corresponding audio. "
+            "Select the best answer to the following multiple-choice question based on the video. "
+            "Respond with only the letter (A, B, C, or D) of the correct option.\n"
+            + q_block
+        )
+    if n in {"daily-omni", "dailyomni"}:
+        return (
+            "Listen and watch the video carefully. "
+            "Select the best answer to the following multiple-choice question. "
+            "Respond with only the letter (A, B, C, or D) of the correct option.\n"
+            + q_block + "\nThe best answer is:"
+        )
+    return (
+        "Select the best answer to the following multiple-choice question based on the video. "
+        "Respond with only the letter (A, B, C, or D) of the correct option.\n"
+        + q_block + "\nThe best answer is:"
+    )
+
+
+# ── Model loading ────────────────────────────────────────────────────────────
+
+def load_model():
+    global MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB
+    print(f"Loading model from {MODEL_PATH} ...")
+    model = Qwen2_5OmniForConditionalGeneration.from_pretrained(
+        MODEL_PATH, torch_dtype=torch.bfloat16, device_map="auto",
+        attn_implementation="flash_attention_2",
+    )
+    processor = Qwen2_5OmniProcessor.from_pretrained(MODEL_PATH)
+    if hasattr(model, "disable_talker"):
+        model.disable_talker()
+    MODEL_LOADED_ALLOC_GB, MODEL_LOADED_RESERVED_GB = _capture_vram()
+    print(f"Model loaded. VRAM: {MODEL_LOADED_ALLOC_GB:.1f} GB alloc, {MODEL_LOADED_RESERVED_GB:.1f} GB reserved")
+    return model, processor
+
+
+# ── Inference ────────────────────────────────────────────────────────────────
+
+_DROP_KEYS = frozenset({"images", "return_tensors", "text"})
+
+
+def run_inference(model, processor, video_path, dataset, question, choices,
+                  fps, max_pixels, max_new_tokens, use_audio, keep_ratio, alpha, tau,
+                  max_frames=None, temperature=DEFAULT_TEMPERATURE):
+    prompt = build_prompt(dataset, question, choices)
+    system_text = SYSTEM_PROMPT + " " + SYSTEM_MCQ_SUFFIX
+
+    video_element = {"type": "video", "video": video_path, "fps": fps, "max_pixels": max_pixels}
+    if max_frames is not None:
+        video_element["max_frames"] = max_frames
+
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": system_text}]},
+        {"role": "user", "content": [video_element, {"type": "text", "text": prompt}]},
+    ]
+
+    text_query = get_text_query(model, processor, question)
+    text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+    try:
+        audios, images, videos = process_mm_info(messages, use_audio_in_video=use_audio)
+    except Exception:
+        audios, images, videos = process_mm_info(messages, use_audio_in_video=False)
+        use_audio = False
+
+    if not videos or videos[0] is None or getattr(videos[0], "shape", None) is None:
+        raise ValueError("Decoded 0 video frames")
+
+    orig_nframes = videos[0].shape[0]
+
+    # Frame-level ReDiPrune
+    pruned_videos = []
+    for vid in videos:
+        if vid is not None and vid.shape[0] > 1:
+            features = vid.float().mean(dim=(-2, -1))  # (N, C)
+            sel = rediprune_select(features, text_query, keep_ratio, alpha, tau)
+            pruned_videos.append(vid[sel])
+        else:
+            pruned_videos.append(vid)
+    videos = pruned_videos
+    used_nframes = videos[0].shape[0] if videos[0] is not None else 0
+
+    inputs = processor(
+        text=text, audio=audios, images=images, videos=videos,
+        return_tensors="pt", padding=True, use_audio_in_video=use_audio,
+    )
+    dev = next(model.parameters()).device
+    inputs = inputs.to(dev)
+    for k, v in list(inputs.items()):
+        if isinstance(v, torch.Tensor) and v.is_floating_point():
+            inputs[k] = v.to(model.dtype)
+
+    tokenizer = processor.tokenizer
+    gen_kw = {
+        "use_audio_in_video": use_audio,
+        "return_audio": False,
+        "eos_token_id": tokenizer.eos_token_id,
+        "pad_token_id": tokenizer.pad_token_id,
+    }
+    do_sample = temperature > 0
+    if hasattr(model, "thinker"):
+        gen_kw["thinker_max_new_tokens"] = max_new_tokens
+        gen_kw["thinker_do_sample"] = do_sample
+        if do_sample:
+            gen_kw["thinker_temperature"] = temperature
+    else:
+        gen_kw["max_new_tokens"] = max_new_tokens
+        gen_kw["do_sample"] = do_sample
+        if do_sample:
+            gen_kw["temperature"] = temperature
+
+    gen_in = {k: v for k, v in inputs.items() if k not in _DROP_KEYS}
+
+    # Measure prefill
+    prefill_kw = dict(gen_kw)
+    if "thinker_max_new_tokens" in prefill_kw:
+        prefill_kw["thinker_max_new_tokens"] = 1
+    else:
+        prefill_kw["max_new_tokens"] = 1
+    with torch.no_grad():
+        prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+
+    with torch.no_grad():
+        raw_out = model.generate(**gen_in, **gen_kw)
+
+    seq_ids = raw_out.sequences if hasattr(raw_out, "sequences") else raw_out
+    trimmed = [o[len(i):] for i, o in zip(inputs.input_ids, seq_ids)]
+    decoded = processor.batch_decode(trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0].strip()
+    letter = parse_answer(decoded, choices)
+    return letter, decoded, orig_nframes, used_nframes, round(prefill_ms, 2)
+
+
+# ── Run one ratio value ──────────────────────────────────────────────────────
+
+def run_ratio(keep_ratio, args, model, processor, meta, out_base):
+    slug = f"ratio_{keep_ratio:.2f}".replace(".", "p")
+    out_dir = os.path.join(out_base, slug)
+    os.makedirs(out_dir, exist_ok=True)
+    results_path = os.path.join(out_dir, "results.jsonl")
+    vram_path = os.path.join(out_dir, "vram_log.jsonl")
+
+    print(f"\n{'='*60}")
+    print(f"keep_ratio={keep_ratio:.2f} | alpha={FIXED_ALPHA} | tau={FIXED_TAU}")
+    print(f"K = round(N * {keep_ratio:.2f}) frames per video")
+    print(f"Output: {results_path}")
+    print(f"{'='*60}")
+
+    correct = total = 0
+    results = []
+    total_orig_frames = total_used_frames = 0
+
+    with open(results_path, "w") as out_f, open(vram_path, "w") as vram_f:
+        for entry in meta:
+            video_path = resolve_video_path(entry["file"], args.videos)
+            if video_path is None:
+                continue
+            use_audio = (not args.no_audio) and check_video_has_audio(video_path)
+            ds_name = _canonicalize(entry.get("dataset", ""))
+
+            for q in entry.get("questions", []):
+                question = q["question"]
+                choices = q["choices"]
+                answer = q["answer"].strip().upper()
+                task_type = q.get("task_type", entry.get("task_type", ""))
+                dataset = entry.get("dataset", "")
+                max_frames = DEFAULT_MAX_FRAMES_VIDEOMME if ds_name in {"video-mme", "videomme"} else DEFAULT_MAX_FRAMES_OTHER
+
+                before_alloc, before_res = _capture_vram()
+                torch.cuda.reset_peak_memory_stats()
+                try:
+                    pred, reasoning, orig_nf, used_nf, prefill_ms = run_inference(
+                        model, processor, video_path, dataset, question, choices,
+                        args.fps, args.max_pixels, DEFAULT_MAX_NEW_TOKENS, use_audio,
+                        keep_ratio, FIXED_ALPHA, FIXED_TAU,
+                        max_frames=max_frames, temperature=DEFAULT_TEMPERATURE,
+                    )
+                    total_orig_frames += orig_nf
+                    total_used_frames += used_nf
+                    status = "ok"
+                except Exception as e:
+                    import traceback
+                    print(f"  ERROR: {e!r}")
+                    traceback.print_exc()
+                    pred, reasoning, orig_nf, used_nf, prefill_ms = "ERROR", str(e), 0, 0, 0.0
+                    status = "error"
+
+                torch.cuda.empty_cache()
+                is_correct = pred.strip().upper() == answer
+                if is_correct:
+                    correct += 1
+                total += 1
+
+                peak_alloc = torch.cuda.max_memory_allocated() / 1024**3
+                peak_res = torch.cuda.max_memory_reserved() / 1024**3
+                after_alloc, after_res = _capture_vram()
+
+                rec = {
+                    "dataset": dataset, "task_type": task_type,
+                    "question": question, "answer": answer,
+                    "prediction": pred, "correct": is_correct,
+                    "orig_nframes": orig_nf, "used_nframes": used_nf,
+                    "prefill_ms": prefill_ms,
+                    "method": "rediprune_ratio",
+                    "config": {"alpha": FIXED_ALPHA, "keep_ratio": keep_ratio, "tau": FIXED_TAU, "prune_mode": FIXED_PRUNE_MODE},
+                    "ablation_param": "keep_ratio", "ablation_value": keep_ratio,
+                }
+                out_f.write(json.dumps(rec) + "\n")
+                out_f.flush()
+                results.append(rec)
+
+                vram_rec = {
+                    "status": status, "keep_ratio": keep_ratio,
+                    "orig_frames": orig_nf, "used_frames": used_nf,
+                    "before_alloc_gb": round(before_alloc, 2), "before_res_gb": round(before_res, 2),
+                    "peak_alloc_gb": round(peak_alloc, 2), "peak_res_gb": round(peak_res, 2),
+                    "after_alloc_gb": round(after_alloc, 2), "after_res_gb": round(after_res, 2),
+                    "model_loaded_alloc_gb": round(MODEL_LOADED_ALLOC_GB or 0.0, 2),
+                }
+                vram_f.write(json.dumps(vram_rec) + "\n")
+                vram_f.flush()
+
+                sym = "✓" if is_correct else "✗"
+                print(f"  [{sym}] {dataset}/{task_type} pred={pred} ans={answer} frames={orig_nf}->{used_nf} prefill={prefill_ms:.0f}ms")
+
+    acc = correct / total if total else 0.0
+    frame_ratio = total_used_frames / total_orig_frames if total_orig_frames else 0.0
+    print(f"  ratio={keep_ratio:.2f}: {correct}/{total} = {acc:.2%} | frame compression={frame_ratio:.2%}")
+    return {
+        "keep_ratio": keep_ratio,
+        "accuracy": round(acc, 4),
+        "correct": correct, "total": total,
+        "avg_frame_ratio": round(frame_ratio, 4),
+        "total_orig_frames": total_orig_frames,
+        "total_used_frames": total_used_frames,
+    }
+
+
+# ── Main ─────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(description="ReDiPrune keep_ratio ablation")
+    parser.add_argument("--metadata", default="metadata.json")
+    parser.add_argument("--videos", default="/data/videos")
+    parser.add_argument("--output_base", default=None,
+                        help="Base output dir. Defaults to ablation_outputs/rediprune_ratio/")
+    parser.add_argument("--fps", type=float, default=DEFAULT_FPS)
+    parser.add_argument("--max_pixels", type=int, default=DEFAULT_MAX_PIXELS)
+    parser.add_argument("--no_audio", action="store_true")
+    parser.add_argument("--value", type=float, default=None,
+                        help="Run a single keep_ratio value (for parallel GPU execution). "
+                             "If omitted, loops over all: " + str(RATIO_VALUES))
+    args = parser.parse_args()
+
+    out_base = args.output_base or os.path.join(
+        os.path.dirname(_REPO_ROOT), "ablation_outputs", "rediprune_ratio"
+    )
+    os.makedirs(out_base, exist_ok=True)
+
+    global MODEL_PATH
+    if not os.path.exists(MODEL_PATH) and os.path.exists(FALLBACK_MODEL_PATH):
+        MODEL_PATH = FALLBACK_MODEL_PATH
+
+    meta_raw = json.loads(Path(args.metadata).read_text())
+    meta = [e for e in meta_raw if e.get("questions")]
+    print(f"Loaded {len(meta)} runnable entries from {args.metadata}")
+
+    if not meta:
+        print("Nothing to run.")
+        return
+
+    model, processor = load_model()
+
+    values = [args.value] if args.value is not None else RATIO_VALUES
+    summary_results = []
+
+    for keep_ratio in values:
+        res = run_ratio(keep_ratio, args, model, processor, meta, out_base)
+        summary_results.append(res)
+
+    summary = {
+        "ablation": "rediprune_ratio",
+        "fixed": {"alpha": FIXED_ALPHA, "tau": FIXED_TAU, "prune_mode": FIXED_PRUNE_MODE},
+        "results": summary_results,
+    }
+    summary_path = os.path.join(out_base, "sweep_summary.json")
+    with open(summary_path, "w") as f:
+        json.dump(summary, f, indent=2)
+    print(f"\nSweep summary written to {summary_path}")
+
+    print("\n=== Keep Ratio Sweep Results (Pareto Curve) ===")
+    for r in summary_results:
+        print(f"  ratio={r['keep_ratio']:.2f}: accuracy={r['accuracy']:.4f} "
+              f"frame_compression={r['avg_frame_ratio']:.2%} ({r['correct']}/{r['total']})")
+
+
+if __name__ == "__main__":
+    main()

@@ -1964,6 +1964,8 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
         self.rotary_emb = Qwen2_5OmniRotaryEmbedding(config=config)
 
         self.gradient_checkpointing = False
+        self.omnidrop_runtime = None
+        self.omnidrop_last_trace = []
         # Initialize weights and apply final processing
         self.post_init()
 
@@ -2024,8 +2026,25 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
         elif position_ids.dim() == 2:
             position_ids = position_ids[None, ...].expand(3, position_ids.shape[0], -1)
 
+        omnidrop_state = None
+        if self.omnidrop_runtime is not None and inputs_embeds.shape[0] == 1 and inputs_embeds.shape[1] > 1:
+            try:
+                from omnidrop.torch_pruner import OmniDropTorchState
+
+                omnidrop_state = OmniDropTorchState(
+                    input_ids=self.omnidrop_runtime["input_ids"],
+                    position_ids=position_ids,
+                    audio_token_id=self.omnidrop_runtime["audio_token_id"],
+                    video_token_id=self.omnidrop_runtime["video_token_id"],
+                    config=self.omnidrop_runtime["config"],
+                )
+            except Exception as exc:
+                logger.warning_once(f"OmniDrop disabled for this forward: {type(exc).__name__}: {exc}")
+                omnidrop_state = None
+        local_output_attentions = output_attentions or (omnidrop_state is not None and omnidrop_state.enabled)
+
         causal_mask = self._update_causal_mask(
-            attention_mask, inputs_embeds, cache_position, past_key_values, output_attentions
+            attention_mask, inputs_embeds, cache_position, past_key_values, local_output_attentions
         )
 
         hidden_states = inputs_embeds
@@ -2052,7 +2071,7 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
                     causal_mask,
                     position_ids,
                     past_key_values,
-                    output_attentions,
+                    local_output_attentions,
                     use_cache,
                     cache_position,
                     position_embeddings,
@@ -2063,7 +2082,7 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
                     attention_mask=causal_mask,
                     position_ids=position_ids,
                     past_key_value=past_key_values,
-                    output_attentions=output_attentions,
+                    output_attentions=local_output_attentions,
                     use_cache=use_cache,
                     cache_position=cache_position,
                     position_embeddings=position_embeddings,
@@ -2072,12 +2091,29 @@ class Qwen2_5OmniThinkerTextModel(Qwen2_5OmniPreTrainedModel):
             hidden_states = layer_outputs[0]
 
             if use_cache:
-                next_decoder_cache = layer_outputs[2 if output_attentions else 1]
+                next_decoder_cache = layer_outputs[2 if local_output_attentions else 1]
 
             if output_attentions:
                 all_self_attns += (layer_outputs[1],)
 
+            if omnidrop_state is not None and omnidrop_state.enabled:
+                keep_mask = omnidrop_state.select_keep_mask(layer_idx, layer_outputs[1])
+                if keep_mask.numel() == hidden_states.shape[1] and not bool(keep_mask.all().item()):
+                    hidden_states = hidden_states[:, keep_mask, :]
+                    position_ids = position_ids[:, :, keep_mask]
+                    cache_position = cache_position[keep_mask]
+                    if causal_mask is not None:
+                        if causal_mask.dim() == 4:
+                            causal_mask = causal_mask[:, :, keep_mask, :][:, :, :, keep_mask]
+                        elif causal_mask.dim() == 2:
+                            causal_mask = causal_mask[:, keep_mask]
+                    cos, sin = position_embeddings
+                    position_embeddings = (cos[:, :, keep_mask, :], sin[:, :, keep_mask, :])
+                    omnidrop_state.apply_keep(keep_mask)
+
         hidden_states = self.norm(hidden_states)
+        if omnidrop_state is not None:
+            self.omnidrop_last_trace = omnidrop_state.trace
 
         # add hidden states from the last decoder layer
         if output_hidden_states:
@@ -2278,6 +2314,12 @@ class Qwen2_5OmniThinkerForConditionalGeneration(Qwen2_5OmniPreTrainedModelForCo
         self.pad_token_id = self.config.pad_token_id if self.config.pad_token_id is not None else -1
         self.spatial_merge_size = config.vision_config.spatial_merge_size
         self.rope_deltas = None
+        self.omnizip_config = None
+        self.omnirefine_config = None
+        self.omnirefine_last_diag = None
+        self.omnidrop_config = None
+        self.omnidrop_pre_prune_stats = {}
+        self.nframes = None
         self.post_init()
 
     def get_input_embeddings(self):
@@ -2549,19 +2591,89 @@ class Qwen2_5OmniThinkerForConditionalGeneration(Qwen2_5OmniPreTrainedModelForCo
                 position_ids = position_ids.add(delta)
                 position_ids = position_ids.unsqueeze(0).expand(3, -1, -1)
 
+        omnidrop_input_ids = input_ids
+        self.omnidrop_pre_prune_stats = {}
+        if (
+            self.omnidrop_config is not None
+            and self.omnidrop_config.get("pre_prune", True)
+            and input_ids is not None
+            and input_ids.shape[0] == 1
+            and input_ids.shape[1] != 1
+        ):
+            from omnidrop.torch_pruner import omnidrop_pre_prune
+
+            pre_prune_frames = self.nframes or 0
+            if video_grid_thw is not None and video_grid_thw.numel() > 0:
+                # Qwen video tokens are indexed after temporal patching, so the
+                # grid temporal dimension is the right frame axis for TTM.
+                pre_prune_frames = int(video_grid_thw[:, 0].sum().item())
+
+            inputs_embeds, global_mask, pre_stats = omnidrop_pre_prune(
+                inputs_embeds,
+                input_ids,
+                self.config.audio_token_id,
+                self.config.video_token_id,
+                attn_logits,
+                num_input_frames=pre_prune_frames,
+                config=self.omnidrop_config,
+            )
+            self.omnidrop_pre_prune_stats = pre_stats
+            omnidrop_input_ids = input_ids[:, global_mask]
+            if attention_mask is not None:
+                attention_mask = attention_mask[:, global_mask]
+            position_ids = position_ids.to(inputs_embeds.device)[:, :, global_mask]
+            if cache_position is not None and cache_position.numel() == global_mask.numel():
+                cache_position = cache_position[global_mask]
+
+        # OmniRefine prefill bridge.  This is opt-in and mirrors the OmniZip
+        # mask contract: update inputs_embeds, then slice attention/position ids.
+        if (
+            self.omnirefine_config is not None
+            and pixel_values_videos is not None
+            and audio_features is not None
+        ):
+            from omnirefine import OmniRefineConfig, omnirefine_qwen_prefill
+
+            omnirefine_config = self.omnirefine_config
+            if isinstance(omnirefine_config, dict):
+                cfg_dict = dict(omnirefine_config)
+                if "rho_audio" in cfg_dict and "rho_a" not in cfg_dict:
+                    cfg_dict["rho_a"] = cfg_dict.pop("rho_audio")
+                if "rho_video" in cfg_dict and "rho_v" not in cfg_dict:
+                    cfg_dict["rho_v"] = cfg_dict.pop("rho_video")
+                valid = OmniRefineConfig.__dataclass_fields__
+                omnirefine_config = OmniRefineConfig(
+                    **{k: v for k, v in cfg_dict.items() if k in valid}
+                )
+
+            runtime_input_ids = omnidrop_input_ids
+            inputs_embeds, global_mask, self.omnirefine_last_diag = omnirefine_qwen_prefill(
+                inputs_embeds,
+                runtime_input_ids,
+                self.config.audio_token_id,
+                self.config.video_token_id,
+                num_input_frames=self.nframes or 0,
+                cfg=omnirefine_config,
+                attn_logits=attn_logits,
+                video_grid_thw=video_grid_thw,
+                spatial_merge_size=self.spatial_merge_size,
+            )
+            if attention_mask is not None:
+                attention_mask = attention_mask[:, global_mask]
+            position_ids = position_ids.to(inputs_embeds.device)[:, :, global_mask]
+            omnidrop_input_ids = runtime_input_ids[:, global_mask]
+            if cache_position is not None and cache_position.numel() == global_mask.numel():
+                cache_position = cache_position[global_mask]
+
         # OmniZip Inference
-        if pixel_values_videos is not None and audio_features is not None and attn_logits is not None:
+        elif (
+            self.omnizip_config is not None
+            and pixel_values_videos is not None
+            and audio_features is not None
+            and attn_logits is not None
+        ):
             from omnizip.omnizip_units import omnizip
-            if self.omnizip_config is not None:
-                omnizip_config = self.omnizip_config
-            else:
-                print("Using default omnizip config")
-                omnizip_config = {
-                    "rho_audio": 0.3,
-                    "rho_video": 0.6,
-                    "g": 3,
-                    "contextual_ratio": 0.05,
-                }
+            omnizip_config = self.omnizip_config
 
             inputs_embeds, global_mask = omnizip(
                 inputs_embeds,
@@ -2580,6 +2692,26 @@ class Qwen2_5OmniThinkerForConditionalGeneration(Qwen2_5OmniPreTrainedModelForCo
             if attention_mask is not None:
                 attention_mask = attention_mask[:, global_mask]
             position_ids = position_ids.to(inputs_embeds.device)[:, :, global_mask]
+            omnidrop_input_ids = input_ids[:, global_mask]
+            if cache_position is not None and cache_position.numel() == global_mask.numel():
+                cache_position = cache_position[global_mask]
+
+        self.model.omnidrop_runtime = None
+        if (
+            self.omnidrop_config is not None
+            and input_ids is not None
+            and input_ids.shape[0] == 1
+            and input_ids.shape[1] != 1
+        ):
+            cfg = dict(self.omnidrop_config)
+            cfg.setdefault("num_layers", self.config.text_config.num_hidden_layers)
+            cfg.setdefault("L", self.config.text_config.num_hidden_layers)
+            self.model.omnidrop_runtime = {
+                "input_ids": omnidrop_input_ids.detach(),
+                "audio_token_id": self.config.audio_token_id,
+                "video_token_id": self.config.video_token_id,
+                "config": cfg,
+            }
 
         outputs = self.model(
             attention_mask=attention_mask,
