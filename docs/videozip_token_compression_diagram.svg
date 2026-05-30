@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
+  <title id="title">VideoZip Token Compression Diagram</title>
+  <desc id="desc">Explainer diagram showing VideoZip token compression: cached video saliency drives per-group audio compression, then retained audio anchors video token selection before the compressed stream enters the LLM.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#d8dee9"/>
+    </marker>
+    <marker id="arrowGold" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#f6d365"/>
+    </marker>
+    <linearGradient id="panelGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#242833"/>
+      <stop offset="100%" stop-color="#171a21"/>
+    </linearGradient>
+    <linearGradient id="cacheGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7c68b1"/>
+      <stop offset="100%" stop-color="#4f75c6"/>
+    </linearGradient>
+    <style>
+      .bg { fill: #151515; }
+      .panel { fill: url(#panelGrad); stroke: #59616f; stroke-width: 1.4; }
+      .subpanel { fill: #1d222b; stroke: #3f4858; stroke-width: 1; }
+      .stage { fill: #202633; stroke: #6b7280; stroke-width: 1.3; }
+      .cache { fill: url(#cacheGrad); stroke: #b9b4ff; stroke-width: 1.1; }
+      .llm { fill: #5a2f3d; stroke: #e8a6ba; stroke-width: 1.2; }
+      .textToken { fill: #d6a23a; stroke: #f6d365; stroke-width: .8; }
+      .videoToken { fill: #7da7f2; stroke: #b7cdf8; stroke-width: .8; }
+      .audioToken { fill: #f4a261; stroke: #ffd0a6; stroke-width: .8; }
+      .keptToken { fill: #88d498; stroke: #c5f7cf; stroke-width: .8; }
+      .dropToken { fill: none; stroke: #d8dee9; stroke-width: 1.1; stroke-dasharray: 5 4; opacity: .65; }
+      .mergeToken { fill: #a3be8c; stroke: #e4ffd3; stroke-width: .8; }
+      .title { fill: #f5f7fb; font: 700 30px Arial, sans-serif; }
+      .subtitle { fill: #b8c0cc; font: 16px Arial, sans-serif; }
+      .label { fill: #edf2f7; font: 700 15px Arial, sans-serif; }
+      .small { fill: #c8d0dc; font: 12.5px Arial, sans-serif; }
+      .tiny { fill: #aeb7c5; font: 11px Arial, sans-serif; }
+      .gold { fill: #f6d365; }
+      .blue { fill: #9fbeff; }
+      .orange { fill: #ffc08d; }
+      .green { fill: #a7efb6; }
+      .muted { fill: #8993a3; }
+      .arrow { stroke: #d8dee9; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowGold { stroke: #f6d365; stroke-width: 2.2; fill: none; marker-end: url(#arrowGold); }
+      .dash { stroke: #778195; stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; }
+      .divider { stroke: #485064; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="860"/>
+
+  <text class="title" x="70" y="58">VideoZip: Video-Guided Audio-Visual Token Compression</text>
+  <text class="subtitle" x="72" y="86">Cached early-Thinker video saliency decides how much audio to prune; retained audio then anchors video token selection.</text>
+
+  <!-- Left input panel -->
+  <rect class="panel" x="65" y="126" width="385" height="620" rx="10"/>
+  <text class="label" x="88" y="158">1. Encode omnimodal input</text>
+  <text class="tiny" x="88" y="180">Qwen2.5-Omni processor and encoders</text>
+
+  <rect class="subpanel" x="90" y="205" width="90" height="42" rx="5"/>
+  <text class="small gold" x="107" y="231">Text</text>
+  <rect class="subpanel" x="195" y="205" width="120" height="42" rx="5"/>
+  <text class="small blue" x="214" y="231">Vision Encoder</text>
+  <rect class="subpanel" x="330" y="205" width="95" height="42" rx="5"/>
+  <text class="small orange" x="345" y="231">Audio</text>
+
+  <path class="arrow" d="M135 250 V292"/>
+  <path class="arrow" d="M255 250 V292"/>
+  <path class="arrow" d="M378 250 V292"/>
+
+  <text class="small" x="94" y="306">Interleaved token stream</text>
+  <g transform="translate(94 326)">
+    <rect class="textToken" x="0" y="0" width="17" height="17" rx="2"/>
+    <rect class="textToken" x="24" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="55" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="79" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="103" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="127" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="151" y="0" width="17" height="17" rx="2"/>
+    <rect class="videoToken" x="175" y="0" width="17" height="17" rx="2"/>
+    <rect class="audioToken" x="207" y="0" width="17" height="17" rx="2"/>
+    <rect class="audioToken" x="231" y="0" width="17" height="17" rx="2"/>
+    <rect class="audioToken" x="255" y="0" width="17" height="17" rx="2"/>
+  </g>
+
+  <rect class="subpanel" x="90" y="380" width="335" height="70" rx="7"/>
+  <text class="small" x="108" y="407">Token groups keep time alignment</text>
+  <text class="tiny" x="108" y="430">video group 1 aligns with audio group 1, etc.</text>
+  <g transform="translate(100 468)">
+    <rect class="videoToken" x="0" y="0" width="15" height="15" rx="2"/>
+    <rect class="videoToken" x="20" y="0" width="15" height="15" rx="2"/>
+    <rect class="videoToken" x="40" y="0" width="15" height="15" rx="2"/>
+    <rect class="audioToken" x="70" y="0" width="15" height="15" rx="2"/>
+    <rect class="audioToken" x="90" y="0" width="15" height="15" rx="2"/>
+    <line class="dash" x1="122" y1="7" x2="170" y2="7"/>
+    <rect class="videoToken" x="190" y="0" width="15" height="15" rx="2"/>
+    <rect class="videoToken" x="210" y="0" width="15" height="15" rx="2"/>
+    <rect class="audioToken" x="240" y="0" width="15" height="15" rx="2"/>
+    <rect class="audioToken" x="260" y="0" width="15" height="15" rx="2"/>
+  </g>
+
+  <rect class="llm" x="92" y="670" width="330" height="42" rx="5"/>
+  <text class="small" x="186" y="696">Large Language Model</text>
+
+  <!-- Center compression pipeline -->
+  <rect class="panel" x="500" y="126" width="445" height="620" rx="10"/>
+  <text class="label" x="528" y="158">2. VideoZip compression</text>
+  <text class="tiny" x="528" y="180">Training-free, pre-LLM, cacheable saliency path</text>
+
+  <rect class="cache" x="530" y="210" width="385" height="78" rx="8"/>
+  <text class="label" x="552" y="237">Cached Layer-6 video saliency</text>
+  <text class="small" x="552" y="262">raw_video_scores[6] = 1D Q*K scores per video token</text>
+  <text class="tiny" x="552" y="281">computed once per video, reused across questions</text>
+
+  <path class="arrowGold" d="M722 290 V325"/>
+
+  <rect class="stage" x="530" y="325" width="385" height="92" rx="8"/>
+  <text class="label" x="552" y="353">A. Aggregate video saliency by time</text>
+  <text class="small" x="552" y="378">video token scores -> frame scores -> group retention</text>
+  <g transform="translate(570 394)">
+    <rect class="videoToken" x="0" y="0" width="16" height="16" rx="2"/>
+    <rect class="videoToken" x="22" y="0" width="16" height="16" rx="2"/>
+    <rect class="videoToken" x="44" y="0" width="16" height="16" rx="2"/>
+    <text class="tiny" x="76" y="13">high group</text>
+    <rect class="videoToken" x="160" y="0" width="16" height="16" rx="2" opacity=".45"/>
+    <rect class="videoToken" x="182" y="0" width="16" height="16" rx="2" opacity=".45"/>
+    <text class="tiny" x="214" y="13">low group</text>
+  </g>
+
+  <path class="arrowGold" d="M722 419 V454"/>
+
+  <rect class="stage" x="530" y="454" width="385" height="122" rx="8"/>
+  <text class="label" x="552" y="482">B. Video controls audio compression ratio</text>
+  <text class="small" x="552" y="507">salient video -> prune audio less</text>
+  <text class="small" x="552" y="529">redundant video -> prune audio more</text>
+  <line class="divider" x1="552" y1="545" x2="892" y2="545"/>
+  <text class="tiny green" x="552" y="565">kept / merged audio anchors</text>
+  <g transform="translate(715 551)">
+    <rect class="keptToken" x="0" y="0" width="15" height="15" rx="2"/>
+    <rect class="mergeToken" x="22" y="0" width="15" height="15" rx="2"/>
+    <rect class="dropToken" x="44" y="0" width="15" height="15" rx="2"/>
+    <rect class="dropToken" x="66" y="0" width="15" height="15" rx="2"/>
+    <rect class="keptToken" x="96" y="0" width="15" height="15" rx="2"/>
+  </g>
+
+  <path class="arrowGold" d="M722 579 V612"/>
+
+  <rect class="stage" x="530" y="612" width="385" height="92" rx="8"/>
+  <text class="label" x="552" y="640">C. Retained audio anchors video ISTM</text>
+  <text class="small" x="552" y="665">score = diversity + beta * audio similarity</text>
+  <text class="tiny" x="552" y="686">beta=0 recovers OmniZip ISTM; beta>0 prefers audio-aligned video patches</text>
+
+  <!-- Right detailed token selection panel -->
+  <rect class="panel" x="995" y="126" width="340" height="620" rx="10"/>
+  <text class="label" x="1022" y="158">3. Output compressed stream</text>
+  <text class="tiny" x="1022" y="180">Dropped tokens never enter the Thinker prefill</text>
+
+  <rect class="subpanel" x="1020" y="215" width="290" height="132" rx="8"/>
+  <text class="small blue" x="1040" y="241">Video tokens</text>
+  <g transform="translate(1042 260)">
+    <rect class="videoToken" x="0" y="0" width="18" height="18" rx="2"/>
+    <rect class="videoToken" x="25" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="50" y="0" width="18" height="18" rx="2"/>
+    <rect class="videoToken" x="75" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="100" y="0" width="18" height="18" rx="2"/>
+    <rect class="videoToken" x="125" y="0" width="18" height="18" rx="2"/>
+    <rect class="videoToken" x="150" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="175" y="0" width="18" height="18" rx="2"/>
+  </g>
+  <text class="tiny" x="1042" y="309">kept by audio-anchored ISTM</text>
+  <path class="dash" d="M1042 326 H1285"/>
+
+  <rect class="subpanel" x="1020" y="382" width="290" height="132" rx="8"/>
+  <text class="small orange" x="1040" y="408">Audio tokens</text>
+  <g transform="translate(1042 427)">
+    <rect class="keptToken" x="0" y="0" width="18" height="18" rx="2"/>
+    <rect class="mergeToken" x="25" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="50" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="75" y="0" width="18" height="18" rx="2"/>
+    <rect class="keptToken" x="100" y="0" width="18" height="18" rx="2"/>
+    <rect class="dropToken" x="125" y="0" width="18" height="18" rx="2"/>
+    <rect class="mergeToken" x="150" y="0" width="18" height="18" rx="2"/>
+  </g>
+  <text class="tiny" x="1042" y="476">per-group budget comes from video saliency</text>
+  <path class="dash" d="M1042 493 H1285"/>
+
+  <rect class="llm" x="1020" y="575" width="290" height="80" rx="8"/>
+  <text class="label" x="1052" y="609">Compressed input to LLM</text>
+  <text class="small" x="1052" y="633">text + kept video + kept audio</text>
+
+  <!-- Long cross-panel arrows -->
+  <path class="arrow" d="M450 380 C480 380, 485 249, 530 249"/>
+  <path class="arrow" d="M450 524 C490 524, 494 514, 530 514"/>
+  <path class="arrow" d="M915 657 C955 657, 958 616, 1020 616"/>
+  <path class="arrow" d="M1170 655 V695 C1170 720, 430 720, 422 694"/>
+
+  <!-- Legend -->
+  <rect class="subpanel" x="75" y="765" width="1260" height="58" rx="8"/>
+  <text class="small" x="100" y="799">Legend</text>
+  <rect class="textToken" x="172" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="196" y="798">text token</text>
+  <rect class="videoToken" x="292" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="316" y="798">video token</text>
+  <rect class="audioToken" x="422" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="446" y="798">audio token</text>
+  <rect class="keptToken" x="552" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="576" y="798">kept</text>
+  <rect class="mergeToken" x="642" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="666" y="798">merged into anchor</text>
+  <rect class="dropToken" x="805" y="785" width="16" height="16" rx="2"/>
+  <text class="tiny" x="829" y="798">dropped</text>
+  <text class="tiny muted" x="940" y="798">Core inversion: OmniZip = audio -> video budget; VideoZip = video -> audio budget + retained audio -> video anchors.</text>
+</svg>

@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Tuple
 
 import torch
+import warnings
 
 # Resolved via videozip/__init__.py sys.path bootstrap.
 from omnizip_units import omnizip_audio_attn  # type: ignore[import-not-found]
@@ -127,8 +128,18 @@ def _aggregate_video_scores_to_groups(
 ) -> List[float]:
     """Spatial mean per frame, then frame mean per group. Returns normalized [0, 1]."""
     n_v = num_input_frames * video_token_per_frame
-    scores = video_scores_1d[:n_v]
-    frames_x_spatial = scores.reshape(num_input_frames, video_token_per_frame)
+    if video_scores_1d.numel() != n_v:
+        # Exact match required: slicing/padding here would misalign saliency with the
+        # live video tokens and silently produce an invalid benchmark. Fail loud instead.
+        raise ValueError(
+            f"Cached L6 video saliency length ({video_scores_1d.numel()}) != live video "
+            f"tokens (num_input_frames={num_input_frames} * video_token_per_frame="
+            f"{video_token_per_frame} = {n_v}). The eval's video preprocessing "
+            f"(fps/max_frames/max_pixels) must match the cache build config in "
+            f"precompute_l6_saliency.py (defaults: fps=2.0, max_frames=64, "
+            f"max_pixels=100800)."
+        )
+    frames_x_spatial = video_scores_1d.reshape(num_input_frames, video_token_per_frame)
     frame_imp = frames_x_spatial.mean(dim=1)
     frames_per_group = max(1, num_input_frames // group_count)
     group_imps: List[float] = []
@@ -138,6 +149,91 @@ def _aggregate_video_scores_to_groups(
         group_imps.append(frame_imp[s:e].mean().item())
     mx = max(group_imps) + 1e-8
     return [v / mx for v in group_imps]
+
+
+def _build_frame_token_groups(
+    num_input_frames: int,
+    video_token_per_frame: int,
+    group_count: int,
+) -> List[Tuple[int, int]]:
+    """Partition video tokens by frame groups; the final group absorbs the tail."""
+    frames_per_group = max(1, num_input_frames // group_count)
+    groups: List[Tuple[int, int]] = []
+    for gi in range(group_count):
+        f_start = gi * frames_per_group
+        f_end = f_start + frames_per_group if gi < group_count - 1 else num_input_frames
+        groups.append((f_start * video_token_per_frame, f_end * video_token_per_frame))
+    return groups
+
+
+def _audio_anchored_istm_keep_tail(
+    video_feature: torch.Tensor,
+    audio_anchors: Optional[torch.Tensor],
+    num_tokens_per_frame: int,
+    merging_ratio: Tuple[float, float],
+    audio_anchor_beta: float,
+) -> torch.Tensor:
+    """Run ISTM on complete frame pairs and keep an incomplete tail unpruned."""
+    if num_tokens_per_frame <= 0 or video_feature.numel() == 0:
+        return torch.ones(video_feature.size(0), dtype=torch.bool, device=video_feature.device)
+
+    full_len = (video_feature.size(0) // num_tokens_per_frame) * num_tokens_per_frame
+    if full_len == 0:
+        return torch.ones(video_feature.size(0), dtype=torch.bool, device=video_feature.device)
+
+    full_mask = omnizip_istm_audio_anchored(
+        video_feature=video_feature[:full_len],
+        audio_feature=audio_anchors,
+        num_tokens_per_frame=num_tokens_per_frame,
+        merging_ratio=merging_ratio,
+        audio_anchor_beta=audio_anchor_beta,
+    )
+    if full_len == video_feature.size(0):
+        return full_mask
+
+    tail = torch.ones(
+        video_feature.size(0) - full_len,
+        dtype=torch.bool,
+        device=video_feature.device,
+    )
+    return torch.cat([full_mask, tail], dim=0)
+
+
+def _project_importance_to_audio_scores(
+    attn_logits: Optional[torch.Tensor],
+    audio_indices: torch.Tensor,
+) -> torch.Tensor:
+    """Project OmniZip's importance channel into audio-local coordinates.
+
+    VideoZip calls `omnizip_audio_attn()` per audio group. That function expects
+    a 1D importance vector aligned to the local audio slice, so full-sequence
+    attention must be reduced once and indexed at the exact audio token positions.
+    """
+    device = audio_indices.device
+    if attn_logits is None:
+        return torch.ones(audio_indices.numel(), device=device)
+
+    scores = attn_logits.to(device)
+    if scores.dim() == 3:
+        scores = scores.mean(dim=0).sum(dim=0)
+    elif scores.dim() == 2:
+        scores = scores.sum(dim=0)
+    elif scores.dim() != 1:
+        raise ValueError(f"attn_logits must be 1D, 2D, or 3D; got {tuple(scores.shape)}")
+
+    if scores.numel() == audio_indices.numel():
+        return scores
+
+    if audio_indices.numel() == 0:
+        return torch.zeros(0, device=device, dtype=scores.dtype)
+
+    max_idx = int(audio_indices.max().item())
+    if scores.numel() <= max_idx:
+        padded = torch.zeros(max_idx + 1, device=device, dtype=scores.dtype)
+        padded[: scores.numel()] = scores
+        scores = padded
+
+    return scores[audio_indices]
 
 
 # ── Main entry ───────────────────────────────────────────────────────────────
@@ -189,26 +285,10 @@ def omnizip_videozip(
 
     video_token_per_frame = max(1, N_v // num_input_frames)
 
-    if num_input_frames % 4 != 0:
-        # Match OmniZip's else branch behavior on this rarer path. For now we delegate
-        # to OmniZip itself so the run does not crash; this means VideoZip's swap is
-        # only active when num_input_frames is a multiple of 4.
-        from omnizip_units import omnizip as _omnizip_orig  # type: ignore
-        return _omnizip_orig(
-            input_embeds=input_embeds,
-            attn_logits=attn_logits,
-            input_ids=input_ids,
-            audio_token_id=audio_token_id,
-            video_token_id=video_token_id,
-            num_input_frames=num_input_frames,
-            merging_ratio_audio=merging_ratio_audio,
-            merging_ratio_v=merging_ratio_v,
-            contextual_ratio=contextual_ratio,
-            g=g,
-        )
-
-    group_count = num_input_frames // 4
-    num_video_per_group = max(1, N_v // group_count)
+    group_count = max(1, (num_input_frames + 3) // 4)
+    video_groups = _build_frame_token_groups(
+        num_input_frames, video_token_per_frame, group_count,
+    )
     num_audio_per_group = max(1, N_a // group_count)
 
     # Build audio groups (uniform partition; tail group absorbs remainder).
@@ -219,7 +299,24 @@ def omnizip_videozip(
         audio_groups.append((s, e))
 
     # Step 1: video saliency -> per-group retention.
-    if l6_video_scores is not None:
+    # Cached L6 scores must positionally align with the live video tokens. Frame-decode
+    # jitter (decord returning a slightly different frame count than the precompute pass)
+    # can make the cached length differ by <1% on the odd clip. In that case, fall back to
+    # online saliency for THIS video rather than misaligning scores or hard-erroring the
+    # row -- the exact-equality guard in _aggregate_video_scores_to_groups stays as a
+    # backstop for gross (config-level) mismatches.
+    n_v_expected = num_input_frames * video_token_per_frame
+    cached_available = l6_video_scores is not None
+    cached_aligned = cached_available and int(l6_video_scores.numel()) == n_v_expected
+    if cached_available and not cached_aligned:
+        warnings.warn(
+            f"VideoZip: cached L6 saliency length {int(l6_video_scores.numel())} != live "
+            f"video tokens {n_v_expected} (num_input_frames={num_input_frames} * "
+            f"video_token_per_frame={video_token_per_frame}); likely frame-decode jitter. "
+            f"Falling back to online saliency for this video.",
+            stacklevel=2,
+        )
+    if cached_aligned:
         scores_t = l6_video_scores.to(device).float()
         if scores_t.dim() != 1:
             raise ValueError(
@@ -229,8 +326,12 @@ def omnizip_videozip(
             scores_t, num_input_frames, video_token_per_frame, group_count,
         )
     else:
+        if cached_available:
+            fallback_source = "attn" if attn_logits is not None else "sim_only"
+        else:
+            fallback_source = video_saliency_source
         video_group_retention = dispatch_video_saliency(
-            video_saliency_source,
+            fallback_source,
             video_feature=video_feature,
             video_indices=video_indices,
             num_input_frames=num_input_frames,
@@ -245,18 +346,16 @@ def omnizip_videozip(
         video_group_retention, target_mean=merging_ratio_audio,
     )
 
-    # Step 3: per-group audio compression. Slice attn_logits to match each group's
-    # audio_feature slice — omnizip_audio_attn assumes len(attn_logits) == N.
+    # Step 3: per-group audio compression. Project full-sequence attention into
+    # audio-local scores, then slice the score vector for each group.
+    audio_scores = _project_importance_to_audio_scores(attn_logits, audio_indices)
     audio_mask = torch.zeros(N_a, dtype=torch.bool, device=device)
     merge_plan: Dict[int, List[int]] = {}
     for (a_start, a_end), ratio in zip(audio_groups, audio_merging_ratios):
         if a_start >= a_end:
             continue
         group_feat = audio_feature[a_start:a_end]
-        if attn_logits is not None:
-            group_logits = attn_logits[a_start:a_end]
-        else:
-            group_logits = torch.ones(a_end - a_start, device=device)
+        group_logits = audio_scores[a_start:a_end]
         group_mask, group_plan = omnizip_audio_attn(
             audio_feature=group_feat,
             video_feature=video_feature,
@@ -275,25 +374,28 @@ def omnizip_videozip(
     )
 
     # Step 5: audio-anchored ISTM, run pairwise on (group, group+1) like OmniZip.
+    # Re-read from flat_embeds so anchors include any merge-plan updates.
+    audio_kept_features = flat_embeds[audio_indices][audio_mask]
+    audio_anchors: Optional[torch.Tensor] = (
+        audio_kept_features if audio_mask.any() else None
+    )
     video_group_masks: List[torch.Tensor] = []
+    tokens_per_istm_frame = video_token_per_frame * 2
     for i in range(0, group_count, 2):
-        v_start = i * num_video_per_group
-        v_end = (i + 2) * num_video_per_group if i < group_count - 1 else N_v
+        v_start = video_groups[i][0]
+        v_end = video_groups[i + 1][1] if i + 1 < group_count else video_groups[i][1]
         group_feat = video_feature[v_start:v_end]
         group_len = group_feat.size(0)
         if group_len == 0:
             video_group_masks.append(torch.zeros(0, dtype=torch.bool, device=device))
             continue
-        if group_len % 4 == 0:
-            gm = omnizip_istm_audio_anchored(
-                video_feature=group_feat,
-                audio_feature=audio_feature,
-                num_tokens_per_frame=video_token_per_frame * 2,
-                merging_ratio=(merging_ratio_v, merging_ratio_v),
-                audio_anchor_beta=audio_anchor_beta,
-            )
-        else:
-            gm = torch.ones(group_len, dtype=torch.bool, device=device)
+        gm = _audio_anchored_istm_keep_tail(
+            video_feature=group_feat,
+            audio_anchors=audio_anchors,
+            num_tokens_per_frame=tokens_per_istm_frame,
+            merging_ratio=(merging_ratio_v, merging_ratio_v),
+            audio_anchor_beta=audio_anchor_beta,
+        )
         video_group_masks.append(gm)
 
     video_mask = torch.cat(video_group_masks, dim=0) if video_group_masks else torch.zeros(0, dtype=torch.bool, device=device)

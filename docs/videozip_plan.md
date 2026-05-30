@@ -2,21 +2,43 @@
 
 ## Executive Summary
 
-OmniZip uses **audio to guide video** pruning. This plan designs the exact inverse:
-**video guides audio** compression, with audio providing cross-modal anchoring during
-video token selection. This is training-free (unlike OmniSIFT, which trains 4.85M params).
+OmniZip uses **audio to guide video** pruning. VideoZip starts from the inverse:
+**video guides audio** compression, with retained audio providing cross-modal anchoring
+during video token selection. The stronger novelty claim is no longer merely "inverse
+OmniZip": against newer OmniDrop / OmniRefine / OmniSelect-style methods, VideoZip is a
+training-free, pre-LLM, cacheable video-saliency path that can prune both modalities
+without query-time decoder-layer pruning or an external modality selector.
 
 ---
 
-## 1. Literature Gap
+## 1. Updated Literature Gap
 
-| System | Guide direction | Training-free | Cross-modal anchor |
-|---|---|---|---|
-| OmniZip (CVPR 2026) | Audio → Video | Yes | Video → Audio anchors |
-| OmniSIFT (arXiv 2602.04804, Feb 2026) | Video → Audio | **No** (4.85M params, STE) | — |
-| **VideoZip (proposed)** | **Video → Audio** | **Yes** | **Audio → Video anchors** |
+| System | Compression point | Guide signal | Training-free | Query-specific | VideoZip delta |
+|---|---|---|---|---|---|
+| OmniZip | Pre-LLM input tokens | Audio saliency → video ratios | Yes | No | Assumes audio is the dominant guide; video pruning is audio-conditioned |
+| OmniSIFT | Pre-LLM input tokens | Video → audio selection | **No** (4.85M params, STE) | No | Learns the direction VideoZip wants, but requires training |
+| OmniSelect | Pre-LLM input tokens | AudioCLIP text-modality relevance → audio/video/uniform regimes | Yes | **Yes** | Uses an external text-conditioned modality selector; not cache-once-per-video |
+| OmniDrop | Decoder layers | Text-to-audiovisual attention + temporal diversity | Yes | **Yes** | Strong task-adaptive layer-wise pruning, but prompt-dependent and not reusable as a prefill KV-cache path |
+| OmniRefine | Pre-LLM input tokens | Frame-audio correspondence + video-referenced audio budget | Yes | No | Refines chunk boundaries and cooperatively compresses, but does not use cached early-Thinker video saliency or audio-anchored ISTM |
+| **VideoZip (proposed)** | **Pre-LLM input tokens** | **Cached/live video saliency → audio ratios; retained audio → video anchors** | **Yes** | **Optional** | **Cacheable video-guided audio compression plus bidirectional anchoring** |
 
-VideoZip fills the exact gap: training-free, video-guided, with bidirectional cross-modal anchoring.
+### Novelty Claims After OmniDrop / OmniRefine / OmniSelect
+
+**Claim to keep:** VideoZip is a training-free pre-LLM method where video saliency controls
+per-group audio compression, and the compressed audio stream then anchors video token
+selection. This gives a bidirectional cross-modal loop rather than a one-way modality guide.
+
+**Claim to sharpen:** "Video → audio" is not sufficient by itself. OmniRefine already uses
+video-side retention to modulate audio budget, and OmniSelect can choose video-centric
+pruning. VideoZip's defensible delta is the combination of:
+1. cached L6 Q*K video saliency as the driver,
+2. per-group audio compression using that video saliency,
+3. retained-audio anchoring inside ISTM video selection,
+4. no learned selector, no external AudioCLIP dependency, and no decoder-layer pruning.
+
+**Claim to avoid:** Do not say VideoZip is the only training-free video-guided audio
+compression method. The safer statement is that VideoZip is the cacheable, early-Thinker,
+bidirectionally anchored variant.
 
 ---
 
@@ -98,15 +120,16 @@ question conditioning.
 **Pipeline:**
 ```
 First query on a video:
-  full forward up to L6 → hidden_states[L6] → video_saliency_l6 → cache[video_id]
+  stock forward with an L6 Q*K hook → raw_video_scores[layer] → cache[video_id]
 Subsequent queries:
-  load cache[video_id] → skip the L6 forward entirely → use cached saliency
+  load cached 1D video score vector → skip live saliency compute → use cached saliency
 ```
 
-**Why this is novel:**
-- OmniZip+L6 cache (existing) caches AUDIO saliency only. Video pruning still needs live attn.
-- VideoZip+L6 cache flips this: VIDEO saliency is the cached signal (and now drives audio compression too).
-- Net: one cached forward → both modalities pruned without per-query saliency compute.
+**Why this matters:**
+- Existing L6 cache infrastructure already stores audio and video Q*K saliency vectors.
+- VideoZip+L6 consumes the cached VIDEO vector (and now uses it to drive audio compression too).
+- Net: one cached forward can drive pre-LLM compression without per-query decoder-layer
+  pruning or an external AudioCLIP-style modality classifier.
 
 **Substitution point:** Replaces only Step 1 of `omnizip_video_saliency()`. Steps 2–4
 (spatial aggregation, frame grouping, normalization) are unchanged. See §4a-L6 below.
@@ -167,23 +190,21 @@ def omnizip_video_saliency(
 
 ```python
 def omnizip_video_saliency_l6(
-    video_feature: torch.Tensor,
-    video_indices: torch.Tensor,
-    l6_hidden_states: torch.Tensor,       # [T, D] — cached from prior forward
+    l6_video_scores: torch.Tensor,        # [N_v] cached text→video Q*K scores
     num_input_frames: int,
     video_token_per_frame: int,
     num_groups: int,
 ) -> List[float]:
     """
-    Drop-in replacement for omnizip_video_saliency() that reads from a cached L6
-    activation snapshot instead of live attention logits.
+    Drop-in replacement for omnizip_video_saliency() that reads from a cached
+    1D L6 text→video Q*K saliency vector instead of live attention logits.
 
-    Importance scoring at L6: per-token L2 norm of hidden state (matches L6-cache
-    audio path in docs/method_l6_omnizip.md).
+    The cache stores per-video-token scores mean-reduced over attention heads and
+    text query positions under raw_video_scores[layer].
     """
-    N_v = video_feature.shape[0]
-    vid_hidden = l6_hidden_states[video_indices[:N_v]]
-    vid_importance = vid_hidden.norm(dim=-1)               # [N_v]
+    if l6_video_scores.dim() != 1:
+        raise ValueError("l6_video_scores must be 1D")
+    vid_importance = l6_video_scores                       # [N_v]
 
     # Steps 2-4 identical to omnizip_video_saliency()
     frames_x_spatial = vid_importance.reshape(num_input_frames, video_token_per_frame)
@@ -198,8 +219,9 @@ def omnizip_video_saliency_l6(
     return [v / mx for v in group_importances]
 ```
 
-**Cache key:** video file hash (or stable video_id) — saliency is question-invariant per
-the L6 finding (within-video std 0.0013).
+**Cache key:** normalized video file path, video file hash, or stable video_id. The cache
+payload is a 1D `raw_video_scores[layer]` vector, not hidden states; saliency is
+question-invariant per the L6 finding (within-video std 0.0013).
 
 ---
 
@@ -242,7 +264,7 @@ def omnizip_video_saliency_simonly(
 def omnizip_audio_compress(
     audio_feature: torch.Tensor,            # [N_a, D]
     video_feature: Optional[torch.Tensor],  # [N_v, D]
-    attn_logits: torch.Tensor,
+    audio_scores: torch.Tensor,             # [N_a] projected importance scores
     audio_groups: List[Tuple[int, int]],    # [(a_start, a_end), ...]
     audio_merging_ratios: List[float],      # one ratio per group
     contextual_ratio: float = 0.05,
@@ -257,11 +279,12 @@ def omnizip_audio_compress(
         if a_start >= a_end:
             continue
         group_feat = audio_feature[a_start:a_end]
+        group_scores = audio_scores[a_start:a_end]
         # video_feature passed in full — omnizip_audio_attn handles cross-modal
         group_mask, group_plan = omnizip_audio_attn(
             audio_feature=group_feat,
             video_feature=video_feature,
-            attn_logits=attn_logits,
+            attn_logits=group_scores,
             merging_ratio=ratio,
             contextual_ratio=contextual_ratio,
             g=g,
@@ -274,8 +297,12 @@ def omnizip_audio_compress(
 ```
 
 **Note:** Re-uses `omnizip_audio_attn()` per group — video still guides audio anchor selection
-within each group (via `sim_av`). This is correct: even in VideoZip, video helps SELECT
-which audio tokens to keep; but now VIDEO tells audio HOW MUCH to prune (the ratio).
+within each group (via `sim_av`). The important implementation detail is that full
+attention must first be projected into audio-local coordinates:
+`audio_scores = _project_importance_to_audio_scores(attn_logits, audio_indices)`.
+Each group then receives `audio_scores[a_start:a_end]`, not a raw slice of `[H,T,T]`
+attention. Video tells audio HOW MUCH to prune (the ratio); the projected scores tell
+`omnizip_audio_attn()` WHICH local audio tokens to keep.
 
 ---
 
@@ -387,8 +414,9 @@ def omnizip_videozip(
     audio_groups = _build_audio_groups(audio_feature.shape[0], num_groups)
     
     # 5. Per-group audio compression with video-derived ratios
+    audio_scores = _project_importance_to_audio_scores(attn_logits, audio_indices)
     audio_mask, merge_plan = omnizip_audio_compress(
-        audio_feature, video_feature, attn_logits,
+        audio_feature, video_feature, audio_scores,
         audio_groups, audio_merging_ratios, contextual_ratio, g,
     )
     
@@ -396,8 +424,9 @@ def omnizip_videozip(
     _apply_merge_plan(flat_embeds, audio_feature, audio_indices, video_feature, merge_plan)
     
     # 7. Video compression via ISTM with audio-guided anchor selection
+    audio_kept_features = flat_embeds[audio_indices][audio_mask]
     video_mask = _compress_video_istm(
-        video_feature, audio_feature, merging_ratio_v,
+        video_feature, audio_kept_features, merging_ratio_v,
         num_groups, video_token_per_frame, audio_anchor_beta,
     )
     
@@ -490,11 +519,23 @@ The same property should hold for **video** saliency — read once per video, re
 | Saliency source | Per-query cost | Cache | Expected acc | Prefill |
 |---|---|---|---|---|
 | Live attn logits (default) | full forward | none | baseline | 1.0× |
-| L6 hidden states (cached) | one-time per video | per-video | ≈ baseline | ~1.6× |
-| L6 hidden states (no cache) | partial forward to L6 | none | ≈ baseline | ~1.3× |
+| L6 Q*K video scores (cached) | one-time per video | per-video | ≈ baseline | ~1.6× |
+| L6 Q*K video scores (no cache) | partial forward to L6 + Q*K hook | none | ≈ baseline | ~1.3× |
 
-Adds a free 1.6× prefill speedup on top of VideoZip token reduction — a story that neither
-OmniSIFT (training) nor OmniZip (audio-side L6 only) can tell.
+Adds a cache-once-per-video path on top of VideoZip token reduction. This is the
+main systems distinction from OmniDrop and OmniSelect, whose pruning decisions are
+query-conditioned, and the main mechanistic distinction from OmniRefine, whose
+question-agnostic path is based on chunk refinement rather than early-Thinker Q*K saliency.
+
+### Ablation F: New-neighborhood baselines
+Run VideoZip against the newer families under matched retained-token budgets:
+
+| Baseline family | What to match | What it tests |
+|---|---|---|
+| OmniDrop-style | Same average retained ratio; query-conditioned text→AV saliency | Whether prompt-specific decoder-layer pruning beats cacheable pre-LLM saliency |
+| OmniSelect-style | Audio-centric / video-centric / uniform strategy choices | Whether external modality classification is better than internal video saliency |
+| OmniRefine-style | Native chunks vs refined chunks | Whether chunk-boundary refinement or VideoZip saliency explains gains |
+| Hybrid | Refined chunks + VideoZip video saliency | Whether VideoZip's signal composes with correspondence-preserving chunking |
 
 ---
 
@@ -513,15 +554,26 @@ OmniSIFT (training) nor OmniZip (audio-side L6 only) can tell.
 
 **Adaptive guide selection** (using attention entropy) should win overall.
 
+**Against OmniDrop / OmniRefine / OmniSelect:**
+1. VideoZip should be most attractive in multi-query or multi-turn settings where cached
+   video saliency can be reused across questions.
+2. OmniDrop should be stronger when each prompt needs highly query-specific token
+   selection and cache reuse is less important.
+3. OmniSelect should be strong when AudioCLIP cleanly separates audio-centric from
+   video-centric samples, but may inherit errors from the external modality classifier.
+4. OmniRefine should be strong when native audio/video chunks are misaligned; VideoZip
+   should be compared against it to test whether early-Thinker video saliency is a better
+   budget signal than frame-audio chunk correspondence.
+
 ---
 
 ## 9. Paper Section Mapping
 
 | Section | Content |
 |---|---|
-| Abstract | Training-free, video-guided audio compression; audio anchors video |
-| Intro | OmniZip's limitation: assumes audio is always the information-dense modality |
-| Related | OmniSIFT (trained, no anchoring), OmniZip (audio-guided) |
+| Abstract | Training-free, cacheable video-guided audio compression; retained audio anchors video |
+| Intro | Fixed-guide compression is brittle; query-guided layer pruning is powerful but less cacheable |
+| Related | OmniZip/OmniSIFT plus OmniDrop, OmniRefine, OmniSelect |
 | Method §3.1 | Video saliency scoring (frame-aggregated attention) |
 | Method §3.2 | video_group_retention → audio_merging_ratios |
 | Method §3.3 | Per-group audio compression with video-derived ratios |
@@ -541,8 +593,9 @@ OmniSIFT (training) nor OmniZip (audio-side L6 only) can tell.
 5. **`omnizip_videozip()`** — wire together steps 1-4
 6. **Config + CLI flags** in `demo.py` and `eval/eval.py`
 7. **Model dispatch** in `modeling_qwen2_5_omni.py`
-8. **`omnizip_video_saliency_l6()`** — read from cached L6 hidden states; reuse cache
-   infra from `docs/l6cache.md`. Headline speedup path. (~80 LOC + cache wiring)
+8. **`omnizip_video_saliency_l6()`** — read cached 1D L6 Q*K video scores from
+   `raw_video_scores[layer]`; reuse cache infra from `docs/l6cache.md`. Headline
+   speedup path. (~80 LOC + cache wiring)
 9. **`omnizip_video_saliency_simonly()`** — Aurelle's frozen-cross-modal baseline; one
    ablation row, no production path. (~30 LOC)
 10. **Saliency-source dispatch** in `omnizip_videozip()`: read `video_saliency_source` config
@@ -557,6 +610,9 @@ Total new code: ~400 lines. No changes to existing functions (backward compatibl
 |---|---|
 | Video saliency aggregation loses spatial detail | Add max-pooling variant: `frame_imp = vid_importance.reshape(T, S).max(1).values` |
 | ISTM audio-anchor cost (N_v × N_a sim matrix) | Only use dominant audio tokens (top-k from audio_mask) as anchors |
-| OmniSIFT already published this direction | Our novelty: training-free + audio-anchored ISTM + adaptive selection |
-| Video-group retention less predictive than audio | Run ablation D; publish as "task-adaptive guide" if adaptive wins |
+| OmniSIFT / OmniRefine / OmniSelect already cover parts of this direction | Frame novelty as cached early-Thinker video saliency + bidirectional anchoring, not generic video-guided audio pruning |
+| Video-group retention less predictive than audio | Run adaptive guide selection; publish as cacheable/adaptive pre-LLM compression if adaptive wins |
+| OmniDrop beats pre-LLM methods on query-specific tasks | Evaluate multi-query reuse and cache/KV-cache scenarios where prompt-dependent decoder pruning is less attractive |
+| OmniSelect's external AudioCLIP selector is more robust than internal video saliency | Add direct OmniSelect-style strategy baselines: audio-centric, video-centric, uniform, and VideoZip cached saliency |
+| OmniRefine's chunk refinement dominates the gain | Add a hybrid ablation: native chunks vs refined chunks with VideoZip saliency-driven audio ratios |
 | Attention logit alignment for video indices | Use `importance[video_indices]` (exact), not truncation — fixes OmniZip's bug too |

@@ -58,8 +58,14 @@ for _qwen_root in (
         break
 
 # Prepend PROJECT_ROOT LAST so the project-root `eval_qwen_omni_zip.py` is found
-# before any vendored copy inside OmniZip-main/.
-_prepend(_PROJECT_ROOT)
+# before any vendored copy inside OmniZip-main/. Force it to index 0 even when it is
+# already on sys.path (a script bootstrap or `python file.py` puts the absolute
+# project dir on the path first); otherwise `_prepend`'s "not in sys.path" guard is a
+# no-op and the vendored OmniZip-main/omnizip/eval_qwen_omni_zip.py shadows ours.
+_pr = str(_PROJECT_ROOT)
+if _pr in sys.path:
+    sys.path.remove(_pr)
+sys.path.insert(0, _pr)
 
 PROJECT_ROOT = _PROJECT_ROOT
 

@@ -25,9 +25,11 @@ Saliency source options (--video_saliency_source):
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,6 +56,169 @@ from transformers import Qwen2_5OmniProcessor
 
 from videozip.cache.loader import load_video_scores
 from videozip.src.videozip import omnizip_videozip
+
+ENV_MODEL_PATH_KEY = getattr(base, "ENV_MODEL_PATH_KEY", "QWEN_OMNI_MODEL_PATH")
+DEFAULT_MODEL_PATH = getattr(base, "DEFAULT_MODEL_PATH", "/data/armaan/models/Qwen2.5-Omni-7B")
+MODEL_VARIANT = getattr(base, "MODEL_VARIANT", "qwen2.5-omni")
+OMNIZIP_DEFAULT_RHO_AUDIO = getattr(base, "OMNIZIP_DEFAULT_RHO_AUDIO", 0.3)
+OMNIZIP_DEFAULT_RHO_VIDEO = getattr(base, "OMNIZIP_DEFAULT_RHO_VIDEO", 0.6)
+OMNIZIP_DEFAULT_G = getattr(base, "OMNIZIP_DEFAULT_G", 3)
+OMNIZIP_DEFAULT_CONTEXTUAL_RATIO = getattr(base, "OMNIZIP_DEFAULT_CONTEXTUAL_RATIO", 0.05)
+
+
+def _install_base_eval_compat() -> None:
+    """Fill in helper APIs missing from older copies of eval_qwen_omni_zip.py."""
+    if not hasattr(base, "MODEL_LOADED_ALLOC_GB"):
+        base.MODEL_LOADED_ALLOC_GB = None
+    if not hasattr(base, "MODEL_LOADED_RESERVED_GB"):
+        base.MODEL_LOADED_RESERVED_GB = None
+    if not hasattr(base, "RUN_CONFIG"):
+        base.RUN_CONFIG = {}
+
+    if not hasattr(base, "set_run_seed"):
+        def _set_run_seed(seed: int | None) -> None:
+            if seed is None:
+                return
+            import random
+            random.seed(seed)
+            np.random.seed(seed)
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(seed)
+        base.set_run_seed = _set_run_seed
+
+    if not hasattr(base, "_capture_current_vram_gb"):
+        def _capture_current_vram_gb() -> tuple[float, float]:
+            if not torch.cuda.is_available():
+                return 0.0, 0.0
+            return (
+                torch.cuda.memory_allocated() / 1024**3,
+                torch.cuda.memory_reserved() / 1024**3,
+            )
+        base._capture_current_vram_gb = _capture_current_vram_gb
+
+    if not hasattr(base, "_record_model_loaded_vram"):
+        def _record_model_loaded_vram() -> None:
+            alloc, reserved = base._capture_current_vram_gb()
+            base.MODEL_LOADED_ALLOC_GB = alloc
+            base.MODEL_LOADED_RESERVED_GB = reserved
+            print(f"Model loaded. VRAM: {alloc:.1f} GB allocated, {reserved:.1f} GB reserved")
+        base._record_model_loaded_vram = _record_model_loaded_vram
+
+    if not hasattr(base, "check_video_has_audio"):
+        def _check_video_has_audio(video_path: str) -> bool:
+            if shutil.which("ffprobe") is None:
+                return True
+            try:
+                cmd = [
+                    "ffprobe", "-v", "error",
+                    "-select_streams", "a:0",
+                    "-show_entries", "stream=codec_type",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    video_path,
+                ]
+                out = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                    check=False,
+                )
+                return "audio" in out.stdout.lower()
+            except Exception:
+                return True
+        base.check_video_has_audio = _check_video_has_audio
+
+    if not hasattr(base, "resolve_video_path"):
+        def _resolve_video_path(file_field: str, videos_dir: str) -> str | None:
+            candidates = [
+                Path(file_field),
+                Path(videos_dir) / file_field,
+                Path(videos_dir) / Path(file_field).name,
+            ]
+            for cand in candidates:
+                if cand.exists():
+                    return str(cand)
+            target = Path(file_field).name
+            for cand in Path(videos_dir).rglob(target):
+                if cand.is_file():
+                    return str(cand)
+            return None
+        base.resolve_video_path = _resolve_video_path
+
+    if not hasattr(base, "Tee"):
+        class Tee:
+            def __init__(self, path: str):
+                self.file = open(path, "a", encoding="utf-8")
+                self.stdout = sys.__stdout__
+
+            def write(self, data: str) -> None:
+                self.stdout.write(data)
+                self.file.write(data)
+                self.flush()
+
+            def flush(self) -> None:
+                self.stdout.flush()
+                self.file.flush()
+        base.Tee = Tee
+
+    if not hasattr(base, "StderrTee"):
+        class StderrTee:
+            def __init__(self, file_obj, stderr):
+                self.file = file_obj
+                self.stderr = stderr
+
+            def write(self, data: str) -> None:
+                self.stderr.write(data)
+                self.file.write(data)
+                self.flush()
+
+            def flush(self) -> None:
+                self.stderr.flush()
+                self.file.flush()
+        base.StderrTee = StderrTee
+
+
+_install_base_eval_compat()
+
+
+def run_inference_compat(
+    model,
+    processor,
+    video_path: str,
+    dataset: str,
+    question: str,
+    choices: list,
+    use_audio: bool,
+    *,
+    measure_prefill: bool,
+):
+    """Call base.run_inference across old/new eval_qwen_omni_zip signatures."""
+    kwargs = {}
+    try:
+        sig = inspect.signature(base.run_inference)
+        if "measure_prefill" in sig.parameters:
+            kwargs["measure_prefill"] = measure_prefill
+    except (TypeError, ValueError):
+        pass
+
+    result = base.run_inference(
+        model,
+        processor,
+        video_path,
+        dataset,
+        question,
+        choices,
+        use_audio,
+        **kwargs,
+    )
+
+    if len(result) == 5:
+        return result
+    if len(result) == 4:
+        pred, reasoning, orig_nf, used_nf = result
+        return pred, reasoning, orig_nf, used_nf, {}
+    raise RuntimeError(f"Unexpected run_inference return length: {len(result)}")
 
 
 # ── Cached-video controller ──────────────────────────────────────────────────
@@ -198,7 +363,7 @@ def main() -> int:
     p.add_argument("--device", default=None,
                    help="e.g. cuda:0. Recommended for OmniZip/VideoZip — multi-GPU sharding "
                         "has known rope_deltas issues.")
-    p.add_argument("--model", default=None, help=f"Model path (or set {base.ENV_MODEL_PATH_KEY}).")
+    p.add_argument("--model", default=None, help=f"Model path (or set {ENV_MODEL_PATH_KEY}).")
     p.add_argument("--metadata", default="videos/metadata.json")
     p.add_argument("--videos", default="videos")
     p.add_argument("--output", default="vizzing/results_videozip.jsonl")
@@ -210,10 +375,10 @@ def main() -> int:
     p.add_argument("--max_frames_videomme", type=int, default=768)
     p.add_argument("--max_frames_other", type=int, default=128)
     p.add_argument("--no_audio", action="store_true")
-    p.add_argument("--rho_audio", type=float, default=base.OMNIZIP_DEFAULT_RHO_AUDIO)
-    p.add_argument("--rho_video", type=float, default=base.OMNIZIP_DEFAULT_RHO_VIDEO)
-    p.add_argument("--g", type=int, default=base.OMNIZIP_DEFAULT_G)
-    p.add_argument("--contextual_ratio", type=float, default=base.OMNIZIP_DEFAULT_CONTEXTUAL_RATIO)
+    p.add_argument("--rho_audio", type=float, default=OMNIZIP_DEFAULT_RHO_AUDIO)
+    p.add_argument("--rho_video", type=float, default=OMNIZIP_DEFAULT_RHO_VIDEO)
+    p.add_argument("--g", type=int, default=OMNIZIP_DEFAULT_G)
+    p.add_argument("--contextual_ratio", type=float, default=OMNIZIP_DEFAULT_CONTEXTUAL_RATIO)
     p.add_argument("--max_new_tokens", type=int, default=4096)
     p.add_argument("--temperature", type=float, default=0.0)
     p.add_argument("--seed", type=int, default=None)
@@ -225,7 +390,7 @@ def main() -> int:
 
     base.set_run_seed(args.seed)
 
-    model_path = args.model or os.environ.get(base.ENV_MODEL_PATH_KEY) or base.DEFAULT_MODEL_PATH
+    model_path = args.model or os.environ.get(ENV_MODEL_PATH_KEY) or DEFAULT_MODEL_PATH
 
     if (not args.no_audio) and shutil.which("ffmpeg") is None:
         print("WARNING: ffmpeg not in PATH. MP4 audio decode needs ffmpeg (or use --no_audio).")
@@ -346,7 +511,7 @@ def main() -> int:
                         pass
 
                     try:
-                        pred, reasoning, orig_nf, used_nf, timing = base.run_inference(
+                        pred, reasoning, orig_nf, used_nf, timing = run_inference_compat(
                             model, processor, video_path, dataset, question, choices,
                             use_audio, measure_prefill=args.measure_prefill,
                         )
@@ -424,7 +589,7 @@ def main() -> int:
                     total += 1
 
                     result = {
-                        "model_variant": base.MODEL_VARIANT,
+                        "model_variant": MODEL_VARIANT,
                         "method": "videozip",
                         "video_saliency_source": args.video_saliency_source,
                         "cache_layer": args.layer,
