@@ -1,0 +1,74 @@
+
+--- worldsense/Temporal Prediction ---
+Traceback (most recent call last):
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 514, in main
+    pred, reasoning, orig_nf, used_nf, timing = run_inference_compat(
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 205, in run_inference_compat
+    result = base.run_inference(
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in run_inference
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 58, in cuda_time_ms
+    out = fn()
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in <lambda>
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 4654, in generate
+    thinker_result = self.thinker.generate(input_ids=input_ids, **thinker_kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 2597, in generate
+    result = self._sample(
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 3557, in _sample
+    outputs = self(**model_inputs, return_dict=True)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 2561, in forward
+    inputs_embeds, global_mask = omnizip(
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 278, in wrapped
+    return omnizip_videozip(
+  File "/data/armaan/purs/videozip/src/videozip.py", line 307, in omnizip_videozip
+    video_group_retention = _aggregate_video_scores_to_groups(
+  File "/data/armaan/purs/videozip/src/videozip.py", line 133, in _aggregate_video_scores_to_groups
+    raise ValueError(
+ValueError: Cached L6 video saliency length (5577) != live video tokens (num_input_frames=78 * video_token_per_frame=71 = 5538). The eval's video preprocessing (fps/max_frames/max_pixels) must match the cache build config in precompute_l6_saliency.py (defaults: fps=2.0, max_frames=64, max_pixels=100800).
+
+
+--- worldsense/Temporal Prediction ---
+Traceback (most recent call last):
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 514, in main
+    pred, reasoning, orig_nf, used_nf, timing = run_inference_compat(
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 205, in run_inference_compat
+    result = base.run_inference(
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in run_inference
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 58, in cuda_time_ms
+    out = fn()
+  File "/data/armaan/purs/eval_qwen_omni_zip.py", line 410, in <lambda>
+    prefill_ms, _ = cuda_time_ms(lambda: model.generate(**gen_in, **prefill_kw))
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 4654, in generate
+    thinker_result = self.thinker.generate(input_ids=input_ids, **thinker_kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 2597, in generate
+    result = self._sample(
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/transformers/generation/utils.py", line 3557, in _sample
+    outputs = self(**model_inputs, return_dict=True)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/armaan/venvs/omnizip_clean/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/armaan/purs/OmniZip-main/omnizip/modeling_qwen2_5_omni.py", line 2561, in forward
+    inputs_embeds, global_mask = omnizip(
+  File "/data/armaan/purs/videozip/eval/eval_videozip.py", line 278, in wrapped
+    return omnizip_videozip(
+  File "/data/armaan/purs/videozip/src/videozip.py", line 307, in omnizip_videozip
+    video_group_retention = _aggregate_video_scores_to_groups(
+  File "/data/armaan/purs/videozip/src/videozip.py", line 133, in _aggregate_video_scores_to_groups
+    raise ValueError(
+ValueError: Cached L6 video saliency length (5577) != live video tokens (num_input_frames=78 * video_token_per_frame=71 = 5538). The eval's video preprocessing (fps/max_frames/max_pixels) must match the cache build config in precompute_l6_saliency.py (defaults: fps=2.0, max_frames=64, max_pixels=100800).
+
